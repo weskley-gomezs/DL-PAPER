@@ -1,0 +1,6 @@
+{
+  "name": "DL Magic Paper",
+  "description": "Catálogo premium e interativo de papelaria personalizada. Criatividade, afeto e propósito em cada detalhe.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

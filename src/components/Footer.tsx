@@ -1,8 +1,9 @@
 import React from "react";
-import { Sparkles, Instagram, MessageCircle, Heart } from "lucide-react";
-import { INSTAGRAM_HANDLE, INSTAGRAM_URL, WHATSAPP_FORMATTED, WHATSAPP_NUMBER, IMAGES } from "../data";
+import { Instagram, MessageCircle, Heart, Lock } from "lucide-react";
+import { useAppContext } from "../context/DataContext";
 
 export default function Footer() {
+  const { data, setIsAdminOpen } = useAppContext();
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
@@ -51,7 +52,7 @@ export default function Footer() {
           <div className="md:col-span-5 space-y-4 text-left">
             <div className="flex items-center">
               <img 
-                src={IMAGES.logo} 
+                src={data.logo} 
                 alt="DL Magic Paper Logo" 
                 className="w-32 h-32 object-contain"
                 referrerPolicy="no-referrer"
@@ -99,11 +100,11 @@ export default function Footer() {
                 
                 {/* Instagram button */}
                 <a
-                  href={INSTAGRAM_URL}
+                  href={data.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="w-9 h-9 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-brand-pink hover:text-white transition-all shadow-xs"
-                  title="Acesse nosso Instagram @dlmagicpaper"
+                  title={`Acesse nosso Instagram ${data.instagramHandle}`}
                   id="footer_instagram_btn"
                 >
                   <Instagram className="w-4 h-4" />
@@ -111,11 +112,11 @@ export default function Footer() {
 
                 {/* Whatsapp button */}
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  href={`https://wa.me/${data.whatsappNumber}`}
                   target="_blank"
                   rel="noreferrer"
                   className="w-9 h-9 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-emerald-500 hover:text-white transition-all shadow-xs"
-                  title={`Contate-nos pelo WhatsApp ${WHATSAPP_FORMATTED}`}
+                  title={`Contate-nos pelo WhatsApp ${data.whatsappFormatted}`}
                   id="footer_whatsapp_btn"
                 >
                   <MessageCircle className="w-5 h-5 fill-slate-300/10 hover:fill-transparent" />
@@ -124,9 +125,9 @@ export default function Footer() {
               </div>
 
               <p className="text-[10px] text-slate-500 pt-2 font-medium">
-                Celular DF: {WHATSAPP_FORMATTED}
+                Celular DF: {data.whatsappFormatted}
                 <br />
-                Instagram: {INSTAGRAM_HANDLE}
+                Instagram: {data.instagramHandle}
               </p>
 
             </div>
@@ -136,7 +137,17 @@ export default function Footer() {
 
         {/* Lower row Copyrights */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[11px] font-medium" id="footer_copyright_row">
-          <p>© {currentYear} DL MAGIC PAPER — Todos os direitos reservados.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <span>© {currentYear} DL MAGIC PAPER — Todos os direitos reservados.</span>
+            <button 
+              onClick={() => setIsAdminOpen(true)}
+              className="flex items-center gap-1 hover:text-brand-pink text-slate-500 transition-colors bg-transparent border-0 cursor-pointer font-semibold"
+              id="admin_footer_trigger"
+            >
+              <Lock className="w-3 h-3" />
+              Painel do Administrador
+            </button>
+          </div>
           <p className="flex items-center gap-1 shrink-0 font-light">
             Feito com carinho, criatividade e propósito <Heart className="w-3 h-3 text-brand-pink fill-brand-pink animate-pulse" /> em Brasília
           </p>

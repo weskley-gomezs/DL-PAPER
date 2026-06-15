@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageCircle, ShoppingBag, X, Trash2, Plus, Minus, Send, Heart, Sparkles, AlertCircle } from "lucide-react";
 import { BudgetItem } from "../types";
-import { WHATSAPP_NUMBER, WHATSAPP_FORMATTED, INSTAGRAM_HANDLE, IMAGES } from "../data";
+import { useAppContext } from "../context/DataContext";
 
 interface BudgetFloatProps {
   isOpen: boolean;
@@ -21,6 +21,7 @@ export default function BudgetFloat({
   onRemoveItem,
   onUpdateQuantity,
 }: BudgetFloatProps) {
+  const { data } = useAppContext();
   
   const [clientName, setClientName] = useState("");
   const [eventDate, setEventDate] = useState("");
@@ -45,7 +46,11 @@ export default function BudgetFloat({
       const minCost = p.minPrice * item.quantity;
       const maxCost = p.maxPrice * item.quantity;
       listText += `• *${item.quantity}x* ${p.name}\n`;
-      listText += `  _Preço est.:_ R$ ${minCost} a R$ ${maxCost}\n`;
+      if (p.minPrice === p.maxPrice) {
+        listText += `  _Preço:_ R$ ${minCost.toFixed(2).replace(".", ",")}\n`;
+      } else {
+        listText += `  _Preço est.:_ R$ ${minCost.toFixed(2).replace(".", ",")} a R$ ${maxCost.toFixed(2).replace(".", ",")}\n`;
+      }
       if (item.theme) listText += `  _Tema:_ ${item.theme}\n`;
       if (item.notes) listText += `  _Obs:_ ${item.notes}\n\n`;
     });
@@ -62,13 +67,13 @@ Olá DL Magic Paper! Acabei de simular meu orçamento de papelaria personalizada
 *Itens no Carrinho:*
 ${listText}
 ---
-💰 *Estimativa Total:* de *R$ ${totalMin.toFixed(0)}* a *R$ ${totalMax.toFixed(0)}*
+💰 *Valor Total do Pedido:* *R$ ${totalMin.toFixed(2).replace(".", ",")}*
 _(O valor oficial será enviado após combinarmos a arte de cada item)_
 
 Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
 
     const encodedMsg = encodeURIComponent(finalMessage);
-    const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMsg}`;
+    const whatsappLink = `https://wa.me/${data.whatsappNumber}?text=${encodedMsg}`;
     
     // Redirect cleanly
     window.location.href = whatsappLink;
@@ -102,7 +107,7 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
 
         {/* Pulse Support WhatsApp Anchor */}
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=Ol%C3%A1%20DL%20Magic%20Paper!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20as%20lembrancinhas%20personalizadas.`}
+          href={`https://wa.me/${data.whatsappNumber}?text=Ol%C3%A1%20DL%20Magic%20Paper!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20as%20lembrancinhas%20personalizadas.`}
           target="_blank"
           rel="noreferrer"
           className="pointer-events-auto relative flex items-center justify-center w-14 h-14 bg-emerald-500 text-white rounded-full shadow-2xl hover:bg-emerald-600 hover:scale-[1.08] transition-all group"
@@ -236,7 +241,11 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
 
                             {/* Cost estimate for quantity */}
                             <span className="text-[11px] font-extrabold text-slate-600 font-sans">
-                              R$ {(item.product.minPrice * item.quantity).toFixed(0)} - {(item.product.maxPrice * item.quantity).toFixed(0)}
+                              {item.product.minPrice === item.product.maxPrice ? (
+                                `R$ ${(item.product.minPrice * item.quantity).toFixed(2).replace(".", ",")}`
+                              ) : (
+                                `R$ ${(item.product.minPrice * item.quantity).toFixed(2).replace(".", ",")} - ${(item.product.maxPrice * item.quantity).toFixed(2).replace(".", ",")}`
+                              )}
                             </span>
 
                           </div>
@@ -264,9 +273,15 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                   {/* Estimativa Subtotal Display */}
                   <div className="bg-brand-pastel-bg border border-pink-100/60 rounded-2xl p-4 text-left">
                     <div className="flex items-baseline justify-between mb-1">
-                      <span className="font-sans text-xs tracking-wide text-slate-400 font-bold uppercase">Estimativa Total:</span>
+                      <span className="font-sans text-xs tracking-wide text-slate-400 font-bold uppercase">Subtotal:</span>
                       <span className="font-serif font-extrabold text-xl text-brand-pink">
-                        R$ {totalMin.toFixed(0)} <span className="text-slate-400 text-xs font-normal font-sans">a</span> R$ {totalMax.toFixed(0)}
+                        {totalMin === totalMax ? (
+                          `R$ ${totalMin.toFixed(2).replace(".", ",")}`
+                        ) : (
+                          <>
+                            R$ {totalMin.toFixed(2).replace(".", ",")} <span className="text-slate-400 text-xs font-normal font-sans">a</span> R$ {totalMax.toFixed(2).replace(".", ",")}
+                          </>
+                        )}
                       </span>
                     </div>
                     <p className="font-sans text-[10px] text-slate-400 leading-normal font-light">

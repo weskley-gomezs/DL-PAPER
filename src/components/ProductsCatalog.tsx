@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, Plus, Minus, Check, Sparkles, Heart, Info, ShoppingBag } from "lucide-react";
 import { Product } from "../types";
-import { PRODUCTS, CATEGORIES } from "../data";
+import { useAppContext } from "../context/DataContext";
 
 interface ProductsCatalogProps {
   onAddProduct: (product: Product, quantity: number, notes?: string, theme?: string) => void;
 }
 
 export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) {
+  const { data } = useAppContext();
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
@@ -30,7 +31,7 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
   }, []);
 
   // Filter products based on active criteria
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const filteredProducts = data.products.filter((product) => {
     const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,7 +109,7 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
           
           {/* Categories Tab */}
           <div className="flex flex-wrap items-center justify-center gap-2" id="catalog_tabs">
-            {CATEGORIES.map((category) => (
+            {data.categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
@@ -229,12 +230,23 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
                   {/* Pricing and Action Block */}
                   <div className="mt-4 pt-4 border-t border-dashed border-slate-100 space-y-3">
                     
-                    {/* Price Range */}
+                    {/* Price Display */}
                     <div className="flex items-baseline justify-between">
-                      <span className="font-sans text-xs text-slate-400 font-medium">Estimativa:</span>
-                      <span className="font-sans font-extrabold text-lg text-slate-700">
-                        R$ {product.minPrice.toFixed(0)} <span className="text-slate-400 text-xs font-normal">a</span> R$ {product.maxPrice.toFixed(0)} <span className="text-slate-400 text-[10px] font-normal font-sans block">por unidade</span>
-                      </span>
+                      <span className="font-sans text-xs text-slate-400 font-medium">Valor:</span>
+                      <div className="text-right">
+                        <span className="font-sans font-extrabold text-lg text-slate-700">
+                          {product.minPrice === product.maxPrice ? (
+                            `R$ ${product.minPrice.toFixed(2).replace(".", ",")}`
+                          ) : (
+                            <>
+                              R$ {product.minPrice.toFixed(2).replace(".", ",")} <span className="text-slate-400 text-xs font-normal">a</span> R$ {product.maxPrice.toFixed(2).replace(".", ",")}
+                            </>
+                          )}
+                        </span>
+                        <span className="text-slate-400 text-[10px] font-normal font-sans block">
+                          {product.category === "Kits de Caixas" || product.category === "Combos e Kits" ? "por lote/kit/combo" : "por unidade"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Mini customization input fields inside card (luxurious UX) */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag } from "lucide-react";
-import { INSTAGRAM_HANDLE, INSTAGRAM_URL, WHATSAPP_FORMATTED, WHATSAPP_NUMBER, IMAGES } from "../data";
+import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings } from "lucide-react";
+import { useAppContext } from "../context/DataContext";
 
 interface HeaderProps {
   onOpenBudgetSidebar: () => void;
@@ -9,8 +9,10 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderProps) {
+  const { data, setIsAdminOpen } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
 
   // Monitor screen scroll to change background
   useEffect(() => {
@@ -100,7 +102,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
               id="header_logo"
             >
               <img 
-                src={IMAGES.logo} 
+                src={data.logo} 
                 alt="DL Magic Paper Logo" 
                 className="w-20 h-20 sm:w-28 sm:h-28 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
                 referrerPolicy="no-referrer"
@@ -125,13 +127,23 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
             {/* Right Side Icons & CTA */}
             <div className="flex items-center gap-3" id="header_controls">
               
+              {/* Admin Panel Launcher */}
+              <button
+                onClick={() => setIsAdminOpen(true)}
+                className="flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-brand-pink hover:bg-pink-50 transition-all cursor-pointer"
+                title="Painel de Administração (Administrador)"
+                id="admin_panel_launcher_header"
+              >
+                <Settings className="w-5 h-5 text-slate-500 hover:text-brand-pink" />
+              </button>
+
               {/* Instagram URL icon */}
               <a
-                href={INSTAGRAM_URL}
+                href={data.instagramUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="hidden sm:flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-brand-pink hover:bg-pink-50 transition-all"
-                title="Instagram @dlmagicpaper"
+                title={`Instagram ${data.instagramHandle}`}
                 id="social_instagram_link"
               >
                 <Instagram className="w-5 h-5" />
@@ -224,13 +236,13 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
 
               <div className="flex items-center justify-center gap-4 py-2 mt-1">
                 <a
-                  href={INSTAGRAM_URL}
+                  href={data.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brand-pink"
                 >
                   <Instagram className="w-5 h-5 text-pink-500" />
-                  {INSTAGRAM_HANDLE}
+                  {data.instagramHandle}
                 </a>
               </div>
             </div>

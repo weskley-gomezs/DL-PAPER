@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
 import { Instagram, MapPin, Send, MessageCircle, AlertCircle, Sparkles, Calendar, Heart, ShieldCheck } from "lucide-react";
-import { INSTAGRAM_HANDLE, INSTAGRAM_URL, WHATSAPP_FORMATTED, WHATSAPP_NUMBER } from "../data";
+import { useAppContext } from "../context/DataContext";
 
 export default function Contact() {
+  const { data } = useAppContext();
   const [formData, setFormData] = useState({
     nome: "",
     whatsapp: "",
@@ -35,7 +36,7 @@ export default function Contact() {
 _Enviado através do site catálogo DL Magic Paper._`;
 
     const encodedText = encodeURIComponent(textMessage);
-    const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`;
+    const whatsappLink = `https://wa.me/${data.whatsappNumber}?text=${encodedText}`;
 
     // Update state to show success
     setIsSent(true);
@@ -244,7 +245,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
                 
                 {/* Whatsapp details click */}
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  href={`https://wa.me/${data.whatsappNumber}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-start gap-4 p-3 rounded-2xl hover:bg-emerald-50/50 border border-transparent hover:border-emerald-100 transition-all group"
@@ -255,14 +256,14 @@ _Enviado através do site catálogo DL Magic Paper._`;
                   </div>
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 leading-tight">WhatsApp do Ateliê</h4>
-                    <p className="text-base font-extrabold text-slate-700 mt-0.5">{WHATSAPP_FORMATTED}</p>
+                    <p className="text-base font-extrabold text-slate-700 mt-0.5">{data.whatsappFormatted}</p>
                     <span className="text-[10px] text-emerald-600 font-semibold underline block mt-0.5">Falar agora de Brasília</span>
                   </div>
                 </a>
 
                 {/* Instagram details click */}
                 <a
-                  href={INSTAGRAM_URL}
+                  href={data.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-start gap-4 p-3 rounded-2xl hover:bg-pink-50/50 border border-transparent hover:border-pink-100 transition-all group"
@@ -273,7 +274,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
                   </div>
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 leading-tight">Instagram Oficial</h4>
-                    <p className="text-base font-extrabold text-slate-700 mt-0.5">{INSTAGRAM_HANDLE}</p>
+                    <p className="text-base font-extrabold text-slate-700 mt-0.5">{data.instagramHandle}</p>
                     <span className="text-[10px] text-brand-pink font-semibold underline block mt-0.5">Seguir nossa rotina</span>
                   </div>
                 </a>

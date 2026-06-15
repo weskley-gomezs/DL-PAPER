@@ -1,12 +1,14 @@
 import { motion } from "motion/react";
 import { Sparkles, ArrowRight, Heart, Calendar } from "lucide-react";
-import { IMAGES } from "../data";
+import { useAppContext } from "../context/DataContext";
 
 interface HeroProps {
   onOpenBudgetSidebar: () => void;
 }
 
 export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
+  const { data } = useAppContext();
+
   const handleScrollToCatalog = () => {
     const catalogEl = document.getElementById("catalogo");
     if (catalogEl) {
@@ -43,7 +45,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/60 border border-pink-200/50 text-brand-pink text-xs sm:text-sm font-semibold tracking-wide font-sans shadow-xs"
             >
               <Sparkles className="w-3.5 h-3.5 animate-pulse text-brand-pink" />
-              <span>Ateliê de Papelaria Personalizada ✨</span>
+              <span>{data.heroTexts.tag}</span>
             </motion.div>
 
             <div className="space-y-4">
@@ -53,9 +55,9 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight"
               >
-                <span className="text-slate-800">Mágica em forma de papel:</span>
+                <span className="text-slate-800 lg:block">{data.heroTexts.titlePrefix}</span>{" "}
                 <span className="block mt-2 bg-gradient-to-r from-brand-pink via-brand-lilac to-brand-tiffany bg-clip-text text-transparent">
-                  DL MAGIC PAPER
+                  {data.heroTexts.titleColored}
                 </span>
               </motion.h1>
 
@@ -65,7 +67,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="font-serif italic text-lg sm:text-xl lg:text-2xl text-slate-500 font-semibold max-w-xl mx-auto lg:mx-0"
               >
-                “Personalizando com propósito.”
+                {data.heroTexts.subtitle}
               </motion.p>
 
               <motion.p
@@ -74,7 +76,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="font-sans text-base sm:text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light"
               >
-                Transformamos detalhes simples em experiências inesquecíveis através da nossa papelaria rica em camadas, carinho e dedicação artesanal.
+                {data.heroTexts.description}
               </motion.p>
             </div>
 
@@ -153,7 +155,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
               {/* Main Image Frame (Contains our generated stationery mockup) */}
               <div className="w-full h-full rounded-[2rem] overflow-hidden bg-slate-100 relative group shadow-inner">
                 <img
-                  src={IMAGES.hero}
+                  src={data.heroImage}
                   alt="Flatlay Papelaria Personalizada DL Magic Paper"
                   className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
                   referrerPolicy="no-referrer"

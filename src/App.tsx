@@ -9,9 +9,11 @@ import Testimonials from "./components/Testimonials";
 import Contact from "./components/Contact";
 import BudgetFloat from "./components/BudgetFloat";
 import Footer from "./components/Footer";
+import AdminPanel from "./components/AdminPanel";
+import { DataProvider } from "./context/DataContext";
 import { Product, BudgetItem } from "./types";
 
-export default function App() {
+function AppContent() {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
 
@@ -107,6 +109,17 @@ export default function App() {
       {/* 10. Core trademark page Footer */}
       <Footer />
 
+      {/* 11. Custom Admin Control Center Drawer Overlay */}
+      <AdminPanel />
+
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <DataProvider>
+      <AppContent />
+    </DataProvider>
   );
 }

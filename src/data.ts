@@ -15,140 +15,327 @@ export const WHATSAPP_FORMATTED = "(61) 99888-9577";
 
 export const CATEGORIES = [
   "Todos",
+  "Caixas Avulsas",
+  "Kits de Caixas",
+  "Lembrancinhas",
+  "Docinhos",
   "Topos de Bolo",
-  "Caixas Personalizadas",
-  "Tubolatas",
-  "Adesivos",
-  "Kits Festa"
+  "Combos e Kits"
 ];
 
 export const PRODUCTS: Product[] = [
-  // Topos de Bolo
+  // 📦 CAIXAS PERSONALIZADAS AVULSAS
   {
-    id: "topo-simples",
-    name: "Topo de Bolo Simples",
-    category: "Topos de Bolo",
-    minPrice: 18,
-    maxPrice: 25,
-    description: "Ideal para comemorações intimistas. Produzido em papel de alta gramatura (180g) e corte preciso para dar charme especial ao seu bolo.",
-    image: "https://cdn.awsli.com.br/2500x2500/409/409878/produto/240005991/20230929_162453-2-me2ds5c66a.jpg",
-    badge: "Delicado",
-    features: ["Camada simples", "Palitos transparentes de acrílico", "Corte eletrônico perfeito", "Até 3 elements personalizados"]
+    id: "caixa-sem-laco",
+    name: "Caixa sem Laço",
+    category: "Caixas Avulsas",
+    minPrice: 1.40,
+    maxPrice: 1.40,
+    description: "Item econômico e prático para presentes leves. Produzido com corte preciso eletrônico em papel offset de alta gramatura.",
+    image: "https://static.welban.com.br/public/welban/imagens/produtos/caixa-para-06-doces-sem-visor-kraft-unidade-conceito-64274d7feb711.jpg",
+    badge: "Econômico",
+    features: ["Papel offset de 180g", "Corte eletrônico perfeito", "Encaixe inteligente simples", "Personalização com alta fidelidade"]
   },
   {
-    id: "topo-dupla",
-    name: "Topo de Bolo Dupla Camada",
-    category: "Topos de Bolo",
-    minPrice: 30,
-    maxPrice: 45,
-    description: "Efeito 3D espetacular com sobreposição de papéis especiais (lamecote, glitter ou colorplus). Dá profundidade, brilho e luxo ao bolo principal.",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzIXm9ZQLVL9goJQVBAhkHCDOm2kBQS1Aeeg&s",
+    id: "caixa-bala",
+    name: "Caixa Bala",
+    category: "Caixas Avulsas",
+    minPrice: 2.00,
+    maxPrice: 2.00,
+    description: "Formato charmoso que remete a uma bala gigante de caramelo com fechamento duplo lateral por laço.",
+    image: "https://cdn.awsli.com.br/800x800/817/817549/produto/141285951/cf9a663486.jpg",
+    features: ["Dois fechos de fita finos", "Design elegante e divertido", "Especial para chocolates e confeitos", "Destaque horizontal único"]
+  },
+
+  // 🎁 KITS DE CAIXAS PERSONALIZADAS
+  {
+    id: "kit-caixas-15",
+    name: "Kit 15 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 22.90,
+    maxPrice: 22.90,
+    description: "Kit econômico contendo 15 caixas mistas selecionadas (9 caixas sem laço + 6 caixas com laço).",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    badge: "Kit Slim",
+    features: ["9 Caixas sem laço inclusas", "6 Caixas com laço inclusas", "Qualquer tema escolhido", "Dobras fáceis e seguras"]
+  },
+  {
+    id: "kit-caixas-20",
+    name: "Kit 20 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 30.90,
+    maxPrice: 30.90,
+    description: "Excelente custo-benefício com 20 caixas selecionadas (12 caixas sem laço + 8 caixas com laço).",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    badge: "Custo-Benefício",
+    features: ["12 Caixas simples inclusas", "8 Caixas com laço inclusas", "Estampa super viva e brilhosa", "Perfeito para lembrancinhas de mesa"]
+  },
+  {
+    id: "kit-caixas-25",
+    name: "Kit 25 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 38.90,
+    maxPrice: 38.90,
+    description: "O segredo para uma comemoração encantadora contendo 25 caixas mistas (15 caixas sem laço + 10 caixas com laço).",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    features: ["15 Caixas sem laço inclusas", "10 Caixas com laço inclusas", "Ideal para festas de porte médio", "Acabamentos eletrônicos rigorosos"]
+  },
+  {
+    id: "kit-caixas-30",
+    name: "Kit 30 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 45.90,
+    maxPrice: 45.90,
+    description: "Maravilhoso conjunto com 30 caixas mistas equilibradas (18 caixas sem laço + 12 caixas com laço) para uma linda simetria na decoração.",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
     badge: "Mais Vendido",
-    features: ["Efeito 3D em camadas", "Detalhes em papel dourado ou prata", "Até 6 elementos temáticos", "Personalização com nome e idade"]
-  },
-  
-  // Caixas Personalizadas
-  {
-    id: "caixa-milk",
-    name: "Caixa Milk Especial",
-    category: "Caixas Personalizadas",
-    minPrice: 7,
-    maxPrice: 10,
-    description: "A clássica caixinha de festa em sua versão premium. Decorada com laço de cetim volumoso, strass e apliques 3D.",
-    image: "https://down-br.img.susercontent.com/file/br-11134207-7r98o-lsudotjf99no1c",
-    badge: "Indispensável",
-    features: ["Laço magnífico de cetim", "Aplique em camadas 3D", "Fundo de fácil montagem", "Impressão em alta definição"]
+    features: ["18 Caixas simples inclusas", "12 Caixas com laço inclusas", "Encaixe sob medida robusto", "Camadas 3D integradas nas tampas"]
   },
   {
-    id: "caixa-piramide",
-    name: "Caixa Pirâmide (Cone)",
-    category: "Caixas Personalizadas",
-    minPrice: 7,
-    maxPrice: 9,
-    description: "Perfeita para compor as laterais da mesa, imitando pequenas árvores ou torres temáticas. Visual marcante estruturado.",
-    image: "https://images.tcdn.com.br/img/img_prod/504105/caixa_cone_piramide_14_1_20170225064654.jpg",
-    features: ["Formato cônico elegante", "Aplique temático frontal 3D", "Feita em papel fotográfico fosco", "Cores vibrantes e fiéis"]
+    id: "kit-caixas-35",
+    name: "Kit 35 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 53.90,
+    maxPrice: 53.90,
+    description: "A escolha favorita para montar lindas colunas organizadas na mesa. (21 caixas sem laço + 14 caixas com laço).",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    features: ["21 Caixas sem laço inclusas", "14 Caixas com laço inclusas", "Papel reforçado de altíssima fidelidade", "Cores vibrantes que encantam as mães"]
   },
   {
-    id: "caixa-sushi",
-    name: "Caixa Sushi Chic",
-    category: "Caixas Personalizadas",
-    minPrice: 8,
-    maxPrice: 12,
-    description: "Com design oriental contemporâneo e fechamento charmoso. Ideal para doces finos, trufas ou pequenos mimos artesanais.",
-    image: "https://cdn.awsli.com.br/1802/1802445/produto/88528417/67274205c6.jpg",
-    features: ["Fecho diferenciado em cima", "Berço para aplique superior", "Detalhe em papel perolado", "Vincos perfeitos por compressão"]
+    id: "kit-caixas-40",
+    name: "Kit 40 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 61.90,
+    maxPrice: 61.90,
+    description: "Kit encorpado de 40 caixas personalizadas para aniversários de grande presença física e farta distribuição.",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    features: ["40 Caixas temáticas luxuosas", "Mix de modelos à combinar", "Artesanato impecável Danyelle Lau", "Pronto para fazer brilhar sua mesa"]
   },
   {
-    id: "caixa-canudo",
-    name: "Caixa Canudo Elegante",
-    category: "Caixas Personalizadas",
-    minPrice: 8,
-    maxPrice: 11,
-    description: "Uma embalagem estilosa que acompanha um canudo decorativo de papel e um lindo pingente ou aplique temático preso a ele.",
-    image: "https://nilmaraquintela.com.br/wp-content/uploads/2019/12/kit-canudo.jpg",
-    badge: "Moderna",
-    features: ["Canudo decorativo de papel", "Pingente com franja ou fita", "Estrutura firme e compacta", "Estampa contínua 360 graus"]
+    id: "kit-caixas-45",
+    name: "Kit 45 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 68.90,
+    maxPrice: 68.90,
+    description: "Excelente conjunto volumoso de 45 peças para grandes salões trazendo dobras robustas e excelente brilho expositivo.",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    features: ["45 Caixas com cortes impecáveis", "Várias opções de montagem", "Acabamentos simétricos", "Memória durável para convidados"]
+  },
+  {
+    id: "kit-caixas-50",
+    name: "Kit 50 Caixas Personalizadas",
+    category: "Kits de Caixas",
+    minPrice: 76.90,
+    maxPrice: 76.90,
+    description: "Nosso maior e mais majestoso kit de caixas. Perfeito para preencher mesas gigantes de bento-grid com visual espetacular.",
+    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    badge: "Super Kit",
+    features: ["50 Caixas personalizadas", "Mix sob consultoria no WhatsApp", "Material fotográfico premium", "Maior índice de economia por unidade"]
   },
 
-  // Tubolatas
+  // 🍭 LEMBRANCINHAS PERSONALIZADAS AVULSAS
   {
-    id: "tubolata-3d",
-    name: "Tubolata 3D Decorada",
-    category: "Tubolatas",
-    minPrice: 10,
-    maxPrice: 15,
-    description: "Lembrança luxuosa e durável. Cofrinho ou porta-guloseimas rígido revestido com papel personalizado e apliques volumosos na tampa.",
-    image: "https://acdn-us.mitiendanube.com/stores/764/570/products/00000-4-9c38edd129977bc24817500814629931-1024-1024.webp",
-    badge: "Destaque",
-    features: ["Corpo de papelão rígido", "Tampa dourada, branca ou colorida", "Aplique em relevo 3D de destaque", "Laço Chanel ou fita cetim inclusa"]
+    id: "lembrancinha-tubete",
+    name: "Tubete Personalizado",
+    category: "Lembrancinhas",
+    minPrice: 1.40,
+    maxPrice: 1.40,
+    description: "Frasco cilíndrico acrílico transparente com adesivo super nítido de alta aderência para guloseimas coloridas.",
+    image: "https://cdn.dooca.store/259/products/fgpzrwjvqnljyg0pw6ysoelmlpumwpzsbfxn_640x640+fill_ffffff.jpg?v=1582746430&webp=0",
+    features: ["Acrílico rígido seguro", "Adesivo impermeável fosco/brilho", "Perfeito para mini confeitos", "Sucesso garantido entre as crianças"]
+  },
+  {
+    id: "lembrancinha-latinha",
+    name: "Latinha Personalizada",
+    category: "Lembrancinhas",
+    minPrice: 2.20,
+    maxPrice: 2.20,
+    description: "Patinha clássica de fechamento hermético personalizado, ideal para compor bacias e bandejas temáticas com balas de menta.",
+    image: "https://imgs.pontofrio.com.br/1509697522/1xg.jpg?imwidth=500",
+    features: ["Lacre de excelente aderência", "Personalização com brilho intenso", "Fácil transporte e distribuição", "Indicado para confeitos pequenos"]
+  },
+  {
+    id: "lembrancinha-sacolinha",
+    name: "Sacolinha Personalizada",
+    category: "Lembrancinhas",
+    minPrice: 4.90,
+    maxPrice: 4.90,
+    description: "Sacola de papel com alças de cetim ou cordão elegante. O invólucro ideal para presentear doces maiores do aniversário.",
+    image: "https://cdn.awsli.com.br/485/485900/arquivos/sacola-kraft-para-lembrancinhas.jpg",
+    badge: "Recomendado",
+    features: ["Alça de corda ou fita cetim", "Papel de excelente espessura", "Laterais reforçadas", "Destaque marcante na hora de ir embora"]
+  },
+  {
+    id: "lembrancinha-porta-kitkat",
+    name: "Porta KitKat",
+    category: "Lembrancinhas",
+    minPrice: 2.20,
+    maxPrice: 2.20,
+    description: "Embalagem estrutural premium exclusiva de papelão fino para a amada barra de chocolate KitKat.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTViIa4NZOmZBAV7rF507EkwMsvBeJjltUwt-ozpVWzmD6qq06UwbViklkA&s=10",
+    features: ["Fundo de fechamento inteligente", "Cabe 1 barra clássica KitKat", "Destaque nos apliques em relevo", "Charme adicional nos acabamentos"]
+  },
+  {
+    id: "lembrancinha-cofrinho",
+    name: "Cofrinho Personalizado",
+    category: "Lembrancinhas",
+    minPrice: 3.50,
+    maxPrice: 3.50,
+    description: "Cofrinho cilíndrico rígido encapado com papel fotográfico premium. Estimula e decora de forma lúdica.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEw6y8NnOqJOSECtO6U6LTI5AdMDpf88k4bD8Vbh7XfQ&s=10",
+    features: ["Fenda superior reforçada", "Tampa plástica removível colorida", "Impressão brilhante sem marcas", "Um excelente presente ecológico"]
   },
 
-  // Adesivos
+  // 🍬 DOCINHOS PERSONALIZADOS
   {
-    id: "adesivos-escolares",
-    name: "Kit Adesivos Escolares",
-    category: "Adesivos",
-    minPrice: 18,
-    maxPrice: 35,
-    description: "Cartelas de adesivos à prova d'água de diversos tamanhos para identificar cadernos, lápis, estojos e garrafinhas com o tema preferido.",
-    image: "https://cf.shopee.com.br/file/c01f3162d9643719ea2cc0515207aa70",
-    badge: "Prático",
-    features: ["Material vinil impermeável", "Não desbota nem rasga na lavagem", "Vários formatos inclusos", "Letras altamente legíveis"]
+    id: "doce-caixa-6",
+    name: "Caixa para 6 Doces",
+    category: "Docinhos",
+    minPrice: 8.90,
+    maxPrice: 8.90,
+    description: "Caixa organizadora perfeita com divisória de proteção individual para até 6 doces gourmets.",
+    image: "https://images.tcdn.com.br/img/img_prod/574525/caixa_para_6_doces_kraft_119_2_20190705095514.jpg",
+    features: ["6 Cavidades bem seguras", "Tampa com encaixe perfeito", "Excelente acabamento lateral", "Visor transparente largo"]
   },
   {
-    id: "adesivos-lembrancinhas",
-    name: "Adesivos para Lembrancinhas",
-    category: "Adesivos",
-    minPrice: 12,
-    maxPrice: 25,
-    description: "Rótulos redondos ou quadrados ideais para personalizar potinhos, sacolinhas, tubetes e mini refrigerantes da sua própria festa.",
-    image: "https://images.tcdn.com.br/img/img_prod/504105/adesivos_6x6_cm_363_1_c15ff3005135b7a4563541bf40b4f634.jpg",
-    features: ["Meio-corte redondo ou quadrado", "Material fotográfico brilhante", "Adesivo de alta aderência", "Personalização de data e nome"]
+    id: "doce-caixa-12",
+    name: "Caixa para 12 Doces",
+    category: "Docinhos",
+    minPrice: 15.90,
+    maxPrice: 15.90,
+    description: "Tamanho generoso e tampa articulável exclusiva. O presente preferido de fim de ano para professores e família.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmfWvb89rq_Mrv3Bh81x9EmZa2XTwCejL1xBzsFeMSlicPetNxHXApW7Ae&s=10",
+    features: ["12 Divisórias anti-impacto", "Uso excelente nas festividades de fim de ano", "Abas protetoras exclusivas", "Impressão personalizada inclusa"]
   },
 
-  // Kits Festa
+  // 🍬 VERSÃO PREMIUM COM LAÇO
   {
-    id: "kit-festa-classico",
-    name: "Kit Festa Clássico",
-    category: "Kits Festa",
-    minPrice: 120,
-    maxPrice: 180,
-    description: "Perfeito para quem quer uma comemoração encantadora e compacta. Reúne topo de bolo dupla camada e uma linda seleção das nossas caixas mais famosas.",
-    image: "https://down-br.img.susercontent.com/file/br-11134207-7r98o-m1bfwf33378gb3",
-    badge: "Super Recomendado",
-    features: ["1 Topo de Bolo Dupla Camada", "5 Caixas Milk", "5 Caixas Pirâmide", "5 Caixas Sushi", "Bandeirolas com nome (até 8 letras)"]
+    id: "premium-caixa-4",
+    name: "Caixa Premium 4 Doces (com Laço)",
+    category: "Docinhos",
+    minPrice: 8.90,
+    maxPrice: 8.90,
+    description: "Versão de luxo da caixa de 4 doces trazendo um refinado laço de cetim de alta fita e apliques em relevo dourado.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShVmOA1MuYJ7GZlwBXmwfRoWCPVYizMCm2EIAVAQPzGfYq2ELjgmIxFVXD&s=10",
+    badge: "Premium",
+    features: ["Acompanha fita e giga laço", "Estereoscopia 3D frontal", "Visor trabalhado com vinco", "Acabamento aristocrático fino"]
   },
   {
-    id: "kit-luxo",
-    name: "Kit Luxo Ateliê",
-    category: "Kits Festa",
-    minPrice: 220,
-    maxPrice: 380,
-    description: "A experiência máxima de encantamento e sofisticação gastronômica e estética para sua mesa. Itens repletos de gitter, acrílico espelhado e texturas ricas.",
-    image: IMAGES.partyFavors,
-    badge: "Premium Ostentação",
-    features: ["1 Topo de Bolo Luxo Espelhado", "8 Caixas Milk Premium com Laço Isométrico", "8 Caixas Canudo Luxury", "8 Tubolatas 3D com texturas laminadas", "10 Forminhas personalizadas", "Atendimento VIP com simulação temática"]
+    id: "premium-caixa-8",
+    name: "Caixa Premium 8 Doces (com Laço)",
+    category: "Docinhos",
+    minPrice: 12.90,
+    maxPrice: 12.90,
+    description: "A joia das lembrancinhas de luxo. Laço grandioso com fita importada e apliques minuciosos de camadas peroladas.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUcbBY2Q94leD-8NWnAL7mG4Znx0Lq_RHpSdjgXyLjt9gXoGdF9j1tQTi7&s=10",
+    badge: "Premium",
+    features: ["Laço farto decorado", "Papel especial texturizado", "Excelente para batizados e casamentos", "Acabamento manual impecável"]
+  },
+  {
+    id: "premium-caixa-16",
+    name: "Caixa Premium 16 Doces (com Laço)",
+    category: "Docinhos",
+    minPrice: 22.90,
+    maxPrice: 22.90,
+    description: "O auge da sofisticação afetiva de doces. Caixa majestosa com giga laço decorado e pingente temático.",
+    image: "https://www.finebox.com.br/1425-large_default/caixa-para-16-doces-e-bombons-branco.jpg",
+    badge: "Luxo Extremo",
+    features: ["Giga laço de volumetria extrema", "Pingente acrílico/papel brilhante", "O presente definitivo para anfitriões", "Corte micro-laser limpo"]
+  },
+
+  // 🎂 TOPO DE BOLO
+  {
+    id: "topo-com-nome",
+    name: "Topo Simples com Nome em Destaque",
+    category: "Topos de Bolo",
+    minPrice: 15.90,
+    maxPrice: 15.90,
+    description: "Acrescenta realce no nome principal com corte eletrônico duplo e pequena sobreposição 3D.",
+    image: "https://cdn.awsli.com.br/2500x2500/409/409878/produto/240005991/20230929_162453-2-me2ds5c66a.jpg",
+    badge: "Mais Procurado",
+    features: ["Nome em destaque em duas camadas", "Excelente relevo visual", "Até 5 elementos decorativos inclusos", "Encaixe firme no bolo"]
+  },
+
+
+  // 🎈 KITS DE LEMBRANCINHAS (MÍNIMO 5 PRODUTOS)
+  {
+    id: "kit-economico",
+    name: "Kit Econômico de Lembrancinhas",
+    category: "Combos e Kits",
+    minPrice: 49.90,
+    maxPrice: 49.90,
+    description: "Selecione esta deliciosa opção de preenchimento inteligente contendo 25 peças (5 Tubetes, 5 Caixas Milk, 5 Caixas Pirâmide, 5 Caixas Bala, 5 Caixas Cubo).",
+    image: "https://i.imgur.com/jgc3GmX.jpeg",
+    badge: "Super Poupança",
+    features: ["5 Tubetes inclusos", "5 Caixas Milk inclusas", "5 Caixas Pirâmide inclusas", "5 Caixas Bala inclusas", "5 Caixas Cubo inclusas", "Total de 25 itens elegantes"]
+  },
+  {
+    id: "kit-classic",
+    name: "Kit Clássico de Lembrancinhas",
+    category: "Combos e Kits",
+    minPrice: 59.90,
+    maxPrice: 59.90,
+    description: "A experiência ideal trazendo charme artesanal robusto com 25 peças de grande requinte (5 Tubetes, 5 Tubolatas, 5 Caixas Milk, 5 Caixas Pirâmide, 5 Caixas Sushi).",
+    image: "https://i.imgur.com/kSVXiPa.jpeg",
+    badge: "Best Seller",
+    features: ["5 Tubetes inclusos", "5 Tubolatas decoradas inclusas", "5 Caixas Milk inclusas", "5 Caixas Pirâmide inclusas", "5 Caixas Sushi inclusas", "Total de 25 itens com laço"]
+  },
+  {
+    id: "kit-encantado",
+    name: "Kit Encantado de Lembrancinhas",
+    category: "Combos e Kits",
+    minPrice: 79.90,
+    maxPrice: 79.90,
+    description: "Encha os olhos dos seus familiares com 25 lembranças premium (5 Tubetes, 5 Tubolatas, 5 Sacolinhas, 5 Marmitinhas, 5 Caixas Milk).",
+    image: "https://i.imgur.com/s5bo2Fr.jpeg",
+    badge: "Recomendado",
+    features: ["5 Tubetes", "5 Tubolatas", "5 Sacolinhas imponentes", "5 Marmitinhas", "5 Caixas Milk volumosas", "Visual farto e impactante"]
+  },
+  {
+    id: "kit-premium",
+    name: "Kit Premium de Lembrancinhas",
+    category: "Combos e Kits",
+    minPrice: 99.90,
+    maxPrice: 99.90,
+    description: "Perfeito para lembranças inesquecíveis contendo 25 luxuosos mimos (5 Tubetes, 5 Tubolatas, 5 Sacolinhas, 5 Marmitinhas, 5 Cofrinhos).",
+    image: "https://i.imgur.com/Ff2IkJn.jpeg",
+    badge: "Luxo Supremo",
+    features: ["5 Tubetes", "5 Tubolatas", "5 Sacolinhas", "5 Marmitinhas", "5 Cofrinhos", "Nossa melhor combinação para close-ups lucrativos"]
+  },
+
+  // 🎉 COMBOS COMPLETOS PARA FESTA
+  {
+    id: "combo-basico",
+    name: "Combo Básico de Festa",
+    category: "Combos e Kits",
+    minPrice: 34.90,
+    maxPrice: 34.90,
+    description: "A facilidade encantadora para o bolinho de casa contendo um Kit de 15 caixas completas e um Topo de bolo simples coordenados.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHI-8U0kZHidcrgDJxHaPnEAy461Mt5HBAr6nKmHAe5KSmX-tQxtG2lrY&s=10",
+    badge: "Pocket Party",
+    features: ["Kit 15 Caixas (9 simples + 6 laço)", "1 Topo de Bolo Simples", "Tudo com design impecável Danyelle Lau", "Indicado para reuniões até 10 pessoas"]
+  },
+  {
+    id: "combo-classic",
+    name: "Combo Clássico de Festa",
+    category: "Combos e Kits",
+    minPrice: 99.90,
+    maxPrice: 99.90,
+    description: "Completa a sua festa de forma brilhante contendo um Kit de 20 caixas selecionadas, um Topo de bolo dupla camada 3D e um Kit Econômico completo (25 lembranças).",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHI-8U0kZHidcrgDJxHaPnEAy461Mt5HBAr6nKmHAe5KSmX-tQxtG2lrY&s=10",
+    badge: "Sucesso Absoluto",
+    features: ["Kit 20 Caixas mistas", "1 Topo de Bolo Dupla Camada 3D", "Kit Econômico de 25 peças", "Total de 46 itens na mesa", "Praticidade e economia majestosa"]
+  },
+  {
+    id: "combo-premium",
+    name: "Combo Premium do Ateliê",
+    category: "Combos e Kits",
+    minPrice: 169.90,
+    maxPrice: 169.90,
+    description: "Nossa experiência de maior sucesso e abundância estética. Contém Kit de 30 caixas mistas de luxo, um Topo de bolo dupla camada premium e o Kit de Lembrancinhas Premium completo (25 mimos).",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHI-8U0kZHidcrgDJxHaPnEAy461Mt5HBAr6nKmHAe5KSmX-tQxtG2lrY&s=10",
+    badge: "Festa de Cinema",
+    features: ["Kit 30 Caixas completas", "1 Topo de Bolo Dupla Camada Premium", "Kit Premium de 25 mimos com cofrinhos", "Total de 56 recordações inesquecíveis", "Atendimento exclusivo com simulação prévia"]
   }
 ];
 
@@ -156,7 +343,7 @@ export const THEMES: ThemeItem[] = [
   {
     id: "stitch-rosa",
     name: "Stitch Rosa",
-    image: "https://p19-common-sign.tiktokcdn-us.com/tos-maliva-p-0068/o4AkfPF2GgIWIZ21AFLASojh5EefPACQIwghID~tplv-tiktokx-origin.image?dr=9636&x-expires=1779836400&x-signature=ZVJXQ4n3ELPvvhTUI1S6uUxggb0%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=55bbe6a9&idc=useast5",
+    image: "https://dicasdedecoracao.com.br/wp-content/uploads/2025/06/decoracao-stitch05fada90b5c56dd3801c38cce437de27.jpg",
     colors: ["#FF6699", "#D3C2FF", "#E0F7FA"],
     vibe: "TROPICAL, ALEGRE E SUPER FOFO"
   },

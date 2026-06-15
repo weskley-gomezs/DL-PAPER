@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Calendar, Heart, Palette } from "lucide-react";
-import { THEMES } from "../data";
+import { useAppContext } from "../context/DataContext";
 
 export default function ThemesGallery() {
+  const { data } = useAppContext();
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
 
   return (
@@ -29,7 +30,7 @@ export default function ThemesGallery() {
 
         {/* Gallery Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="themes_gallery_grid">
-          {THEMES.map((theme, idx) => {
+          {data.themes.map((theme, idx) => {
             const isHovered = activeThemeId === theme.id;
             return (
               <motion.div

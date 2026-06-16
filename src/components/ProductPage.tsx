@@ -529,7 +529,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                 </div>
                 <div className="text-right hidden sm:block">
                   <span className="inline-block px-2.5 py-1 bg-pink-50 border border-pink-100 rounded-lg text-brand-pink font-sans text-[10px] font-black uppercase tracking-wide">
-                    Artisanal
+                    Artesanal
                   </span>
                   <p className="text-[9px] text-slate-400 mt-1 font-sans">Produção: 7-15 dias</p>
                 </div>

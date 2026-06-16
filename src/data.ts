@@ -65,7 +65,7 @@ export const PRODUCTS: Product[] = [
     category: "Caixas Avulsas",
     minPrice: 1.40,
     maxPrice: 1.72,
-    description: "Formato trapézio charmoso com encaixes perfeitos de segurança. Pode ser decorada with um elegante laço de cetim ou na versão simples e limpa.",
+    description: "Formato trapézio charmoso com encaixes perfeitos de segurança. Pode ser decorada com um elegante laço de cetim ou na versão simples e limpa.",
     image: "https://i.imgur.com/NVSCT1a.jpeg",
     badge: "Clássica",
     features: ["Base trapézio firme", "Encaixe inteligente de fundo", "Fita de cetim decorativa opcional", "Fácil preenchimento de doces"]
@@ -147,7 +147,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 3.50,
     maxPrice: 3.50,
     description: "Cofrinho rígido encapado com rótulo fotográfico alto-brilho e tampas plásticas removíveis coloridas.",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEw6y8NnOqJOSECtO6U6LTI5AdMDpf88k4bD8Vbh7XfQ&s=10",
+    image: "https://images.tcdn.com.br/img/img_prod/660758/10_cofrinhos_personalizados_lembrancinhas_temas_a_1_20250915163439_5185e920e077.jpg",
     badge: "Mín. 10 unid.",
     features: ["Papel fotográfico brilhante", "Lembrança útil e ecológica", "Tampas coloridas de acordo com a paleta"]
   },

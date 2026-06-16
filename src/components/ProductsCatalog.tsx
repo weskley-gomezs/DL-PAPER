@@ -26,7 +26,7 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
     return () => window.removeEventListener("filterCategory", handleFilterEvent);
   }, []);
 
-  // Filter products based on active criteria and sort "Kits" to the front (first)
+  // Filter products based on active criteria and prioritize kits and key/higher value products
   const filteredProducts = data.products
     .filter((product) => {
       const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
@@ -40,9 +40,23 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
       const aIsKit = a.category === "Kits de Caixas" || a.category.toLowerCase().includes("kit") || a.name.toLowerCase().includes("kit");
       const bIsKit = b.category === "Kits de Caixas" || b.category.toLowerCase().includes("kit") || b.name.toLowerCase().includes("kit");
       
+      // 1. Prioritize Kits to the top
       if (aIsKit && !bIsKit) return -1;
       if (!aIsKit && bIsKit) return 1;
-      return 0;
+      
+      // 2. Prioritize products >= R$ 10,00 (key high-value products)
+      const aIsExpensive = a.maxPrice >= 10;
+      const bIsExpensive = b.maxPrice >= 10;
+      if (aIsExpensive && !bIsExpensive) return -1;
+      if (!aIsExpensive && bIsExpensive) return 1;
+      
+      // 3. Sort by price (max price) descending
+      if (b.maxPrice !== a.maxPrice) {
+        return b.maxPrice - a.maxPrice;
+      }
+      
+      // 4. Default: alphabetical sort
+      return a.name.localeCompare(b.name);
     });
 
   return (

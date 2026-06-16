@@ -58,16 +58,16 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
       {/* Full-width container of the banner */}
       <div className="w-full relative z-10 select-none">
         
-        {/* Grand E-Commerce Promo Banner element - Edge to Edge width */}
+        {/* Grand E-Commerce Promo Banner element - Edge to Edge width with responsive aspect ratio */}
         <div 
           className="relative w-full overflow-hidden shadow-xs border-y border-slate-200/40 bg-white group"
           id="hero_ecommerce_banner"
         >
-          {/* Helper Image: This image is invisible but determines the natural height of the container perfectly, preventing vertical cropping */}
+          {/* Helper Image: This determines the natural height of the container perfectly on all devices, avoiding distortion */}
           <img
             src={banners[0]}
-            alt="Helper"
-            className="w-full h-auto pointer-events-none opacity-0 invisible"
+            alt="Helper Layout Guide"
+            className="w-full h-auto pointer-events-none opacity-0 invisible block"
           />
 
           {/* Silder Active Image Layer */}
@@ -77,7 +77,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
                 key={currentSlide}
                 src={banners[currentSlide]}
                 alt={`DL Magic Paper Banner Promocional ${currentSlide + 1}`}
-                initial={{ opacity: 0, scale: 1.01 }}
+                initial={{ opacity: 0, scale: 1 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
@@ -126,46 +126,46 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
 
         {/* Lower Store Benefits Block & CTAs within max container of the page for perfect design alignment */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-5 sm:p-6 rounded-[1.5rem] border border-slate-200/50 shadow-xs">
+          <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-between gap-5 bg-white p-4 sm:p-5 rounded-[1.5rem] border border-slate-200/50 shadow-xs">
             
-            {/* Virtual Store Info Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:w-auto md:flex-1 animate-fade-in">
-              <div className="flex items-start gap-3 text-left">
+            {/* Virtual Store Info Badges - Mobile: Slider Horizontal Scroll, Desktop/Tablet: Grid columns */}
+            <div className="flex flex-row lg:grid lg:grid-cols-3 gap-6 lg:gap-4 w-full lg:flex-1 overflow-x-auto lg:overflow-visible pb-2.5 lg:pb-0 scrollbar-none [&::-webkit-scrollbar]:hidden animate-fade-in">
+              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
                 <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
                   <Calendar className="w-4 h-4" />
                 </div>
-                <div className="font-sans">
-                  <h4 className="text-xs font-bold text-slate-700">100% Personalizado</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Adicionamos o nome, idade e o tema que você preferir.</p>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">100% Personalizado</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Adicionamos o nome, idade e o tema que você preferir.</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 text-left">
+              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
                 <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
                   <HeartHandshake className="w-4 h-4" />
                 </div>
-                <div className="font-sans">
-                  <h4 className="text-xs font-bold text-slate-700">Atendimento Especial</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Ajustamos laços, fitas e cores direto pelo WhatsApp.</p>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">Atendimento Especial</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Ajustamos laços, fitas e cores direto pelo WhatsApp.</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 text-left">
+              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
                 <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
-                <div className="font-sans">
-                  <h4 className="text-xs font-bold text-slate-700">Orçamento sem Complicações</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Adicione os mimos favoritos e envie com um clique no WhatsApp.</p>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">Orçamento sem Complicações</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Adicione os mimos favoritos e envie com um clique no WhatsApp.</p>
                 </div>
               </div>
             </div>
 
             {/* Quick CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 md:pl-4 md:border-l md:border-dashed md:border-slate-200">
+            <div className="flex flex-row items-center gap-3 w-full lg:w-auto shrink-0 justify-between sm:justify-start lg:justify-end pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-dashed border-slate-200 lg:pl-5">
               <button
                 onClick={handleScrollToCatalog}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-5 py-2.5 rounded-full font-sans text-xs font-bold shadow-md shadow-brand-pink/10 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer whitespace-nowrap active:scale-98"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-5 py-2.5 rounded-full font-sans text-xs font-bold shadow-md shadow-brand-pink/10 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer whitespace-nowrap active:scale-98"
               >
                 Explorar Produtos
                 <ArrowRight className="w-4 h-4" />
@@ -173,7 +173,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
 
               <button
                 onClick={onOpenBudgetSidebar}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-full font-sans text-xs font-bold hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer whitespace-nowrap active:scale-98"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-full font-sans text-xs font-bold hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer whitespace-nowrap active:scale-98"
               >
                 <Heart className="w-4 h-4 text-brand-pink fill-brand-pink/15" />
                 Ver Carrinho

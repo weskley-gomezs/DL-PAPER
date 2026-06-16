@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ProductsCatalog from "./components/ProductsCatalog";
@@ -12,6 +11,7 @@ import Footer from "./components/Footer";
 import AdminPanel from "./components/AdminPanel";
 import { DataProvider } from "./context/DataContext";
 import { Product, BudgetItem } from "./types";
+import { useState } from "react";
 
 function AppContent() {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);

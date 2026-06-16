@@ -2,7 +2,7 @@ import { Product, ThemeItem, Differential, Testimonial } from "./types";
 
 // Bespoke generated images
 export const IMAGES = {
-  hero: "/src/assets/images/hero_stationery_1779734437655.png",
+  hero: "https://i.imgur.com/MK4ydyR.jpeg",
   about: "/src/assets/images/creative_studio_1779734454290.png",
   partyFavors: "/src/assets/images/party_favors_1779734471509.png",
   logo: "https://i.imgur.com/fVtEcdv.png"

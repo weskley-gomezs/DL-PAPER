@@ -73,7 +73,7 @@ const LOCAL_STORAGE_KEY = "dl_magic_paper_admin_data";
 
 const defaultState: AppDataState = {
   logo: "https://i.imgur.com/fVtEcdv.png",
-  heroImage: "/src/assets/images/hero_stationery_1779734437655.png",
+  heroImage: "https://i.imgur.com/MK4ydyR.jpeg",
   aboutImage: "https://i.imgur.com/nsjJjnO.jpeg",
   partyFavorsImage: "/src/assets/images/party_favors_1779734471509.png",
   whatsappNumber: "5561998889577",
@@ -160,6 +160,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // If they had the ancient local path or old Imgur link, upgrade it to the new given Imgur link
         if (merged.aboutImage === "/src/assets/images/creative_studio_1779734454290.png" || merged.aboutImage === "https://i.imgur.com/OzgQoTA.png") {
           merged.aboutImage = "https://i.imgur.com/nsjJjnO.jpeg";
+        }
+        
+        if (merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" || !merged.heroImage) {
+          merged.heroImage = "https://i.imgur.com/MK4ydyR.jpeg";
         }
         
         // Automatically upgrade to the new beautiful Danyelle Lau / DLPaper story if they have the old placeholder

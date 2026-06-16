@@ -158,7 +158,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 4.90,
     maxPrice: 4.90,
     description: "Sacola de papel com reforço lateral e lindas abas com cordões em fita de cetim. A embalagem final perfeita.",
-    image: "https://cdn.awsli.com.br/485/485900/arquivos/sacola-kraft-para-lembrancinhas.jpg",
+    image: "https://i.imgur.com/QLJ0hjg.png",
     badge: "Mín. 10 unid.",
     features: ["Fita de cetim luxuosa", "Papel reforçado durável", "Tema ilustrado completo nas laterais"]
   },
@@ -169,7 +169,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 3.50,
     maxPrice: 3.50,
     description: "Marmitinha clássica de alumínio com tampa fotográfica personalizada. Um sucesso tradicional de festas.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://http2.mlstatic.com/D_NQ_NP_799263-MLB83907410878_042025-O.webp",
     badge: "Mín. 10 unid.",
     features: ["Alumínio resistente", "Tampa impermeável brilhosa", "Ideal para fatias de bolo e docinhos"]
   },
@@ -180,7 +180,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.80,
     maxPrice: 1.80,
     description: "Embalagem suporte divertida projetada sob medida para abrigar dois chocolates Bis com aplique 3D.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://images.tcdn.com.br/img/img_prod/504105/caixa_bis_duplo_28_1_20200329081915.jpg",
     badge: "Mín. 10 unid.",
     features: ["Serve 2 chocolates Bis", "Elemento 3D saliente", "Enche a mesa com pequenos charmes"]
   },
@@ -237,7 +237,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 15.90,
     maxPrice: 15.90,
     description: "Combina as tags clássicas com o nome do aniversariante em relevo de camadas destacadas.",
-    image: "https://cdn.awsli.com.br/2500x2500/409/409878/produto/240005991/20230929_162453-2-me2ds5c66a.jpg",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjYMqC9SJrw06ZLacechZlMWaXh6jvaRBHfSPChqh715AJdb9Q9yn7Azw&s=10",
     badge: "Recomendado",
     features: ["Nome em destaque 3D", "Sobreposição elegante", "Aproximadamente 6 peças decorativas"]
   },
@@ -248,7 +248,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 22.90,
     maxPrice: 22.90,
     description: "O topo definitivo de luxo com todas as tags montadas em dupla camada de papéis coloridos especiais.",
-    image: "https://cdn.awsli.com.br/2500x2500/409/409878/produto/240005991/20230929_162453-2-me2ds5c66a.jpg",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGNaeJcooQwA6VPnfakKehv9ink0s_Xy0t8yfAUs7-XZ0PKsUMB5fVe-8S&s=10",
     badge: "Premium 3D",
     features: ["Efeito real 3D no bolo", "Papéis especiais metalizados/texturas", "Várias camadas coladas à mão"]
   },
@@ -261,7 +261,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 6.90,
     maxPrice: 44.90,
     description: "Kits de forminhas personalizadas para doces. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Premium) desejados.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/30506403/877af77799.jpg",
     badge: "Configurável",
     features: ["Várias quantidades (20, 30, 50, 100)", "Linhas Simples e Premium 3D", "Papelaria afetiva fotográfica premium", "Pedido mínimo de 20 forminhas"]
   },
@@ -274,7 +274,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 7.90,
     maxPrice: 54.90,
     description: "Mini toppers de alta resolução fixados em palito de acrílico higiênico. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Dupla Camada).",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://ciadafesta.cdn.magazord.com.br/img/2024/06/produto/8953/topper.png?ims=600x600",
     badge: "Configurável",
     features: ["Várias quantidades (20, 30, 50, 100)", "Opções Simples e Dupla Camada 3D", "Hastes acrílicas de alta qualidade", "Pedido mínimo de 20 toppers"]
   }

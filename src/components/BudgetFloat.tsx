@@ -213,9 +213,19 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                           </h4>
                           
                           {/* Mini Details info */}
-                          <div className="flex flex-wrap gap-x-2 text-[10px] text-slate-400 font-medium font-sans">
-                            {item.theme && <span>🎨 Tema: {item.theme}</span>}
-                            {item.notes && <span>✍️ Obs: {item.notes}</span>}
+                          <div className="flex flex-col gap-1 text-[10px] text-slate-400 font-medium font-sans">
+                            <div className="flex flex-wrap gap-x-2">
+                              {item.theme && <span>🎨 Tema: {item.theme}</span>}
+                              {item.notes && <span>✍️ Obs: {item.notes}</span>}
+                            </div>
+                            
+                            {/* Validation warning */}
+                            {item.product.category === "Lembrancinhas" && item.quantity < 10 && (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md w-fit">
+                                <AlertCircle className="w-3 h-3 text-amber-500 shrink-0" />
+                                Pedido mínimo de 10 unidades deste item
+                              </span>
+                            )}
                           </div>
 
                           <div className="flex items-center justify-between pt-1.5">

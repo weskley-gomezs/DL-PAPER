@@ -9,6 +9,7 @@ import Contact from "./components/Contact";
 import BudgetFloat from "./components/BudgetFloat";
 import Footer from "./components/Footer";
 import AdminPanel from "./components/AdminPanel";
+import ProductPage from "./components/ProductPage";
 import { DataProvider } from "./context/DataContext";
 import { Product, BudgetItem } from "./types";
 import { useState } from "react";
@@ -16,6 +17,7 @@ import { useState } from "react";
 function AppContent() {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
+  const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
   // Add Item to active budget catalog
   const handleAddProductToBudget = (product: Product, quantity: number, notes?: string, theme?: string) => {
@@ -71,30 +73,51 @@ function AppContent() {
 
       {/* 1. Header (Navbar, controls & dynamic cart toggles) */}
       <Header
-        onOpenBudgetSidebar={() => setIsBudgetOpen(true)}
+        onOpenBudgetSidebar={() => {
+          setIsBudgetOpen(true);
+        }}
         cartItemsCount={cartItemsCount}
       />
 
-      {/* 2. Hero (Primary section, visual illustration layout) */}
-      <Hero onOpenBudgetSidebar={() => setIsBudgetOpen(true)} />
+      {activeProduct ? (
+        <ProductPage
+          product={activeProduct}
+          onBack={() => {
+            setActiveProduct(null);
+            setTimeout(() => {
+              const el = document.getElementById("catalogo");
+              el?.scrollIntoView({ behavior: "smooth" });
+            }, 50);
+          }}
+          onAddProduct={handleAddProductToBudget}
+        />
+      ) : (
+        <>
+          {/* 2. Hero (Primary section, visual illustration layout) */}
+          <Hero onOpenBudgetSidebar={() => setIsBudgetOpen(true)} />
 
-      {/* 3. Products Catalog (Category selection cards) */}
-      <ProductsCatalog onAddProduct={handleAddProductToBudget} />
+          {/* 3. Products Catalog (Category selection cards) */}
+          <ProductsCatalog onSelectProduct={(product) => {
+            setActiveProduct(product);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }} />
 
-      {/* 4. Themes Gallery (Illustrative themes catalog list) */}
-      <ThemesGallery />
+          {/* 4. Themes Gallery (Illustrative themes catalog list) */}
+          <ThemesGallery />
 
-      {/* 5. Differentials (Bento value indicators) */}
-      <Differentials />
+          {/* 5. Differentials (Bento value indicators) */}
+          <Differentials />
 
-      {/* 6. About (Atelier custom timeline & biography) */}
-      <About />
+          {/* 6. About (Atelier custom timeline & biography) */}
+          <About />
 
-      {/* 7. Testimonials (Moms sliding comments) */}
-      <Testimonials />
+          {/* 7. Testimonials (Moms sliding comments) */}
+          <Testimonials />
 
-      {/* 8. Contact & DF Illustrated Map */}
-      <Contact />
+          {/* 8. Contact & DF Illustrated Map */}
+          <Contact />
+        </>
+      )}
 
       {/* 9. Floating Triggers & Custom Budgets Cart Drawer */}
       <BudgetFloat

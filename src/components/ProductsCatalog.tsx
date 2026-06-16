@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Search, Plus, Minus, Check, Sparkles, Heart, Info, ShoppingBag } from "lucide-react";
+import { Search, Sparkles, Heart, ArrowRight } from "lucide-react";
 import { Product } from "../types";
 import { useAppContext } from "../context/DataContext";
 
 interface ProductsCatalogProps {
-  onAddProduct: (product: Product, quantity: number, notes?: string, theme?: string) => void;
+  onSelectProduct: (product: Product) => void;
 }
 
-export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) {
+export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProps) {
   const { data } = useAppContext();
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
-  const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
-  const [themes, setThemes] = useState<{ [productId: string]: string }>({});
-  const [notes, setNotes] = useState<{ [productId: string]: string }>({});
-  const [addedFeedback, setAddedFeedback] = useState<{ [productId: string]: boolean }>({});
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   // Synchronize category events triggered from the Header
@@ -40,48 +36,6 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
     return matchesCategory && matchesSearch;
   });
 
-  const handleIncrement = (productId: string) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: (prev[productId] || 1) + 1,
-    }));
-  };
-
-  const handleDecrement = (productId: string) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: Math.max(1, (prev[productId] || 1) - 1),
-    }));
-  };
-
-  const handleQuantityChange = (productId: string, val: number) => {
-    const positiveVal = Math.max(1, val);
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: positiveVal,
-    }));
-  };
-
-  const handleAddClick = (product: Product) => {
-    const qty = quantities[product.id] || 1;
-    const selectedTheme = themes[product.id] || "";
-    const selectedNote = notes[product.id] || "";
-    
-    // Trigger callback
-    onAddProduct(product, qty, selectedNote, selectedTheme);
-
-    // Visual feedback
-    setAddedFeedback((prev) => ({ ...prev, [product.id]: true }));
-    setTimeout(() => {
-      setAddedFeedback((prev) => ({ ...prev, [product.id]: false }));
-    }, 2000);
-
-    // Reset temporary states for that product
-    setQuantities((prev) => ({ ...prev, [product.id]: 1 }));
-    setThemes((prev) => ({ ...prev, [product.id]: "" }));
-    setNotes((prev) => ({ ...prev, [product.id]: "" }));
-  };
-
   return (
     <section id="catalogo" className="py-20 lg:py-28 bg-white relative z-10">
       
@@ -100,7 +54,7 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
             Nosso Catálogo de Encantos
           </h2>
           <p className="font-sans text-slate-500 leading-relaxed font-light text-base sm:text-lg">
-            Escolha as peças que deseja, configure o tema preferido e clique em <span className="font-medium text-brand-pink">Pedir agora</span> para simular os valores. Ao final, envie todo seu carrinho para nosso atendimento exclusivo do WhatsApp para fechar os detalhes!
+            Clique em qualquer detalhe das peças para abrir a **Página do Produto**. Lá você escolhe o tema, insere o nome, escolhe as fitas de cetim e adiciona ao seu orçamento virtual!
           </p>
         </div>
 
@@ -150,11 +104,6 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="catalog_products_grid">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product) => {
-              const currentQty = quantities[product.id] || 1;
-              const productTheme = themes[product.id] || "";
-              const productNote = notes[product.id] || "";
-              const isAdded = addedFeedback[product.id] || false;
-
               return (
                 <motion.div
                   key={product.id}
@@ -165,13 +114,14 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
                   transition={{ duration: 0.3 }}
                   onMouseEnter={() => setHoveredCard(product.id)}
                   onMouseLeave={() => setHoveredCard(null)}
-                  className="bg-slate-50/40 rounded-[2rem] border border-slate-100 p-4 flex flex-col justify-between hover:bg-white glamour-card-hover relative"
+                  onClick={() => onSelectProduct(product)}
+                  className="bg-slate-50/40 rounded-[2rem] border border-slate-100 p-4 flex flex-col justify-between hover:bg-white glamour-card-hover relative cursor-pointer group"
                   id={`product_card_${product.id}`}
                 >
                   
                   {/* Upper details (Image & Badge) */}
                   <div className="space-y-4">
-                    <div className="relative aspect-square rounded-[1.5rem] overflow-hidden bg-slate-100 shadow-inner group">
+                    <div className="relative aspect-square rounded-[1.5rem] overflow-hidden bg-slate-100 shadow-inner">
                       
                       {/* Product badge */}
                       {product.badge && (
@@ -217,7 +167,7 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
                       <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                         {product.category}
                       </span>
-                      <h3 className="font-serif text-lg font-bold text-slate-800 tracking-tight leading-tight">
+                      <h3 className="font-serif text-lg font-bold text-slate-800 tracking-tight leading-tight group-hover:text-brand-pink transition-colors">
                         {product.name}
                       </h3>
                       <p className="font-sans text-xs text-slate-500 line-clamp-2 leading-relaxed font-light">
@@ -232,90 +182,29 @@ export default function ProductsCatalog({ onAddProduct }: ProductsCatalogProps) 
                     
                     {/* Price Display */}
                     <div className="flex items-baseline justify-between">
-                      <span className="font-sans text-xs text-slate-400 font-medium">Valor:</span>
+                      <span className="font-sans text-xs text-slate-400 font-medium">Preço sugerido:</span>
                       <div className="text-right">
-                        <span className="font-sans font-extrabold text-lg text-slate-700">
-                          {product.minPrice === product.maxPrice ? (
-                            `R$ ${product.minPrice.toFixed(2).replace(".", ",")}`
-                          ) : (
-                            <>
-                              R$ {product.minPrice.toFixed(2).replace(".", ",")} <span className="text-slate-400 text-xs font-normal">a</span> R$ {product.maxPrice.toFixed(2).replace(".", ",")}
-                            </>
-                          )}
+                        <span className="font-sans font-extrabold text-sm text-slate-700">
+                          {product.minPrice !== product.maxPrice 
+                            ? `R$ ${product.minPrice.toFixed(2).replace(".", ",")} a R$ ${product.maxPrice.toFixed(2).replace(".", ",")}`
+                            : `R$ ${product.minPrice.toFixed(2).replace(".", ",")}`}
                         </span>
                         <span className="text-slate-400 text-[10px] font-normal font-sans block">
-                          {product.category === "Kits de Caixas" || product.category === "Combos e Kits" ? "por lote/kit/combo" : "por unidade"}
+                          {product.category === "Kits de Caixas" || product.category === "Combos e Kits" ? "por lote/kit/combo" : 
+                           product.category === "Forminhas" || product.category === "Toppers" ? "por pacote" : "por unidade"}
                         </span>
                       </div>
                     </div>
 
-                    {/* Mini customization input fields inside card (luxurious UX) */}
-                    <div className="space-y-1.5">
-                      <input
-                        type="text"
-                        placeholder="Tema (ex: Stitch, Safari...)"
-                        value={productTheme}
-                        onChange={(e) => setThemes({ ...themes, [product.id]: e.target.value })}
-                        className="w-full px-3 py-1.5 bg-slate-50/80 border border-slate-200/60 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-tiffany transition-all"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Nome / Idade / Observações"
-                        value={productNote}
-                        onChange={(e) => setNotes({ ...notes, [product.id]: e.target.value })}
-                        className="w-full px-3 py-1.5 bg-slate-50/80 border border-slate-200/60 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-tiffany transition-all"
-                      />
-                    </div>
-
-                    {/* Quantity Selector and CTA Grid */}
-                    <div className="flex items-center gap-2">
-                      
-                      {/* Quantity Controller */}
-                      <div className="flex items-center border border-slate-200/80 rounded-full bg-slate-50 p-1">
-                        <button
-                          onClick={() => handleDecrement(product.id)}
-                          className="p-1 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <input
-                          type="number"
-                          value={currentQty}
-                          onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
-                          className="w-8 text-center text-xs font-bold text-slate-700 bg-transparent focus:outline-hidden [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                        <button
-                          onClick={() => handleIncrement(product.id)}
-                          className="p-1 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      {/* Add to current Simulation Button */}
-                      <button
-                        onClick={() => handleAddClick(product)}
-                        disabled={isAdded}
-                        className={`flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-full font-serif font-bold text-xs shadow-xs transition-all cursor-pointer ${
-                          isAdded
-                            ? "bg-emerald-500 text-white"
-                            : "bg-slate-900 text-white hover:bg-pink-600 hover:scale-[1.02] shadow-md hover:shadow-pink-500/10"
-                        }`}
-                      >
-                        {isAdded ? (
-                          <>
-                            <Check className="w-3.5 h-3.5" />
-                            Adicionado!
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            Pedir agora
-                          </>
-                        )}
-                      </button>
-
-                    </div>
+                    {/* Button to Enter Details Page */}
+                    <button
+                      type="button"
+                      className="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-slate-900 font-sans font-bold text-[11px] uppercase tracking-wider text-white rounded-full shadow-xs transition-all group-hover:bg-brand-pink group-hover:scale-[1.01]"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Personalizar e Pedir
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </button>
 
                   </div>
 

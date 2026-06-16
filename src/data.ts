@@ -2,7 +2,7 @@ import { Product, ThemeItem, Differential, Testimonial } from "./types";
 
 // Bespoke generated images
 export const IMAGES = {
-  hero: "https://i.imgur.com/MK4ydyR.jpeg",
+  hero: "https://i.imgur.com/Es3OQW6.jpeg",
   about: "/src/assets/images/creative_studio_1779734454290.png",
   partyFavors: "/src/assets/images/party_favors_1779734471509.png",
   logo: "https://i.imgur.com/fVtEcdv.png"
@@ -15,8 +15,8 @@ export const WHATSAPP_FORMATTED = "(61) 99888-9577";
 
 export const CATEGORIES = [
   "Todos",
-  "Caixas Avulsas",
   "Kits de Caixas",
+  "Caixas Avulsas",
   "Lembrancinhas",
   "Topos de Bolo",
   "Forminhas",
@@ -33,7 +33,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.40,
     maxPrice: 1.72,
     description: "A queridinha das festas no formato Milk clássico. Design fofo, recortado com precisão em papel de alta gramatura de 180g. Pode ser encomendada com ou sem laço de cetim luxuoso.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://i.imgur.com/mYMClJY.jpeg",
     badge: "Mais Pedida",
     features: ["Papel offset premium de 180g", "Corte eletrônico perfeito", "Laço de cetim luxuoso opcional", "Fácil de montar"]
   },
@@ -44,7 +44,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.40,
     maxPrice: 1.72,
     description: "Lindo formato horizontal que remete a uma bala gigante de caramelo com fechamento charmoso. Opção com ou sem laço de cetim.",
-    image: "https://cdn.awsli.com.br/800x800/817/817549/produto/141285951/cf9a663486.jpg",
+    image: "https://i.imgur.com/Ai1fV66.jpeg",
     badge: "Destaque da Mesa",
     features: ["Formato bala divertido", "Fechamento simétrico elegante", "Laço de cetim lateral opcional", "Impecável no tema escolhido"]
   },
@@ -55,7 +55,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.40,
     maxPrice: 1.72,
     description: "Caixa em formato triangular de cone que confere altura e elegância imediata à mesa do bolo. Escolha com ou sem laço de cetim de alta qualidade no topo.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://i.imgur.com/boQBgeb.jpeg",
     badge: "Sofisticada",
     features: ["Formato cone tridimensional", "Nome e personagem em destaque", "Laço de cetim no topo opcional", "Acabamento profissional"]
   },
@@ -65,8 +65,8 @@ export const PRODUCTS: Product[] = [
     category: "Caixas Avulsas",
     minPrice: 1.40,
     maxPrice: 1.72,
-    description: "Formato trapézio charmoso com encaixes perfeitos de segurança. Pode ser decorada com um elegante laço de cetim ou na versão simples e limpa.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    description: "Formato trapézio charmoso com encaixes perfeitos de segurança. Pode ser decorada with um elegante laço de cetim ou na versão simples e limpa.",
+    image: "https://i.imgur.com/NVSCT1a.jpeg",
     badge: "Clássica",
     features: ["Base trapézio firme", "Encaixe inteligente de fundo", "Fita de cetim decorativa opcional", "Fácil preenchimento de doces"]
   },
@@ -77,7 +77,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.40,
     maxPrice: 1.72,
     description: "Maletinha lúdica com alça integrada. Perfeita para encantar as crianças como lembrancinha de doces. Opções com laço colado na alça ou sem.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://i.imgur.com/XyHjuCE.jpeg",
     badge: "Lúdica",
     features: ["Alça de papel estruturado", "Belo espaço para guloseimas", "Laço de cetim premium opcional", "Recorte eletrônico de alta definição"]
   },
@@ -90,7 +90,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 22.90,
     maxPrice: 76.90,
     description: "Kits sob medida contendo as 5 caixas clássicas (Milk, Bala, Pirâmide, Sushi e Mala). Escolha a quantidade de caixas desejada e veja a repartição ideal entre caixas com e sem laço.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://i.imgur.com/MIGyVNh.jpeg",
     badge: "Configurável",
     features: ["Cinco modelos clássicos inclusos", "Escolha de 15 a 50 caixas", "Proporção balanceada de laços", "Design impecável com e sem laço"]
   },
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 0.80,
     maxPrice: 0.80,
     description: "Adesivos fotográficos de alta aderência com contorno eletrônico personalizado em qualquer tema.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://cdn.awsli.com.br/600x1000/707/707917/produto/325920975/embalagem-4-cfvrfz9t28.jpeg",
     badge: "Mín. 10 unid.",
     features: ["Brilho fotográfico vivo", "Cortado sob medida", "Design coordenado com o tema", "Ideal para tubetes, latas e sacolas"]
   },
@@ -114,7 +114,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 1.40,
     maxPrice: 1.40,
     description: "Frasco cilíndrico acrílico transparente com tampa plástica colorida e lindo aplique em destaque.",
-    image: "https://cdn.dooca.store/259/products/fgpzrwjvqnljyg0pw6ysoelmlpumwpzsbfxn_640x640+fill_ffffff.jpg?v=1582746430&webp=0",
+    image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/20977701/bf54f55a98.jpg",
     badge: "Mín. 10 unid.",
     features: ["Acrílico rígido transparente", "Aplique de personagem recortado", "Tampa rosqueável firme", "Excelente para confeitos"]
   },
@@ -125,7 +125,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 3.20,
     maxPrice: 3.90,
     description: "Cilindro de papelão micro-ondulado premium tamanho 5x6 com tampa metálica luxuosa e embalagem adesivada. Opções com laço de cetim exuberante ou sem laço.",
-    image: "https://i.imgur.com/fxPNAXS.jpeg",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_YsULBmgfd9LZDwjZ9iEeoiKQjhPIcwaJUO-KiJwCwSstX1H3YMkvhnJ1&s=10",
     badge: "Refinada",
     features: ["Formato vintage refinado", "Papelão ultra estruturado", "Laço de cetim premium opcional", "Excelente lembrança durável", "Pedido mínimo de 10 unidades"]
   },
@@ -136,7 +136,7 @@ export const PRODUCTS: Product[] = [
     minPrice: 2.20,
     maxPrice: 2.20,
     description: "Latinha acrílica ou plástica com adesivo redondo de alto brilho no topo. Uma lembrancinha tradicional e amada.",
-    image: "https://imgs.pontofrio.com.br/1509697522/1xg.jpg?imwidth=500",
+    image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/20733798/3b8522cc02.jpg",
     badge: "Mín. 10 unid.",
     features: ["Compacto e fácil de carregar", "Personalização inteiramente brilhosa", "Perfeito para pastilhas ou guloseimas"]
   },

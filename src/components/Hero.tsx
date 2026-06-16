@@ -1,5 +1,6 @@
-import { motion } from "motion/react";
-import { Sparkles, ArrowRight, Heart, Calendar } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Sparkles, ArrowRight, Heart, Calendar, Percent, ShieldCheck, HeartHandshake, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
 
 interface HeroProps {
@@ -8,6 +9,29 @@ interface HeroProps {
 
 export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
   const { data } = useAppContext();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const banners = [
+    "https://i.imgur.com/Es3OQW6.jpeg",
+    "https://i.imgur.com/QXmyxhn.jpeg"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+  };
 
   const handleScrollToCatalog = () => {
     const catalogEl = document.getElementById("catalogo");
@@ -25,151 +49,142 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
   return (
     <section
       id="inicio"
-      className="relative pt-28 lg:pt-36 pb-16 lg:pb-24 overflow-hidden magic-radial-bg"
+      className="relative pt-[64px] sm:pt-[74px] pb-4 bg-slate-50"
     >
-      {/* Absolute Decorative Blobs */}
-      <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-brand-pink/10 blur-3xl pointer-events-none" />
-      <div className="absolute top-2/3 -left-12 w-80 h-80 rounded-full bg-brand-tiffany/10 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 left-1/3 w-60 h-60 rounded-full bg-brand-lilac/10 blur-3xl pointer-events-none" />
+      {/* Soft background glow accents */}
+      <div className="absolute top-0 right-1/4 w-80 h-80 rounded-full bg-brand-pink/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-10 w-96 h-96 rounded-full bg-brand-tiffany/5 blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 animate-fade-in">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      {/* Full-width container of the banner */}
+      <div className="w-full relative z-10 select-none">
+        
+        {/* Grand E-Commerce Promo Banner element - Edge to Edge width */}
+        <div 
+          className="relative w-full overflow-hidden shadow-xs border-y border-slate-200/40 bg-white group"
+          id="hero_ecommerce_banner"
+        >
+          {/* Helper Image: This image is invisible but determines the natural height of the container perfectly, preventing vertical cropping */}
+          <img
+            src={banners[0]}
+            alt="Helper"
+            className="w-full h-auto pointer-events-none opacity-0 invisible"
+          />
+
+          {/* Silder Active Image Layer */}
+          <div className="absolute inset-0 w-full h-full">
+            <AnimatePresence initial={false} mode="wait">
+              <motion.img
+                key={currentSlide}
+                src={banners[currentSlide]}
+                alt={`DL Magic Paper Banner Promocional ${currentSlide + 1}`}
+                initial={{ opacity: 0, scale: 1.01 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+                className="w-full h-full object-fill"
+                referrerPolicy="no-referrer"
+              />
+            </AnimatePresence>
+          </div>
+
+          {/* Clean glass reflection overlay */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-white/0 to-white/5 pointer-events-none" />
+
+          {/* Navigation Arrows */}
+          <button
+            onClick={handlePrev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/80 hover:bg-white backdrop-blur-xs border border-slate-200/50 flex items-center justify-center text-slate-700 hover:text-brand-pink shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0 cursor-pointer"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
           
-          {/* Left Column Content - High impact copy */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <button
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/80 hover:bg-white backdrop-blur-xs border border-slate-200/50 flex items-center justify-center text-slate-700 hover:text-brand-pink shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0 cursor-pointer"
+            aria-label="Próximo"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+
+          {/* Navigation Dots Indicator */}
+          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+            {banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
+                  currentSlide === idx 
+                    ? "bg-brand-pink w-4 sm:w-5 shadow-xs" 
+                    : "bg-slate-400/55 hover:bg-slate-400"
+                }`}
+                aria-label={`Slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Lower Store Benefits Block & CTAs within max container of the page for perfect design alignment */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-5 sm:p-6 rounded-[1.5rem] border border-slate-200/50 shadow-xs">
             
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/60 border border-pink-200/50 text-brand-pink text-xs sm:text-sm font-semibold tracking-wide font-sans shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 animate-pulse text-brand-pink" />
-              <span>{data.heroTexts.tag}</span>
-            </motion.div>
+            {/* Virtual Store Info Badges */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:w-auto md:flex-1 animate-fade-in">
+              <div className="flex items-start gap-3 text-left">
+                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div className="font-sans">
+                  <h4 className="text-xs font-bold text-slate-700">100% Personalizado</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Adicionamos o nome, idade e o tema que você preferir.</p>
+                </div>
+              </div>
 
-            <div className="space-y-4">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-serif text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight"
-              >
-                <span className="text-slate-800 lg:block">{data.heroTexts.titlePrefix}</span>{" "}
-                <span className="block mt-2 bg-gradient-to-r from-brand-pink via-brand-lilac to-brand-tiffany bg-clip-text text-transparent">
-                  {data.heroTexts.titleColored}
-                </span>
-              </motion.h1>
+              <div className="flex items-start gap-3 text-left">
+                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
+                  <HeartHandshake className="w-4 h-4" />
+                </div>
+                <div className="font-sans">
+                  <h4 className="text-xs font-bold text-slate-700">Atendimento Especial</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Ajustamos laços, fitas e cores direto pelo WhatsApp.</p>
+                </div>
+              </div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="font-serif italic text-lg sm:text-xl lg:text-2xl text-slate-500 font-semibold max-w-xl mx-auto lg:mx-0"
-              >
-                {data.heroTexts.subtitle}
-              </motion.p>
-
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="font-sans text-base sm:text-lg text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light"
-              >
-                {data.heroTexts.description}
-              </motion.p>
+              <div className="flex items-start gap-3 text-left">
+                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="font-sans">
+                  <h4 className="text-xs font-bold text-slate-700">Orçamento sem Complicações</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Adicione os mimos favoritos e envie com um clique no WhatsApp.</p>
+                </div>
+              </div>
             </div>
 
-            {/* Interactive Floating Badges / Visual anchors */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4"
-            >
+            {/* Quick CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0 md:pl-4 md:border-l md:border-dashed md:border-slate-200">
               <button
                 onClick={handleScrollToCatalog}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-brand-pink/20 hover:shadow-xl hover:shadow-brand-pink/35 hover:-translate-y-0.5 transition-all text-base cursor-pointer"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-5 py-2.5 rounded-full font-sans text-xs font-bold shadow-md shadow-brand-pink/10 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer whitespace-nowrap active:scale-98"
               >
-                Ver Catálogo
+                Explorar Produtos
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 onClick={onOpenBudgetSidebar}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-brand-tiffany border-2 border-brand-tiffany/30 px-8 py-4 rounded-full font-bold hover:bg-neutral-50 hover:border-brand-tiffany hover:shadow-md transition-all text-base cursor-pointer"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-full font-sans text-xs font-bold hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer whitespace-nowrap active:scale-98"
               >
-                <Heart className="w-4 h-4 text-brand-tiffany fill-brand-tiffany/20" />
-                Fazer Pedido
+                <Heart className="w-4 h-4 text-brand-pink fill-brand-pink/15" />
+                Ver Carrinho
               </button>
-            </motion.div>
-
-            {/* Micro details row */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-slate-400 text-xs sm:text-sm pt-4 font-medium"
-            >
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-pink" />
-                <span>Atendimento de Coração</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-tiffany" />
-                <span>Corte a Laser & 3D</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-lilac" />
-                <span>Brasília & Envio Nacional</span>
-              </div>
-            </motion.div>
-
-          </div>
-
-          {/* Right Column Content - Display Mockup Grid with generated high-end visual */}
-          <div className="lg:col-span-5 relative" id="hero_display_grid">
-            <div className="relative mx-auto max-w-[420px] aspect-square rounded-[2.5rem] bg-gradient-to-tr from-brand-pink/20 via-white/80 to-brand-tiffany/20 p-3 sm:p-4 shadow-2xl overflow-visible">
-              
-              {/* Spinning/Moving elements */}
-              <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-brand-yellow flex items-center justify-center shadow-lg transform rotate-12 animate-bounce pointer-events-none z-10">
-                <Sparkles className="w-6 h-6 text-pink-500" />
-              </div>
-              
-              <div className="absolute -bottom-5 -left-5 bg-white/95 backdrop-blur-sm border border-pink-100 rounded-2xl p-3 shadow-xl flex items-center gap-3 max-w-[200px] pointer-events-none z-10">
-                <div className="p-2 sm:p-2.5 bg-pink-100 rounded-xl text-brand-pink">
-                  <Calendar className="w-5 h-5 text-brand-pink" />
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Produção</p>
-                  <p className="text-xs font-extrabold text-slate-700">100% Artesanal</p>
-                </div>
-              </div>
-
-              {/* Decorative craft scissor and ribbon tag */}
-              <div className="absolute top-1/2 -right-8 bg-white/95 backdrop-blur-sm border border-cyan-100 rounded-2xl p-2.5 shadow-lg flex items-center gap-2 text-xs font-semibold text-slate-600 pointer-events-none z-10 transform -rotate-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-                <span>Camadas de Amor ✂️</span>
-              </div>
-
-              {/* Main Image Frame (Contains our generated stationery mockup) */}
-              <div className="w-full h-full rounded-[2rem] overflow-hidden bg-slate-100 relative group shadow-inner">
-                <img
-                  src={data.heroImage}
-                  alt="Flatlay Papelaria Personalizada DL Magic Paper"
-                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                  id="hero_main_photograph"
-                />
-                
-                {/* Gradient tint */}
-                <div className="absolute inset-0 bg-gradient-to-t from-pink-900/10 to-transparent pointer-events-none" />
-              </div>
             </div>
-          </div>
 
+          </div>
         </div>
+
       </div>
     </section>
   );
 }
+

@@ -96,8 +96,8 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
         id="app_header"
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled || hasActiveProduct
-            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-pink-100/50 py-3"
-            : "bg-transparent py-5"
+            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-pink-100/50 py-2"
+            : "bg-white/90 backdrop-blur-md shadow-sm border-b border-pink-100/30 py-2.5 sm:py-3"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -120,23 +120,23 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               <img 
                 src={data.logo} 
                 alt="DL Magic Paper Logo" 
-                className="w-20 h-20 sm:w-28 sm:h-28 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
                 referrerPolicy="no-referrer"
               />
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6" id="desktop_nav">
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-5" id="desktop_nav">
               {!hasActiveProduct ? (
                 menuItems.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
                     onClick={(e) => handleNavClick(e, item.href)}
-                    className="font-sans text-[15px] font-medium text-slate-600 hover:text-brand-pink transition-colors relative group py-2"
+                    className="font-sans text-[13px] xl:text-[14px] font-semibold text-slate-600 hover:text-brand-pink transition-colors relative group py-1.5 px-0.5"
                   >
                     {item.label}
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-pink transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-brand-pink transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-center" />
                   </a>
                 ))
               ) : (
@@ -208,7 +208,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               {!hasActiveProduct ? (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex md:hidden items-center justify-center p-2 rounded-full text-slate-600 hover:bg-slate-100 transition-all"
+                  className="flex lg:hidden items-center justify-center p-2 rounded-full text-slate-600 hover:bg-slate-100 transition-all"
                   id="mobile_menu_toggle"
                 >
                   {isMobileMenuOpen ? (
@@ -220,7 +220,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               ) : (
                 <button
                   onClick={onLeaveProductPage}
-                  className="flex md:hidden items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100/60 rounded-full text-brand-pink font-sans text-xs font-bold active:scale-95 transition-all"
+                  className="flex lg:hidden items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100/60 rounded-full text-brand-pink font-sans text-xs font-bold active:scale-95 transition-all"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Voltar
@@ -240,7 +240,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-x-0 top-[70px] z-30 bg-white shadow-xl rounded-b-3xl border-b border-pink-100 p-6 flex flex-col gap-4 md:hidden text-center"
+            className="fixed inset-x-0 top-[64px] sm:top-[74px] z-30 bg-white shadow-xl rounded-b-3xl border-b border-pink-100 p-6 flex flex-col gap-4 lg:hidden text-center"
             id="mobile_menu_container"
           >
             <div className="flex flex-col gap-3">

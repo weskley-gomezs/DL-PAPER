@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Check, Sparkles, AlertCircle, ShoppingBag, Plus, Minus, Heart, ArrowRight } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, AlertCircle, ShoppingBag, Plus, Minus, Heart, ArrowRight, ZoomIn, X } from "lucide-react";
 import { Product, ThemeItem } from "../types";
 import { useAppContext } from "../context/DataContext";
 
@@ -13,6 +13,25 @@ interface ProductPageProps {
 export default function ProductPage({ product, onBack, onAddProduct }: ProductPageProps) {
   const { data } = useAppContext();
   
+  // Custom gallery images for Kit Festas Clássico
+  const femininaImages = [
+    "https://i.imgur.com/MIGyVNh.jpeg",
+    "https://i.imgur.com/I3ZSlWb.jpeg",
+    "https://i.imgur.com/Ai1fV66.jpeg",
+    "https://i.imgur.com/5qD7edf.jpeg",
+    "https://i.imgur.com/NVSCT1a.jpeg",
+    "https://i.imgur.com/gG7TyuB.jpeg"
+  ];
+
+  const masculinaImages = [
+    "https://i.imgur.com/QxlLjKz.jpeg",
+    "https://i.imgur.com/OtVDS5s.jpeg",
+    "https://i.imgur.com/boQBgeb.jpeg",
+    "https://i.imgur.com/mYMClJY.jpeg",
+    "https://i.imgur.com/XyHjuCE.jpeg",
+    "https://i.imgur.com/nIOVoqq.jpeg"
+  ];
+
   // Set default quantities according to product specifications (minimum constraints)
   const getMinQuantity = () => {
     if (product.category === "Forminhas" || product.category === "Toppers") return 20;
@@ -31,22 +50,73 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
   const [forminhasStyle, setForminhasStyle] = useState<"simples" | "premium">("simples");
   const [toppersStyle, setToppersStyle] = useState<"simples" | "dupla">("simples");
   const [kitQty, setKitQty] = useState<15 | 20 | 25 | 30 | 35 | 40 | 45 | 50>(15);
+  
+  const [activeGenderTab, setActiveGenderTab] = useState<"feminina" | "masculina">("feminina");
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
 
   const [addedSuccess, setAddedSuccess] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Sync state if forminhas or toppers size gets clicked
   const isForminhas = product.id === "forminhas-custom";
   const isToppers = product.id === "toppers-custom";
   const isKit = product.id === "kit-caixas-custom";
+
+  const currentGallery = activeGenderTab === "feminina" ? femininaImages : masculinaImages;
+
+  const getProductGallery = () => {
+    if (isKit) {
+      return activeGenderTab === "feminina" ? femininaImages : masculinaImages;
+    }
+    // Individual products can have custom mini galleries
+    if (product.id === "caixa-milk") {
+      return [
+        product.image,
+        "https://i.imgur.com/I3ZSlWb.jpeg", // close up bow detail
+        "https://i.imgur.com/MIGyVNh.jpeg" // decoration context
+      ];
+    }
+    if (product.id === "caixa-bala") {
+      return [
+        product.image,
+        "https://www.meusarquivosdigitais.com.br/wp-content/uploads/2023/03/Caixabala-Decorada-.png",
+        "https://i.imgur.com/5qD7edf.jpeg"
+      ];
+    }
+    if (product.id === "caixa-piramide") {
+      return [
+        product.image,
+        "https://i.imgur.com/Ai1fV66.jpeg"
+      ];
+    }
+    if (product.id === "caixa-sushi") {
+      return [
+        product.image,
+        "https://i.imgur.com/I3ZSlWb.jpeg"
+      ];
+    }
+    if (product.id === "lembrancinha-tubolata-5x6") {
+      return [
+        product.image,
+        "https://i.imgur.com/gG7TyuB.jpeg",
+        "https://i.imgur.com/nIOVoqq.jpeg"
+      ];
+    }
+    return [product.image];
+  };
+
+  const activeGallery = getProductGallery();
   
   // We check if the product has a bow option (either category is Caixas Avulsas, or it is the Tubolata Lembrancinha)
   const hasLacoOption = product.category === "Caixas Avulsas" || product.id === "lembrancinha-tubolata-5x6";
 
   const getProductImage = () => {
-    if (product.id === "caixa-bala" && selectedLaco === "sem-laco") {
+    const gallery = getProductGallery();
+    const imgUrl = gallery[activeImageIndex] || gallery[0] || product.image;
+    if (product.id === "caixa-bala" && selectedLaco === "sem-laco" && activeImageIndex === 0) {
       return "https://www.meusarquivosdigitais.com.br/wp-content/uploads/2023/03/Caixabala-Decorada-.png";
     }
-    return product.image;
+    return imgUrl;
   };
 
   const getForminhasPrice = (qty: number, style: string) => {
@@ -192,12 +262,13 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
       const { semLaco, comLaco } = getKitDistribution(kitQty);
       finalProduct = {
         ...product,
-        id: `kit-caixas-custom-${kitQty}`,
-        name: `Kit Festas Clássico - ${kitQty} Caixas (Misto)`,
+        id: `kit-caixas-custom-${kitQty}-${activeGenderTab}`,
+        name: `Kit Festas Clássico - ${kitQty} Caixas (${activeGenderTab === "feminina" ? "Modelo Feminino" : "Modelo Masculino"})`,
+        image: getProductImage(),
         minPrice: price,
         maxPrice: price,
-        description: `Kit misto completo com ${kitQty} caixas clássicas (inclui ${semLaco} Sem Laço e ${comLaco} Com Laço de cetim luxuoso).`,
-        badge: "Kit Completo"
+        description: `Kit misto completo com ${kitQty} caixas clássicas (inclui ${semLaco} Sem Laço e ${comLaco} Com Laço de cetim luxuoso). Estilo selecionado: ${activeGenderTab === "feminina" ? "Feminino" : "Masculino"}.`,
+        badge: activeGenderTab === "feminina" ? "Feminina" : "Masculina"
       };
       finalQty = 1; // Price represents the whole custom kit
     } else if (hasLacoOption) {
@@ -224,6 +295,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
     if (hasLacoOption) noteParts.push(`Acabamento: ${selectedLaco === "com-laco" ? "Com Laço" : "Sem Laço"}`);
     if (isForminhas) noteParts.push(`Modelo: ${forminhasStyle === "simples" ? "Simples" : "Premium 3D"}`);
     if (isToppers) noteParts.push(`Modelo: ${toppersStyle === "simples" ? "Simples" : "Dupla Camada"}`);
+    if (isKit) noteParts.push(`Coleção: ${activeGenderTab === "feminina" ? "Coleção Feminina" : "Coleção Masculina"}`);
     
     const finalNoteStr = noteParts.join(" | ");
     onAddProduct(finalProduct, finalQty, finalNoteStr, undefined);
@@ -282,61 +354,189 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
         {/* Main Two-Column Structure */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT COLUMN: Visual Presentation Card (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white p-4 rounded-[2.5rem] border border-slate-200/50 shadow-sm relative overflow-hidden">
-              <div className="aspect-square rounded-[2rem] overflow-hidden bg-slate-150">
+          {/* LEFT COLUMN: Visual Presentation Card with Interactive Gallery (6 cols) */}
+          <div className="lg:col-span-6 space-y-6">
+            <div className="bg-white p-4 sm:p-5 rounded-[2.5rem] border border-slate-200/50 shadow-sm relative overflow-hidden">
+              
+              {/* If it's a Kit, show the Feminino / Masculino quick selectors directly above the preview */}
+              {isKit && (
+                <div className="grid grid-cols-2 gap-2.5 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveGenderTab("feminina");
+                      setActiveImageIndex(0);
+                    }}
+                    className={`py-3 px-4 rounded-2xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs ${
+                      activeGenderTab === "feminina"
+                        ? "bg-gradient-to-r from-pink-50 to-pink-100/60 text-brand-pink border border-pink-200"
+                        : "bg-slate-50 text-slate-500 border border-transparent hover:bg-slate-100"
+                    }`}
+                  >
+                    <span>🎀</span> Coleção Feminina ({femininaImages.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveGenderTab("masculina");
+                      setActiveImageIndex(0);
+                    }}
+                    className={`py-3 px-4 rounded-2xl text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs ${
+                      activeGenderTab === "masculina"
+                        ? "bg-gradient-to-r from-sky-50 to-sky-100/60 text-sky-700 border border-sky-250"
+                        : "bg-slate-50 text-slate-500 border border-transparent hover:bg-slate-100"
+                    }`}
+                  >
+                    <span>💙</span> Coleção Masculina ({masculinaImages.length})
+                  </button>
+                </div>
+              )}
+
+              {/* Main Image View with Hover Zoom & Full Screen Trigger */}
+              <div 
+                className="group/mainimg relative aspect-square rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner cursor-zoom-in"
+                onClick={() => setIsLightboxOpen(true)}
+              >
                 <img
                   src={getProductImage()}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover/mainimg:scale-105"
                   referrerPolicy="no-referrer"
                 />
+
+                {/* Glass reflection overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none" />
+
+                {/* Interactive magnifying glass hover card */}
+                <div className="absolute inset-0 bg-black/15 opacity-0 group-hover/mainimg:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                  <div className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2.5 text-slate-850 font-sans text-xs font-extrabold shadow-xl flex items-center gap-2 border border-slate-200/50 transform scale-90 group-hover/mainimg:scale-100 transition-transform duration-250">
+                    <ZoomIn className="w-4 h-4 text-brand-pink" />
+                    <span>Clique para Ampliar Foto</span>
+                  </div>
+                </div>
+
+                {/* Floating category / gender indicator label */}
+                {isKit ? (
+                  <span className={`absolute top-4 left-4 text-white text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md z-10 ${
+                    activeGenderTab === "feminina" ? "bg-brand-pink" : "bg-sky-500"
+                  }`}>
+                    {activeGenderTab === "feminina" ? "Modelo Feminino" : "Modelo Masculino"}
+                  </span>
+                ) : product.badge ? (
+                  <span className="absolute top-4 left-4 bg-brand-pink text-white text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md z-10">
+                    {product.badge}
+                  </span>
+                ) : null}
+
+                {/* Floating "Zoom" quick action badge inside image */}
+                <div className="absolute bottom-4 right-4 bg-slate-900/40 backdrop-blur-xs text-white p-2.5 rounded-full shadow-lg z-10 pointer-events-none">
+                  <ZoomIn className="w-4 h-4" />
+                </div>
               </div>
 
-              {product.badge && (
-                <span className="absolute top-8 left-8 bg-brand-pink text-white text-[11px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-md">
-                  {product.badge}
-                </span>
+              {/* Thumbnails Navigator carousel */}
+              {activeGallery.length > 1 && (
+                <div className="mt-4">
+                  <p className="text-[10px] font-sans font-bold text-slate-400 uppercase tracking-wider mb-2 text-left">📸 Navegar Fotos Adicionais ({activeGallery.length}):</p>
+                  <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 scrollbar-thin">
+                    {activeGallery.map((imgUrl, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setActiveImageIndex(index)}
+                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shrink-0 border-2 transition ${
+                          activeImageIndex === index
+                            ? "border-brand-pink scale-105 shadow-md"
+                            : "border-slate-100 opacity-70 hover:opacity-100 hover:border-slate-300"
+                        }`}
+                      >
+                        <img
+                          src={imgUrl}
+                          alt={`${product.name} Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
 
               {/* Atelie guarantee */}
-              <div className="mt-4 p-3 bg-pink-50/20 border border-pink-100/25 rounded-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-pink/10 shrink-0 flex items-center justify-center text-brand-pink text-lg">🌸</div>
-                <div className="text-left font-sans">
-                  <p className="text-xs font-bold text-slate-700">Garantia DL Magic Paper</p>
-                  <p className="text-[10px] text-slate-400">Artesanato impecável, vincos perfeitos e design místico único.</p>
+              <div className="mt-5 p-4 bg-gradient-to-br from-pink-50/15 to-brand-pink/5 border border-pink-100/20 rounded-[1.8rem] flex items-center gap-4 text-left">
+                <div className="w-11 h-11 rounded-full bg-brand-pink/10 shrink-0 flex items-center justify-center text-brand-pink text-xl">🌸</div>
+                <div className="font-sans">
+                  <p className="text-xs font-black text-slate-800">Garantia DL Magic Paper</p>
+                  <p className="text-[10px] text-slate-500 leading-relaxed mt-0.5">Nossas lembrancinhas e caixas personalizadas são feitas com corte impecável de máquina, papéis foscos/premium de alta gramatura e montagem artesanal sob medida.</p>
                 </div>
               </div>
             </div>
 
             {/* Product Key highlights checklist */}
             <div className="bg-white p-6 rounded-[2rem] border border-slate-200/50 text-left space-y-3 shadow-xs">
-              <h4 className="font-serif text-sm font-extrabold text-slate-700 uppercase tracking-wide flex items-center gap-1.5 border-b border-slate-100 pb-2">
+              <h4 className="font-serif text-sm font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-150 pb-2.5">
                 <Sparkles className="w-4 h-4 text-brand-pink" />
                 Diferenciais do Item
               </h4>
-              <ul className="space-y-2">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs font-sans text-slate-500">
                 {product.features?.map((feat, idx) => (
-                  <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-500 font-sans font-light">
+                  <li key={idx} className="flex items-start gap-2 text-xs text-slate-500 font-sans font-light">
                     <span className="w-4 h-4 rounded-full bg-brand-tiffany/10 text-brand-tiffany flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">✓</span>
-                    <span className="leading-relaxed">{feat}</span>
+                    <span className="leading-relaxed text-[11px] font-medium">{feat}</span>
                   </li>
                 ))}
+                <li className="flex items-start gap-2 text-xs text-slate-500 font-sans font-light">
+                  <span className="w-4 h-4 rounded-full bg-brand-tiffany/10 text-brand-tiffany flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">✓</span>
+                  <span className="leading-relaxed text-[11px] font-medium">Acabamentos e vincos impecáveis</span>
+                </li>
+                <li className="flex items-start gap-2 text-xs text-slate-500 font-sans font-light">
+                  <span className="w-4 h-4 rounded-full bg-brand-tiffany/10 text-brand-tiffany flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">✓</span>
+                  <span className="leading-relaxed text-[11px] font-medium">Embalado com máxima proteção</span>
+                </li>
               </ul>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Options and Customization (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* RIGHT COLUMN: Options, Info, Pricing & Customization (6 cols) */}
+          <div className="lg:col-span-6 space-y-6">
             
-            {/* Header Content */}
-            <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/50 text-left space-y-3 shadow-xs">
-              <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">{product.category}</span>
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-black text-slate-800 tracking-tight leading-tight">
+            {/* Title, Category & Premium Price Banner */}
+            <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/50 text-left space-y-4 shadow-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-black text-brand-pink bg-pink-50 border border-pink-100/60 px-3 py-1 rounded-full uppercase tracking-widest">{product.category}</span>
+                <span className="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">Sob Encomenda</span>
+              </div>
+              
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-855 tracking-tight leading-tight">
                 {product.name}
               </h1>
-              <p className="font-sans text-sm text-slate-500 leading-relaxed font-light">
+
+              {/* High Contrast Dynamic Price Display */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/40 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Valor Unitário Sugerido</p>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="font-sans text-3xl font-black text-brand-pink tracking-tight">
+                      R$ {getCurrentUnitPrice().toFixed(2).replace(".", ",")}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-sans font-bold">
+                      {isForminhas || isToppers || isKit ? " / pacote" : " / unidade"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-sans mt-0.5">
+                    {hasLacoOption ? `Com acabamento ${selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Normal Sem Laço"}` : isForminhas ? `Pacote com ${quantity} forminhas no estilo ${forminhasStyle}` : isToppers ? `Pacote com ${quantity} toppers no estilo ${toppersStyle}` : `Preço sugerido para Kit Completo` }
+                  </p>
+                </div>
+                <div className="text-right hidden sm:block">
+                  <span className="inline-block px-2.5 py-1 bg-pink-50 border border-pink-100 rounded-lg text-brand-pink font-sans text-[10px] font-black uppercase tracking-wide">
+                    Artisanal
+                  </span>
+                  <p className="text-[9px] text-slate-400 mt-1 font-sans">Produção: 7-15 dias</p>
+                </div>
+              </div>
+
+              {/* Concise and lovely description */}
+              <p className="font-sans text-xs sm:text-sm text-slate-500 leading-relaxed font-light">
                 {product.description}
               </p>
             </div>
@@ -594,13 +794,13 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
             </div>
 
             {/* Personalization Section (2) */}
-            <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/50 text-left space-y-5 shadow-xs">
+            <div className="bg-gradient-to-br from-pink-50/10 to-brand-pink/5/10 p-6 sm:p-8 rounded-[2.5rem] border border-pink-100/30 text-left space-y-5 shadow-xs">
               
-              <div className="flex justify-between items-baseline border-b border-dashed border-slate-100 pb-3">
+              <div className="flex justify-between items-baseline border-b border-dashed border-pink-100 pb-3">
                 <h3 className="font-serif text-base font-extrabold text-slate-800 tracking-tight">
                   2. Personalização do Item
                 </h3>
-                <span className="text-[10px] text-slate-400 font-bold font-sans">Forneça os dados da festa</span>
+                <span className="text-[10px] text-slate-400 font-bold font-sans">Ajuste sob medida</span>
               </div>
 
               {/* Inputs */}
@@ -614,7 +814,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                       placeholder="Ex: Theo, Cecília (Opcional)"
                       value={personName}
                       onChange={(e) => setPersonName(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all font-semibold"
+                      className="w-full px-4 py-2.5 bg-white border border-pink-100/50 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all font-semibold"
                     />
                   </div>
 
@@ -625,7 +825,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                       placeholder="Ex: 5 anos (Opcional)"
                       value={personAge}
                       onChange={(e) => setPersonAge(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all font-semibold"
+                      className="w-full px-4 py-2.5 bg-white border border-pink-100/50 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all font-semibold"
                     />
                   </div>
                 </div>
@@ -637,7 +837,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     value={specialNotes}
                     onChange={(e) => setSpecialNotes(e.target.value)}
                     rows={2}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all resize-none leading-relaxed"
+                    className="w-full px-4 py-2.5 bg-white border border-pink-100/50 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink transition-all resize-none leading-relaxed"
                   />
                 </div>
 
@@ -701,6 +901,44 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
           </div>
 
         </div>
+
+        {/* Lightbox / Image Zoom Modal */}
+        <AnimatePresence>
+          {isLightboxOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLightboxOpen(false)}
+              className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+            >
+              <button
+                onClick={() => setIsLightboxOpen(false)}
+                className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2.5 transition flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="relative max-w-5xl max-h-[85vh] overflow-hidden rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                <motion.img
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.95 }}
+                  src={getProductImage()}
+                  alt={product.name}
+                  className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl"
+                  referrerPolicy="no-referrer"
+                />
+                
+                {/* Lightbox details */}
+                <div className="mt-3 text-white text-center font-sans text-xs">
+                  <p className="font-bold">{product.name}</p>
+                  <p className="text-[10px] text-white/60 mt-0.5">Toque fora da imagem para fechar</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>

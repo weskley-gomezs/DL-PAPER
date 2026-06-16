@@ -26,15 +26,24 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
     return () => window.removeEventListener("filterCategory", handleFilterEvent);
   }, []);
 
-  // Filter products based on active criteria
-  const filteredProducts = data.products.filter((product) => {
-    const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Filter products based on active criteria and sort "Kits" to the front (first)
+  const filteredProducts = data.products
+    .filter((product) => {
+      const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    })
+    .sort((a, b) => {
+      const aIsKit = a.category === "Kits de Caixas" || a.category.toLowerCase().includes("kit") || a.name.toLowerCase().includes("kit");
+      const bIsKit = b.category === "Kits de Caixas" || b.category.toLowerCase().includes("kit") || b.name.toLowerCase().includes("kit");
+      
+      if (aIsKit && !bIsKit) return -1;
+      if (!aIsKit && bIsKit) return 1;
+      return 0;
+    });
 
   return (
     <section id="catalogo" className="py-20 lg:py-28 bg-white relative z-10">

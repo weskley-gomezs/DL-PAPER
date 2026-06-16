@@ -244,20 +244,20 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
   }, [kitQty, isKit]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10" id="product_detail_page">
+    <div className="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-16" id="product_detail_page">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top bar back button */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 hover:text-brand-pink font-sans text-sm font-bold shadow-xs hover:border-pink-200 transition"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-full text-slate-600 hover:text-brand-pink font-sans text-sm font-bold shadow-xs hover:border-pink-200 transition"
           >
             <ArrowLeft className="w-4 h-4" />
             Voltar ao Catálogo
           </button>
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
             <span className="text-[11px] font-sans font-bold text-slate-400">Ateliê Danyelle Lau</span>
             <span className="text-pink-300">•</span>
             <span className="text-[11px] font-sans font-extrabold text-brand-pink bg-pink-50 px-2.5 py-1 rounded-full border border-pink-100 uppercase tracking-widest">{product.category}</span>

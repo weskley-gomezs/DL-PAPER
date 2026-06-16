@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings } from "lucide-react";
+import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings, ArrowLeft } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
 
 interface HeaderProps {
   onOpenBudgetSidebar: () => void;
   cartItemsCount: number;
+  hasActiveProduct?: boolean;
+  onLeaveProductPage?: () => void;
 }
 
-export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderProps) {
+export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveProduct, onLeaveProductPage }: HeaderProps) {
   const { data, setIsAdminOpen } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,44 +43,51 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
     e.preventDefault();
     setIsMobileMenuOpen(false);
     
-    if (href === "#") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
+    if (hasActiveProduct && onLeaveProductPage) {
+      onLeaveProductPage();
     }
     
-    // Smooth scroll to element with offset for header
-    let targetId = href.substring(1);
-    
-    // Match customized headers
-    if (href === "#topos-bolo") {
-      targetId = "catalogo";
-    } else if (href === "#personalizados") {
-      targetId = "catalogo";
-    } else if (href === "#kits-festa") {
-      targetId = "catalogo";
-    }
-    
-    const targetEl = document.getElementById(targetId);
-    if (targetEl) {
-      const headerOffset = 90;
-      const elementPosition = targetEl.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-      
-      // If categories filter, click it via custom dispatch or custom event if needed
-      if (href === "#topos-bolo" || href === "#kits-festa" || href === "#personalizados") {
-        const catMap: { [key: string]: string } = {
-          "#topos-bolo": "Topos de Bolo",
-          "#kits-festa": "Kits Festa",
-          "#personalizados": "Caixas Personalizadas"
-        };
-        const event = new CustomEvent("filterCategory", { detail: catMap[href] });
-        window.dispatchEvent(event);
+    // Allow React state to update before scrolling so elements are rendered
+    setTimeout(() => {
+      if (href === "#") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
       }
-    }
+      
+      // Smooth scroll to element with offset for header
+      let targetId = href.substring(1);
+      
+      // Match customized headers
+      if (href === "#topos-bolo") {
+        targetId = "catalogo";
+      } else if (href === "#personalizados") {
+        targetId = "catalogo";
+      } else if (href === "#kits-festa") {
+        targetId = "catalogo";
+      }
+      
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        const headerOffset = 90;
+        const elementPosition = targetEl.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+        
+        // If categories filter, click it via custom dispatch or custom event if needed
+        if (href === "#topos-bolo" || href === "#kits-festa" || href === "#personalizados") {
+          const catMap: { [key: string]: string } = {
+            "#topos-bolo": "Topos de Bolo",
+            "#kits-festa": "Kits Festa",
+            "#personalizados": "Caixas Personalizadas"
+          };
+          const event = new CustomEvent("filterCategory", { detail: catMap[href] });
+          window.dispatchEvent(event);
+        }
+      }
+    }, hasActiveProduct ? 100 : 0);
   };
 
   return (
@@ -86,8 +95,8 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
       <header
         id="app_header"
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-pink-100/50 py-3"
+          isScrolled || hasActiveProduct
+            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-pink-100/50 py-3"
             : "bg-transparent py-5"
         }`}
       >
@@ -97,7 +106,14 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
             {/* Logo */}
             <a 
               href="#" 
-              onClick={(e) => handleNavClick(e, "#")}
+              onClick={(e) => {
+                e.preventDefault();
+                if (hasActiveProduct && onLeaveProductPage) {
+                  onLeaveProductPage();
+                } else {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className="group flex items-center"
               id="header_logo"
             >
@@ -111,17 +127,27 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6" id="desktop_nav">
-              {menuItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className="font-sans text-[15px] font-medium text-slate-600 hover:text-brand-pink transition-colors relative group py-2"
+              {!hasActiveProduct ? (
+                menuItems.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className="font-sans text-[15px] font-medium text-slate-600 hover:text-brand-pink transition-colors relative group py-2"
+                  >
+                    {item.label}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-pink transition-all duration-300 group-hover:w-full" />
+                  </a>
+                ))
+              ) : (
+                <button
+                  onClick={onLeaveProductPage}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-pink-50 hover:bg-pink-100/50 border border-pink-100 rounded-full text-brand-pink font-sans text-xs sm:text-sm font-bold transition-all shadow-xs"
                 >
-                  {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-pink transition-all duration-300 group-hover:w-full" />
-                </a>
-              ))}
+                  <ArrowLeft className="w-4 h-4" />
+                  Voltar para o Catálogo
+                </button>
+              )}
             </nav>
 
             {/* Right Side Icons & CTA */}
@@ -179,17 +205,27 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
               </button>
 
               {/* Mobile Menu Toggle Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex md:hidden items-center justify-center p-2 rounded-full text-slate-600 hover:bg-slate-100 transition-all"
-                id="mobile_menu_toggle"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6 text-brand-pink" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
+              {!hasActiveProduct ? (
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="flex md:hidden items-center justify-center p-2 rounded-full text-slate-600 hover:bg-slate-100 transition-all"
+                  id="mobile_menu_toggle"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-6 h-6 text-brand-pink" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={onLeaveProductPage}
+                  className="flex md:hidden items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100/60 rounded-full text-brand-pink font-sans text-xs font-bold active:scale-95 transition-all"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Voltar
+                </button>
+              )}
 
             </div>
           </div>
@@ -198,7 +234,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount }: HeaderPr
 
       {/* Mobile Menu Overlay Drawer */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
+        {isMobileMenuOpen && !hasActiveProduct && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -77,6 +77,8 @@ function AppContent() {
           setIsBudgetOpen(true);
         }}
         cartItemsCount={cartItemsCount}
+        hasActiveProduct={!!activeProduct}
+        onLeaveProductPage={() => setActiveProduct(null)}
       />
 
       {activeProduct ? (

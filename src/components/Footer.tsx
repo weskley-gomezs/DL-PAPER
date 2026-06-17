@@ -148,8 +148,17 @@ export default function Footer() {
               Painel do Administrador
             </button>
           </div>
-          <p className="flex items-center gap-1 shrink-0 font-light">
-            Feito com carinho, criatividade e propósito <Heart className="w-3 h-3 text-brand-pink fill-brand-pink animate-pulse" /> em Brasília
+          <p className="flex items-center gap-1.5 shrink-0 font-light text-slate-500">
+            Feito com carinho, criatividade e propósito por{' '}
+            <a 
+              href="https://wa.me/5561996507712" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="font-semibold text-brand-pink hover:underline inline-flex items-center gap-1 transition-all"
+            >
+              Weskley Gomes
+              <Heart className="w-3.5 h-3.5 text-brand-pink fill-brand-pink animate-pulse" />
+            </a>
           </p>
         </div>
 

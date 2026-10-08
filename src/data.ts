@@ -25,7 +25,6 @@ export const CATEGORIES = [
 
 export const PRODUCTS: Product[] = [
   // 📦 CAIXAS PERSONALIZADAS AVULSAS (MILK, BALA, PIRÂMIDE, SUSHI, MALA)
-  // Pode ser com laço (R$ 1,72) ou sem laço (R$ 1,40)
   {
     id: "caixa-milk",
     name: "Caixa Milk",
@@ -35,7 +34,8 @@ export const PRODUCTS: Product[] = [
     description: "A queridinha das festas no formato Milk clássico. Design fofo, recortado com precisão em papel de alta gramatura de 180g. Pode ser encomendada com ou sem laço de cetim luxuoso.",
     image: "https://i.imgur.com/mYMClJY.jpeg",
     badge: "Mais Pedida",
-    features: ["Papel offset premium de 180g", "Corte eletrônico perfeito", "Laço de cetim luxuoso opcional", "Fácil de montar"]
+    features: ["Papel offset premium de 180g", "Corte eletrônico perfeito", "Laço de cetim luxuoso opcional", "Fácil de montar"],
+    segment: "pessoal"
   },
   {
     id: "caixa-bala",
@@ -46,7 +46,8 @@ export const PRODUCTS: Product[] = [
     description: "Lindo formato horizontal que remete a uma bala gigante de caramelo com fechamento charmoso. Opção com ou sem laço de cetim.",
     image: "https://i.imgur.com/Ai1fV66.jpeg",
     badge: "Destaque da Mesa",
-    features: ["Formato bala divertido", "Fechamento simétrico elegante", "Laço de cetim lateral opcional", "Impecável no tema escolhido"]
+    features: ["Formato bala divertido", "Fechamento simétrico elegante", "Laço de cetim lateral opcional", "Impecável no tema escolhido"],
+    segment: "pessoal"
   },
   {
     id: "caixa-piramide",
@@ -57,7 +58,8 @@ export const PRODUCTS: Product[] = [
     description: "Caixa em formato triangular de cone que confere altura e elegância imediata à mesa do bolo. Escolha com ou sem laço de cetim de alta qualidade no topo.",
     image: "https://i.imgur.com/boQBgeb.jpeg",
     badge: "Sofisticada",
-    features: ["Formato cone tridimensional", "Nome e personagem em destaque", "Laço de cetim no topo opcional", "Acabamento profissional"]
+    features: ["Formato cone tridimensional", "Nome e personagem em destaque", "Laço de cetim no topo opcional", "Acabamento profissional"],
+    segment: "pessoal"
   },
   {
     id: "caixa-sushi",
@@ -68,7 +70,8 @@ export const PRODUCTS: Product[] = [
     description: "Formato trapézio charmoso com encaixes perfeitos de segurança. Pode ser decorada com um elegante laço de cetim ou na versão simples e limpa.",
     image: "https://i.imgur.com/NVSCT1a.jpeg",
     badge: "Clássica",
-    features: ["Base trapézio firme", "Encaixe inteligente de fundo", "Fita de cetim decorativa opcional", "Fácil preenchimento de doces"]
+    features: ["Base trapézio firme", "Encaixe inteligente de fundo", "Fita de cetim decorativa opcional", "Fácil preenchimento de doces"],
+    segment: "pessoal"
   },
   {
     id: "caixa-mala",
@@ -79,10 +82,11 @@ export const PRODUCTS: Product[] = [
     description: "Maletinha lúdica com alça integrada. Perfeita para encantar as crianças como lembrancinha de doces. Opções com laço colado na alça ou sem.",
     image: "https://i.imgur.com/XyHjuCE.jpeg",
     badge: "Lúdica",
-    features: ["Alça de papel estruturado", "Belo espaço para guloseimas", "Laço de cetim premium opcional", "Recorte eletrônico de alta definição"]
+    features: ["Alça de papel estruturado", "Belo espaço para guloseimas", "Laço de cetim premium opcional", "Recorte eletrônico de alta definição"],
+    segment: "pessoal"
   },
 
-  // 🎁 KITS FESTAS CLÁSSICO (CADA KIT VEM COM 5 CAIXAS DE CADA TIPO PARA COMBINAÇÃO!)
+  // 🎁 KITS FESTAS CLÁSSICO
   {
     id: "kit-caixas-custom",
     name: "Kit Festas Clássico (Misto)",
@@ -92,20 +96,48 @@ export const PRODUCTS: Product[] = [
     description: "Kits sob medida contendo as 5 caixas clássicas (Milk, Bala, Pirâmide, Sushi e Mala). Escolha a quantidade de caixas desejada e veja a repartição ideal entre caixas com e sem laço.",
     image: "https://i.imgur.com/MIGyVNh.jpeg",
     badge: "Configurável",
-    features: ["Cinco modelos clássicos inclusos", "Escolha de 15 a 50 caixas", "Proporção balanceada de laços", "Design impecável com e sem laço"]
+    features: ["Cinco modelos clássicos inclusos", "Escolha de 15 a 50 caixas", "Proporção balanceada de laços", "Design impecável com e sem laço"],
+    segment: "pessoal"
   },
 
-  // 🍭 LEMBRANCINHAS PÓS FESTA (Pedido mínimo: 10 unidades de cada)
+  // 🏢 PRODUTOS CORPORATIVOS E BRINDES INSTITUCIONAIS
+  {
+    id: "brinde-kit-onboarding",
+    name: "Kit Mimos & Boas-Vindas Corporativo",
+    category: "Kits de Caixas",
+    minPrice: 18.90,
+    maxPrice: 28.50,
+    description: "Kit premium para eventos corporativos, onboarding de novos colaboradores e brindes de fim de ano. Contém tubolata personalizada com a identidade da empresa, adesivos e sacolinha com fita de cetim.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_YsULBmgfd9LZDwjZ9iEeoiKQjhPIcwaJUO-KiJwCwSstX1H3YMkvhnJ1&s=10",
+    badge: "Corporativo VIP",
+    features: ["Identidade visual da sua empresa", "Tubolata com logo e acabamento nobre", "Excelente para acolher equipe e clientes", "Pedido sob medida"],
+    segment: "corporativo"
+  },
+  {
+    id: "brinde-caixa-mimo-empresa",
+    name: "Caixa Corporativa com Logo da Empresa",
+    category: "Caixas Avulsas",
+    minPrice: 5.50,
+    maxPrice: 7.90,
+    description: "Caixa nobre de papelaria estruturada com aplicação do logotipo e paleta institucional. Ideal para presentear clientes e parceiros em congressos, datas comemorativas e workshops.",
+    image: "https://i.imgur.com/QLJ0hjg.png",
+    badge: "Brinde Corporativo",
+    features: ["Cores institucionais e logo da empresa", "Acabamento nobre de luxo", "Ideal para bombons, brindes ou mimos", "Apresentação de alto impacto"],
+    segment: "corporativo"
+  },
+
+  // 🍭 LEMBRANCINHAS & BRINDES
   {
     id: "lembrancinha-adesivo",
-    name: "Adesivo Personalizado",
+    name: "Adesivo Personalizado com Logo / Tema",
     category: "Lembrancinhas",
     minPrice: 0.80,
     maxPrice: 0.80,
-    description: "Adesivos fotográficos de alta aderência com contorno eletrônico personalizado em qualquer tema.",
+    description: "Adesivos fotográficos de alta aderência com contorno eletrônico personalizado. Perfeitos para rotular embalagens de festas ou produtos e brindes corporativos.",
     image: "https://cdn.awsli.com.br/600x1000/707/707917/produto/325920975/embalagem-4-cfvrfz9t28.jpeg",
     badge: "Mín. 10 unid.",
-    features: ["Brilho fotográfico vivo", "Cortado sob medida", "Design coordenado com o tema", "Ideal para tubetes, latas e sacolas"]
+    features: ["Brilho fotográfico vivo", "Cortado sob medida", "Design coordenado com o tema ou logo", "Ideal para tubetes, latas e sacolas"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-tubete",
@@ -116,7 +148,8 @@ export const PRODUCTS: Product[] = [
     description: "Frasco cilíndrico acrílico transparente com tampa plástica colorida e lindo aplique em destaque.",
     image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/20977701/bf54f55a98.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Acrílico rígido transparente", "Aplique de personagem recortado", "Tampa rosqueável firme", "Excelente para confeitos"]
+    features: ["Acrílico rígido transparente", "Aplique de personagem recortado", "Tampa rosqueável firme", "Excelente para confeitos"],
+    segment: "pessoal"
   },
   {
     id: "lembrancinha-tubolata-5x6",
@@ -124,10 +157,11 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 3.20,
     maxPrice: 3.90,
-    description: "Cilindro de papelão micro-ondulado premium tamanho 5x6 com tampa metálica luxuosa e embalagem adesivada. Opções com laço de cetim exuberante ou sem laço.",
+    description: "Cilindro de papelão micro-ondulado premium tamanho 5x6 com tampa metálica luxuosa e embalagem adesivada. Uma das lembrancinhas mais versáteis tanto para festas quanto para mimos corporativos com logotipo.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_YsULBmgfd9LZDwjZ9iEeoiKQjhPIcwaJUO-KiJwCwSstX1H3YMkvhnJ1&s=10",
     badge: "Refinada",
-    features: ["Formato vintage refinado", "Papelão ultra estruturado", "Laço de cetim premium opcional", "Excelente lembrança durável", "Pedido mínimo de 10 unidades"]
+    features: ["Formato vintage refinado", "Papelão ultra estruturado", "Laço de cetim premium opcional", "Excelente lembrança durável", "Pedido mínimo de 10 unidades"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-latinha",
@@ -135,10 +169,11 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 2.20,
     maxPrice: 2.20,
-    description: "Latinha acrílica ou plástica com adesivo redondo de alto brilho no topo. Uma lembrancinha tradicional e amada.",
+    description: "Latinha acrílica ou plástica com adesivo redondo de alto brilho no topo. Uma lembrancinha tradicional para festas ou feiras e eventos corporativos.",
     image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/20733798/3b8522cc02.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Compacto e fácil de carregar", "Personalização inteiramente brilhosa", "Perfeito para pastilhas ou guloseimas"]
+    features: ["Compacto e fácil de carregar", "Personalização inteiramente brilhosa", "Perfeito para pastilhas ou guloseimas"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-cofrinho",
@@ -146,21 +181,23 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 3.50,
     maxPrice: 3.50,
-    description: "Cofrinho rígido encapado com rótulo fotográfico alto-brilho e tampas plásticas removíveis coloridas.",
+    description: "Cofrinho rígido encapado com rótulo fotográfico alto-brilho e tampas plásticas removíveis coloridas. Muito pedido para temas infantis e campanhas corporativas de metas financeiras/SIPAT.",
     image: "https://images.tcdn.com.br/img/img_prod/660758/10_cofrinhos_personalizados_lembrancinhas_temas_a_1_20250915163439_5185e920e077.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Papel fotográfico brilhante", "Lembrança útil e ecológica", "Tampas coloridas de acordo com a paleta"]
+    features: ["Papel fotográfico brilhante", "Lembrança útil e ecológica", "Tampas coloridas de acordo com a paleta"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-sacolinha",
-    name: "Sacolinha Personalizada",
+    name: "Sacolinha Personalizada com Fita de Cetim",
     category: "Lembrancinhas",
     minPrice: 4.90,
     maxPrice: 4.90,
-    description: "Sacola de papel com reforço lateral e lindas abas com cordões em fita de cetim. A embalagem final perfeita.",
+    description: "Sacola de papel com reforço lateral e lindas abas com cordões em fita de cetim. A embalagem final perfeita para festas ou presentes corporativos.",
     image: "https://i.imgur.com/QLJ0hjg.png",
     badge: "Mín. 10 unid.",
-    features: ["Fita de cetim luxuosa", "Papel reforçado durável", "Tema ilustrado completo nas laterais"]
+    features: ["Fita de cetim luxuosa", "Papel reforçado durável", "Tema ou logotipo impresso com nitidez"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-marmitinha",
@@ -171,7 +208,8 @@ export const PRODUCTS: Product[] = [
     description: "Marmitinha clássica de alumínio com tampa fotográfica personalizada. Um sucesso tradicional de festas.",
     image: "https://http2.mlstatic.com/D_NQ_NP_799263-MLB83907410878_042025-O.webp",
     badge: "Mín. 10 unid.",
-    features: ["Alumínio resistente", "Tampa impermeável brilhosa", "Ideal para fatias de bolo e docinhos"]
+    features: ["Alumínio resistente", "Tampa impermeável brilhosa", "Ideal para fatias de bolo e docinhos"],
+    segment: "pessoal"
   },
   {
     id: "lembrancinha-porta-bis",
@@ -179,10 +217,11 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 1.80,
     maxPrice: 1.80,
-    description: "Embalagem suporte divertida projetada sob medida para abrigar dois chocolates Bis com aplique 3D.",
+    description: "Embalagem suporte divertida projetada sob medida para abrigar dois chocolates Bis com aplique 3D. Excelente para festas ou pequenos mimos para colaboradores.",
     image: "https://images.tcdn.com.br/img/img_prod/504105/caixa_bis_duplo_28_1_20200329081915.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Serve 2 chocolates Bis", "Elemento 3D saliente", "Enche a mesa com pequenos charmes"]
+    features: ["Serve 2 chocolates Bis", "Elemento 3D saliente", "Enche a mesa com pequenos charmes"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-porta-kitkat",
@@ -190,35 +229,38 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 2.20,
     maxPrice: 2.20,
-    description: "Embalagem estrutural premium para vestir a amada barra de chocolate KitKat, com detalhes em relevo no tema.",
+    description: "Embalagem estrutural premium para vestir a barra de chocolate KitKat, com detalhes em relevo no tema ou mensagem motivacional da empresa.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTViIa4NZOmZBAV7rF507EkwMsvBeJjltUwt-ozpVWzmD6qq06UwbViklkA&s=10",
     badge: "Mín. 10 unid.",
-    features: ["Encaixe sob medida perfeito", "Excelente acabamento protetivo", "Brilho e sofisticação no papel"]
+    features: ["Encaixe sob medida perfeito", "Excelente acabamento protetivo", "Brilho e sofisticação no papel"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-caixa-4-doces",
-    name: "Caixa 4 Doces",
+    name: "Caixa 4 Doces / Brigadeiros Gourmet",
     category: "Lembrancinhas",
     minPrice: 2.80,
     maxPrice: 2.80,
-    description: "Caixinha fina com divisórias internas para abrigar perfeitamente 4 doces finos ou brigadeiros.",
+    description: "Caixinha fina com divisórias internas para abrigar perfeitamente 4 doces finos ou brigadeiros. Amada em aniversários e para mimos executivos.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShVmOA1MuYJ7GZlwBXmwfRoWCPVYizMCm2EIAVAQPzGfYq2ELjgmIxFVXD&s=10",
     badge: "Mín. 10 unid.",
-    features: ["4 divisórias internas", "Excelente para brigadeiro gourmet", "Visual carinhoso para lembrancinha"]
+    features: ["4 divisórias internas", "Excelente para brigadeiro gourmet", "Visual carinhoso para lembrancinha ou mimo"],
+    segment: "ambos"
   },
   {
     id: "lembrancinha-caixa-6-doces",
-    name: "Caixa 6 Doces",
+    name: "Caixa 6 Doces Finos",
     category: "Lembrancinhas",
     minPrice: 3.50,
     maxPrice: 3.50,
-    description: "Caixinha refinada com visor ou tampa decorada contendo divisórias internas para 6 deliciosos brigadeiros.",
+    description: "Caixinha refinada com visor ou tampa decorada contendo divisórias internas para 6 deliciosos brigadeiros. Muito requisitada para clientes VIP e celebrações.",
     image: "https://images.tcdn.com.br/img/img_prod/574525/caixa_para_6_doces_kraft_119_2_20190705095514.jpg",
     badge: "Mín. 10 unid.",
-    features: ["6 Berços individuais", "Papel de alta qualidade", "Corte visual delicado e firme"]
+    features: ["6 Berços individuais", "Papel de alta qualidade", "Corte visual delicado e firme"],
+    segment: "ambos"
   },
 
-  // 🎂 TOPO DE BOLO (Simples, com Destaque ou Dupla Camada)
+  // 🎂 TOPO DE BOLO
   {
     id: "topo-bolo-simples",
     name: "Topo de Bolo Simples",
@@ -228,7 +270,8 @@ export const PRODUCTS: Product[] = [
     description: "Conjunto de tags decorativas com corte eletrônico para enfeitar o bolo com haste acrílica invisível.",
     image: "https://cdn.awsli.com.br/2500x2500/409/409878/produto/240005991/20230929_162453-2-me2ds5c66a.jpg",
     badge: "Tradicional",
-    features: ["Palitos invisíveis acrílicos", "Imagens nítidas cortadas eletronicamente", "Fácil posicionamento no bolo"]
+    features: ["Palitos invisíveis acrílicos", "Imagens nítidas cortadas eletronicamente", "Fácil posicionamento no bolo"],
+    segment: "pessoal"
   },
   {
     id: "topo-bolo-destaque",
@@ -239,7 +282,8 @@ export const PRODUCTS: Product[] = [
     description: "Combina as tags clássicas com o nome do aniversariante em relevo de camadas destacadas.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjYMqC9SJrw06ZLacechZlMWaXh6jvaRBHfSPChqh715AJdb9Q9yn7Azw&s=10",
     badge: "Recomendado",
-    features: ["Nome em destaque 3D", "Sobreposição elegante", "Aproximadamente 6 peças decorativas"]
+    features: ["Nome em destaque 3D", "Sobreposição elegante", "Aproximadamente 6 peças decorativas"],
+    segment: "pessoal"
   },
   {
     id: "topo-bolo-dupla-camada",
@@ -250,7 +294,8 @@ export const PRODUCTS: Product[] = [
     description: "O topo definitivo de luxo com todas as tags montadas em dupla camada de papéis coloridos especiais.",
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGNaeJcooQwA6VPnfakKehv9ink0s_Xy0t8yfAUs7-XZ0PKsUMB5fVe-8S&s=10",
     badge: "Premium 3D",
-    features: ["Efeito real 3D no bolo", "Papéis especiais metalizados/texturas", "Várias camadas coladas à mão"]
+    features: ["Efeito real 3D no bolo", "Papéis especiais metalizados/texturas", "Várias camadas coladas à mão"],
+    segment: "pessoal"
   },
 
   // 🧁 KITS DE FORMINHAS
@@ -263,7 +308,8 @@ export const PRODUCTS: Product[] = [
     description: "Kits de forminhas personalizadas para doces. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Premium) desejados.",
     image: "https://cdn.awsli.com.br/2500x2500/71/71166/produto/30506403/877af77799.jpg",
     badge: "Configurável",
-    features: ["Várias quantidades (20, 30, 50, 100)", "Linhas Simples e Premium 3D", "Papelaria afetiva fotográfica premium", "Pedido mínimo de 20 forminhas"]
+    features: ["Várias quantidades (20, 30, 50, 100)", "Linhas Simples e Premium 3D", "Papelaria afetiva fotográfica premium", "Pedido mínimo de 20 forminhas"],
+    segment: "pessoal"
   },
 
   // 🍡 TOPPERS PARA DOCINHOS
@@ -276,7 +322,8 @@ export const PRODUCTS: Product[] = [
     description: "Mini toppers de alta resolução fixados em palito de acrílico higiênico. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Dupla Camada).",
     image: "https://ciadafesta.cdn.magazord.com.br/img/2024/06/produto/8953/topper.png?ims=600x600",
     badge: "Configurável",
-    features: ["Várias quantidades (20, 30, 50, 100)", "Opções Simples e Dupla Camada 3D", "Hastes acrílicas de alta qualidade", "Pedido mínimo de 20 toppers"]
+    features: ["Várias quantidades (20, 30, 50, 100)", "Opções Simples e Dupla Camada 3D", "Hastes acrílicas de alta qualidade", "Pedido mínimo de 20 toppers"],
+    segment: "pessoal"
   }
 ];
 

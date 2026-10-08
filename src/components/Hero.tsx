@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, ArrowRight, Heart, Calendar, Percent, ShieldCheck, HeartHandshake, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  Sparkles, 
+  ArrowRight, 
+  Heart, 
+  ChevronLeft, 
+  ChevronRight, 
+  Package, 
+  Gift, 
+  Layers, 
+  MessageCircle,
+  Scissors
+} from "lucide-react";
 import { useAppContext } from "../context/DataContext";
 
 interface HeroProps {
@@ -19,9 +30,9 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -36,8 +47,21 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
   const handleScrollToCatalog = () => {
     const catalogEl = document.getElementById("catalogo");
     if (catalogEl) {
-      const headerOffset = 90;
+      const headerOffset = 80;
       const elementPosition = catalogEl.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  const handleScrollToContact = () => {
+    const contactEl = document.getElementById("contato");
+    if (contactEl) {
+      const headerOffset = 80;
+      const elementPosition = contactEl.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - headerOffset;
       window.scrollTo({
         top: offsetPosition,
@@ -49,135 +73,165 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
   return (
     <section
       id="inicio"
-      className="relative pt-[64px] sm:pt-[74px] pb-4 bg-slate-50"
+      className="relative pt-24 sm:pt-28 pb-10 sm:pb-14 bg-[#FFF6F0] overflow-hidden"
     >
-      {/* Soft background glow accents */}
-      <div className="absolute top-0 right-1/4 w-80 h-80 rounded-full bg-brand-pink/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-10 w-96 h-96 rounded-full bg-brand-tiffany/5 blur-3xl pointer-events-none" />
+      {/* Background Soft Glows */}
+      <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#E8527A]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 -right-20 w-72 h-72 bg-[#FFC947]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 -left-20 w-80 h-80 bg-[#E8527A]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Full-width container of the banner */}
-      <div className="w-full relative z-10 select-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Grand E-Commerce Promo Banner element - Edge to Edge width with responsive aspect ratio */}
-        <div 
-          className="relative w-full overflow-hidden shadow-xs border-y border-slate-200/40 bg-white group"
-          id="hero_ecommerce_banner"
-        >
-          {/* Helper Image: This determines the natural height of the container perfectly on all devices, avoiding distortion */}
-          <img
-            src={banners[0]}
-            alt="Helper Layout Guide"
-            className="w-full h-auto pointer-events-none opacity-0 invisible block"
-          />
+        {/* Welcome Intro Header */}
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+          
+          {/* Logo Badge */}
+          <div className="inline-flex mb-4">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-2.5 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
+              <img 
+                src={data.logo || "https://i.imgur.com/fVtEcdv.png"} 
+                alt="DL Magic Paper" 
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
 
-          {/* Silder Active Image Layer */}
-          <div className="absolute inset-0 w-full h-full">
+          {/* Pill Badge */}
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
+              <span className="font-sans text-xs font-bold text-[#E8527A] tracking-wide">
+                Papelaria de Personalizados Clássicos & Afetiva
+              </span>
+            </div>
+          </div>
+
+          {/* Main Welcome Title */}
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
+            Bem-vindo(a) ao DL Magic Paper!
+          </h1>
+          
+          <p className="font-sans text-sm sm:text-base text-[#3A2439]/75 font-normal max-w-2xl mx-auto mt-3 leading-relaxed">
+            Transformamos papel em memórias inesquecíveis. Caixas clássicas com laços de luxo, topos de bolo 3D em camadas, kits para festas e mimos produzidos artesanalmente com muito amor e carinho em Brasília.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-6">
+            <button
+              type="button"
+              onClick={handleScrollToCatalog}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#E8527A] hover:bg-[#D43C65] text-white font-sans text-sm font-bold shadow-md shadow-[#E8527A]/20 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+              id="hero_btn_ver_catalogo"
+            >
+              <Package className="w-4 h-4" />
+              Ver Catálogo Completo
+              <ArrowRight className="w-4 h-4 ml-0.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleScrollToContact}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-white/90 text-[#3A2439] border border-[#3A2439]/15 font-sans text-sm font-bold shadow-xs hover:border-[#E8527A] hover:text-[#E8527A] transition-all cursor-pointer"
+              id="hero_btn_orcamento"
+            >
+              <MessageCircle className="w-4 h-4 text-[#E8527A]" />
+              Pedir Orçamento no WhatsApp
+            </button>
+          </div>
+        </div>
+
+        {/* Carousel Promotional Banner Section */}
+        <div className="max-w-5xl mx-auto mb-10">
+          <div 
+            className="relative w-full rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-xl border-4 border-white bg-white group aspect-[16/7] sm:aspect-[21/9]"
+            id="hero_banner_carousel"
+          >
+            {/* Slider Layer */}
             <AnimatePresence initial={false} mode="wait">
               <motion.img
                 key={currentSlide}
                 src={banners[currentSlide]}
-                alt={`DL Magic Paper Banner Promocional ${currentSlide + 1}`}
-                initial={{ opacity: 0, scale: 1 }}
-                animate={{ opacity: 1, scale: 1 }}
+                alt={`DL Magic Paper Banner ${currentSlide + 1}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="w-full h-full object-fill"
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="w-full h-full object-cover sm:object-fill"
                 referrerPolicy="no-referrer"
               />
             </AnimatePresence>
-          </div>
 
-          {/* Clean glass reflection overlay */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-white/0 to-white/5 pointer-events-none" />
+            {/* Navigation Arrows */}
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white text-[#3A2439] hover:text-[#E8527A] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
+              aria-label="Banner anterior"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/80 hover:bg-white backdrop-blur-xs border border-slate-200/50 flex items-center justify-center text-slate-700 hover:text-brand-pink shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-1 group-hover:translate-x-0 cursor-pointer"
-            aria-label="Anterior"
-          >
-            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-          
-          <button
-            onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white/80 hover:bg-white backdrop-blur-xs border border-slate-200/50 flex items-center justify-center text-slate-700 hover:text-brand-pink shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0 cursor-pointer"
-            aria-label="Próximo"
-          >
-            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 hover:bg-white text-[#3A2439] hover:text-[#E8527A] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
+              aria-label="Próximo banner"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
 
-          {/* Navigation Dots Indicator */}
-          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-            {banners.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
-                  currentSlide === idx 
-                    ? "bg-brand-pink w-4 sm:w-5 shadow-xs" 
-                    : "bg-slate-400/55 hover:bg-slate-400"
-                }`}
-                aria-label={`Slide ${idx + 1}`}
-              />
-            ))}
+            {/* Navigation Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+              {banners.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlide(idx)}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    currentSlide === idx 
+                      ? "bg-[#E8527A] w-6" 
+                      : "bg-white/70 hover:bg-white w-2"
+                  }`}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Lower Store Benefits Block & CTAs within max container of the page for perfect design alignment */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
-          <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-between gap-5 bg-white p-4 sm:p-5 rounded-[1.5rem] border border-slate-200/50 shadow-xs">
+        {/* Benefits Bar */}
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 bg-white/90 backdrop-blur-xs p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-[#3A2439]/10 shadow-xs">
             
-            {/* Virtual Store Info Badges - Mobile: Slider Horizontal Scroll, Desktop/Tablet: Grid columns */}
-            <div className="flex flex-row lg:grid lg:grid-cols-3 gap-6 lg:gap-4 w-full lg:flex-1 overflow-x-auto lg:overflow-visible pb-2.5 lg:pb-0 scrollbar-none [&::-webkit-scrollbar]:hidden animate-fade-in">
-              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
-                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
-                  <Calendar className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">100% Personalizado</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Adicionamos o nome, idade e o tema que você preferir.</p>
-                </div>
+            <div className="flex items-center gap-3.5 p-2 text-left">
+              <div className="w-10 h-10 rounded-2xl bg-[#E8527A]/10 text-[#E8527A] flex items-center justify-center shrink-0">
+                <Scissors className="w-5 h-5" />
               </div>
-
-              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
-                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
-                  <HeartHandshake className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">Atendimento Especial</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Ajustamos laços, fitas e cores direto pelo WhatsApp.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 text-left shrink-0 min-w-[210px] sm:min-w-[240px] lg:min-w-0 font-sans">
-                <div className="p-2 bg-pink-50 rounded-xl text-brand-pink shrink-0 mt-0.5">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-700 whitespace-nowrap">Orçamento sem Complicações</h4>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-normal whitespace-normal sm:max-w-[200px]">Adicione os mimos favoritos e envie com um clique no WhatsApp.</p>
-                </div>
+              <div>
+                <h4 className="font-serif font-bold text-sm text-[#3A2439]">100% Personalizado</h4>
+                <p className="font-sans text-xs text-[#3A2439]/65">Criamos no tema, nome e cores que você sonhar.</p>
               </div>
             </div>
 
-            {/* Quick CTA Buttons */}
-            <div className="flex flex-row items-center gap-3 w-full lg:w-auto shrink-0 justify-between sm:justify-start lg:justify-end pt-4 lg:pt-0 border-t lg:border-t-0 lg:border-l border-dashed border-slate-200 lg:pl-5">
-              <button
-                onClick={handleScrollToCatalog}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-5 py-2.5 rounded-full font-sans text-xs font-bold shadow-md shadow-brand-pink/10 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer whitespace-nowrap active:scale-98"
-              >
-                Explorar Produtos
-                <ArrowRight className="w-4 h-4" />
-              </button>
+            <div className="flex items-center gap-3.5 p-2 text-left border-t sm:border-t-0 sm:border-l border-[#3A2439]/10 pt-3 sm:pt-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#FFC947]/20 text-[#3A2439] flex items-center justify-center shrink-0">
+                <Layers className="w-5 h-5 text-[#E8527A]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-sm text-[#3A2439]">Papelaria em Camadas 3D</h4>
+                <p className="font-sans text-xs text-[#3A2439]/65">Papéis nobres de 180g com laços de cetim luxuosos.</p>
+              </div>
+            </div>
 
-              <button
-                onClick={onOpenBudgetSidebar}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-full font-sans text-xs font-bold hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer whitespace-nowrap active:scale-98"
-              >
-                <Heart className="w-4 h-4 text-brand-pink fill-brand-pink/15" />
-                Ver Carrinho
-              </button>
+            <div className="flex items-center gap-3.5 p-2 text-left border-t sm:border-t-0 sm:border-l border-[#3A2439]/10 pt-3 sm:pt-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#E8527A]/10 text-[#E8527A] flex items-center justify-center shrink-0">
+                <Heart className="w-5 h-5 fill-[#E8527A]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-sm text-[#3A2439]">Atendimento Afetivo</h4>
+                <p className="font-sans text-xs text-[#3A2439]/65">Orçamento rápido e direto pelo WhatsApp com carinho.</p>
+              </div>
             </div>
 
           </div>
@@ -187,4 +241,3 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
     </section>
   );
 }
-

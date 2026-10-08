@@ -1,16 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-pink: #FF6699;
-  --color-brand-pink-hover: #E25080;
+  --color-brand-pink: #E8527A;
+  --color-brand-pink-hover: #D43C65;
+  --color-brand-cream: #FFF6F0;
+  --color-brand-yellow: #FFC947;
+  --color-brand-plum: #3A2439;
+  --color-brand-plum-muted: #5E3D5C;
   --color-brand-tiffany: #20C0C0;
   --color-brand-tiffany-hover: #199D9D;
   --color-brand-lilac: #B896F5;
-  --color-brand-yellow: #FFF68F;
-  --color-brand-pastel-bg: #FFF7F9;
+  --color-brand-pastel-bg: #FFF6F0;
   
-  --font-sans: "Outfit", "Plus Jakarta Sans", sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Baloo 2", cursive, sans-serif;
+  --font-heading: "Baloo 2", cursive, sans-serif;
 }
 
 /* CSS Utilities for premium styling and smooth animations */

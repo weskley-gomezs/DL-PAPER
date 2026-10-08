@@ -1,8 +1,7 @@
+import { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ProductsCatalog from "./components/ProductsCatalog";
-import ThemesGallery from "./components/ThemesGallery";
-import Differentials from "./components/Differentials";
 import About from "./components/About";
 import Testimonials from "./components/Testimonials";
 import Contact from "./components/Contact";
@@ -12,7 +11,6 @@ import AdminPanel from "./components/AdminPanel";
 import ProductPage from "./components/ProductPage";
 import { DataProvider } from "./context/DataContext";
 import { Product, BudgetItem } from "./types";
-import { useState } from "react";
 
 function AppContent() {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
@@ -64,18 +62,16 @@ function AppContent() {
   const cartItemsCount = budgetItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="relative min-h-screen bg-slate-50 overflow-x-hidden selection:bg-pink-100 selection:text-pink-900 transition-colors" id="app_root_layout">
+    <div className="relative min-h-screen bg-[#FFF6F0] text-[#3A2439] overflow-x-hidden selection:bg-[#E8527A]/20 selection:text-[#E8527A] transition-colors" id="app_root_layout">
       
       {/* Background Graphic Accents */}
-      <div className="absolute top-[5%] -left-20 w-72 h-72 rounded-full bg-brand-pink/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-[25%] -right-20 w-80 h-80 rounded-full bg-brand-tiffany/5 blur-3xl pointer-events-none" />
-      <div className="absolute top-[60%] left-10 w-96 h-96 rounded-full bg-brand-lilac/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-[5%] -left-20 w-80 h-80 rounded-full bg-[#E8527A]/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-[30%] -right-20 w-96 h-96 rounded-full bg-[#FFC947]/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-[65%] left-10 w-96 h-96 rounded-full bg-[#E8527A]/5 blur-3xl pointer-events-none" />
 
       {/* 1. Header (Navbar, controls & dynamic cart toggles) */}
       <Header
-        onOpenBudgetSidebar={() => {
-          setIsBudgetOpen(true);
-        }}
+        onOpenBudgetSidebar={() => setIsBudgetOpen(true)}
         cartItemsCount={cartItemsCount}
         hasActiveProduct={!!activeProduct}
         onLeaveProductPage={() => setActiveProduct(null)}
@@ -95,33 +91,29 @@ function AppContent() {
         />
       ) : (
         <>
-          {/* 2. Hero (Primary section, visual illustration layout) */}
+          {/* 1. Tela de Boas-Vindas / Apresentação Acolhedora com Banners */}
           <Hero onOpenBudgetSidebar={() => setIsBudgetOpen(true)} />
 
-          {/* 3. Products Catalog (Category selection cards) */}
-          <ProductsCatalog onSelectProduct={(product) => {
-            setActiveProduct(product);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }} />
+          {/* 2. Catálogo com Todos os Produtos Separados por Categoria ("o que é") */}
+          <ProductsCatalog
+            onSelectProduct={(product) => {
+              setActiveProduct(product);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
 
-          {/* 4. Themes Gallery (Illustrative themes catalog list) */}
-          <ThemesGallery />
-
-          {/* 5. Differentials (Bento value indicators) */}
-          <Differentials />
-
-          {/* 6. About (Atelier custom timeline & biography) */}
-          <About />
-
-          {/* 7. Testimonials (Moms sliding comments) */}
+          {/* 3. Prova Social: Depoimentos e Avaliações Reais de WhatsApp */}
           <Testimonials />
 
-          {/* 8. Contact & DF Illustrated Map */}
+          {/* 4. Quem Faz com Amor e Propósito: Danyelle Lau & Ateliê */}
+          <About />
+
+          {/* 5. Formulário de Orçamento via WhatsApp e Canais Diretos */}
           <Contact />
         </>
       )}
 
-      {/* 9. Floating Triggers & Custom Budgets Cart Drawer */}
+      {/* Floating Triggers & Custom Budgets Cart Drawer */}
       <BudgetFloat
         isOpen={isBudgetOpen}
         onClose={() => setIsBudgetOpen(false)}
@@ -131,10 +123,10 @@ function AppContent() {
         onUpdateQuantity={handleUpdateQuantity}
       />
 
-      {/* 10. Core trademark page Footer */}
+      {/* Footer com link 'Feito por Weskley Gomes' */}
       <Footer />
 
-      {/* 11. Custom Admin Control Center Drawer Overlay */}
+      {/* Admin Control Center Drawer Overlay */}
       <AdminPanel />
 
     </div>

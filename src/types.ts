@@ -1,3 +1,5 @@
+export type ProductSegment = "pessoal" | "corporativo" | "ambos";
+
 export interface Product {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface Product {
   image: string;
   badge?: string;
   features?: string[];
+  segment?: ProductSegment;
 }
 
 export interface ThemeItem {

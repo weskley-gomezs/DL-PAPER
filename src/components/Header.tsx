@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings, ArrowLeft } from "lucide-react";
+import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings, ArrowLeft, PartyPopper, Briefcase } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
 
 interface HeaderProps {
@@ -10,13 +10,16 @@ interface HeaderProps {
   onLeaveProductPage?: () => void;
 }
 
-export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveProduct, onLeaveProductPage }: HeaderProps) {
+export default function Header({ 
+  onOpenBudgetSidebar, 
+  cartItemsCount, 
+  hasActiveProduct, 
+  onLeaveProductPage
+}: HeaderProps) {
   const { data, setIsAdminOpen } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-
-  // Monitor screen scroll to change background
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -30,62 +33,36 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
   }, []);
 
   const menuItems = [
-    { label: "Início", href: "#" },
+    { label: "Início", href: "#inicio" },
     { label: "Catálogo", href: "#catalogo" },
-    { label: "Kits Festa", href: "#kits-festa" },
-    { label: "Topos de Bolo", href: "#topos-bolo" },
-    { label: "Personalizados", href: "#personalizados" },
+    { label: "Avaliações", href: "#avaliacoes" },
     { label: "Sobre", href: "#sobre" },
-    { label: "Contato", href: "#contato" },
+    { label: "Orçamento", href: "#contato" },
   ];
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof menuItems[0]) => {
     e.preventDefault();
     setIsMobileMenuOpen(false);
     
     if (hasActiveProduct && onLeaveProductPage) {
       onLeaveProductPage();
     }
-    
-    // Allow React state to update before scrolling so elements are rendered
     setTimeout(() => {
-      if (href === "#") {
+      if (item.href === "#inicio" || item.href === "#") {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
       
-      // Smooth scroll to element with offset for header
-      let targetId = href.substring(1);
-      
-      // Match customized headers
-      if (href === "#topos-bolo") {
-        targetId = "catalogo";
-      } else if (href === "#personalizados") {
-        targetId = "catalogo";
-      } else if (href === "#kits-festa") {
-        targetId = "catalogo";
-      }
-      
+      const targetId = item.href.substring(1);
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
-        const headerOffset = 90;
+        const headerOffset = 80;
         const elementPosition = targetEl.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
         window.scrollTo({
           top: offsetPosition,
           behavior: "smooth"
         });
-        
-        // If categories filter, click it via custom dispatch or custom event if needed
-        if (href === "#topos-bolo" || href === "#kits-festa" || href === "#personalizados") {
-          const catMap: { [key: string]: string } = {
-            "#topos-bolo": "Topos de Bolo",
-            "#kits-festa": "Kits Festa",
-            "#personalizados": "Caixas Personalizadas"
-          };
-          const event = new CustomEvent("filterCategory", { detail: catMap[href] });
-          window.dispatchEvent(event);
-        }
       }
     }, hasActiveProduct ? 100 : 0);
   };
@@ -96,8 +73,8 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
         id="app_header"
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled || hasActiveProduct
-            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-pink-100/50 py-2"
-            : "bg-white/90 backdrop-blur-md shadow-sm border-b border-pink-100/30 py-2.5 sm:py-3"
+            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-[#3A2439]/10 py-2"
+            : "bg-[#FFF6F0]/90 backdrop-blur-md shadow-xs border-b border-[#3A2439]/5 py-2.5 sm:py-3"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,35 +91,38 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }
               }}
-              className="group flex items-center"
+              className="group flex items-center gap-2.5"
               id="header_logo"
             >
               <img 
-                src={data.logo} 
+                src={data.logo || "https://i.imgur.com/fVtEcdv.png"} 
                 alt="DL Magic Paper Logo" 
-                className="w-14 h-14 sm:w-16 sm:h-16 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
+                className="w-12 h-12 sm:w-14 sm:h-14 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
                 referrerPolicy="no-referrer"
               />
+              <span className="font-serif font-bold text-lg sm:text-xl text-[#3A2439] tracking-tight hidden sm:inline-block">
+                DL Magic Paper
+              </span>
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-4 xl:gap-5" id="desktop_nav">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-6" id="desktop_nav">
               {!hasActiveProduct ? (
                 menuItems.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className="font-sans text-[13px] xl:text-[14px] font-semibold text-slate-600 hover:text-brand-pink transition-colors relative group py-1.5 px-0.5"
+                    onClick={(e) => handleNavClick(e, item)}
+                    className="font-sans text-[13px] xl:text-[14px] font-semibold text-[#3A2439]/80 hover:text-[#E8527A] transition-colors relative group py-1.5 px-0.5"
                   >
                     {item.label}
-                    <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-brand-pink transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-center" />
+                    <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#E8527A] transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-center" />
                   </a>
                 ))
               ) : (
                 <button
                   onClick={onLeaveProductPage}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-pink-50 hover:bg-pink-100/50 border border-pink-100 rounded-full text-brand-pink font-sans text-xs sm:text-sm font-bold transition-all shadow-xs"
+                  className="flex items-center gap-2 px-5 py-2 bg-white hover:bg-pink-50 border border-[#E8527A]/30 rounded-full text-[#E8527A] font-sans text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Voltar para o Catálogo
@@ -151,16 +131,16 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
             </nav>
 
             {/* Right Side Icons & CTA */}
-            <div className="flex items-center gap-3" id="header_controls">
+            <div className="flex items-center gap-2.5 sm:gap-3" id="header_controls">
               
               {/* Admin Panel Launcher */}
               <button
                 onClick={() => setIsAdminOpen(true)}
-                className="flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-brand-pink hover:bg-pink-50 transition-all cursor-pointer"
-                title="Painel de Administração (Administrador)"
+                className="flex items-center justify-center p-2 rounded-full text-[#3A2439]/60 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
+                title="Painel de Administração"
                 id="admin_panel_launcher_header"
               >
-                <Settings className="w-5 h-5 text-slate-500 hover:text-brand-pink" />
+                <Settings className="w-5 h-5" />
               </button>
 
               {/* Instagram URL icon */}
@@ -168,7 +148,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
                 href={data.instagramUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden sm:flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-brand-pink hover:bg-pink-50 transition-all"
+                className="hidden sm:flex items-center justify-center p-2 rounded-full text-[#3A2439]/60 hover:text-[#E8527A] hover:bg-white transition-all"
                 title={`Instagram ${data.instagramHandle}`}
                 id="social_instagram_link"
               >
@@ -178,7 +158,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               {/* Dynamic Budget Cart Trigger Button */}
               <button
                 onClick={onOpenBudgetSidebar}
-                className="relative flex items-center justify-center p-2 rounded-full text-slate-500 hover:text-brand-tiffany hover:bg-cyan-50 transition-all pointer-events-auto"
+                className="relative flex items-center justify-center p-2 rounded-full text-[#3A2439]/70 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
                 title="Ver meu orçamento simulado"
                 id="budget_cart_button"
               >
@@ -187,32 +167,32 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-0.5 -right-0.5 bg-brand-pink text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
+                    className="absolute -top-0.5 -right-0.5 bg-[#E8527A] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-xs"
                   >
                     {cartItemsCount}
                   </motion.span>
                 )}
               </button>
 
-              {/* CTA Budget request */}
+              {/* CTA Budget request button */}
               <button
                 onClick={onOpenBudgetSidebar}
-                className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-5 py-2.5 rounded-full font-semibold shadow-md shadow-brand-pink/20 hover:shadow-lg hover:shadow-brand-pink/30 hover:scale-102 transition-all cursor-pointer text-sm"
+                className="hidden md:flex items-center gap-1.5 bg-[#E8527A] hover:bg-[#D43C65] text-white px-4 py-2 rounded-full font-bold shadow-xs hover:scale-102 transition-all cursor-pointer text-xs"
                 id="header_cta_budget"
               >
-                <Heart className="w-4 h-4 fill-white animate-pulse" />
-                Solicitar orçamento
+                <Heart className="w-3.5 h-3.5 fill-white" />
+                <span>Simular Orçamento</span>
               </button>
 
               {/* Mobile Menu Toggle Button */}
               {!hasActiveProduct ? (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex lg:hidden items-center justify-center p-2 rounded-full text-slate-600 hover:bg-slate-100 transition-all"
+                  className="flex lg:hidden items-center justify-center p-2 rounded-full text-[#3A2439] hover:bg-white transition-all cursor-pointer"
                   id="mobile_menu_toggle"
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-6 h-6 text-brand-pink" />
+                    <X className="w-6 h-6 text-[#E8527A]" />
                   ) : (
                     <Menu className="w-6 h-6" />
                   )}
@@ -220,7 +200,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               ) : (
                 <button
                   onClick={onLeaveProductPage}
-                  className="flex lg:hidden items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100/60 rounded-full text-brand-pink font-sans text-xs font-bold active:scale-95 transition-all"
+                  className="flex lg:hidden items-center gap-1.5 px-3 py-1.5 bg-white border border-[#E8527A]/30 rounded-full text-[#E8527A] font-sans text-xs font-bold active:scale-95 transition-all"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Voltar
@@ -228,6 +208,7 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
               )}
 
             </div>
+
           </div>
         </div>
       </header>
@@ -239,45 +220,45 @@ export default function Header({ onOpenBudgetSidebar, cartItemsCount, hasActiveP
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed inset-x-0 top-[64px] sm:top-[74px] z-30 bg-white shadow-xl rounded-b-3xl border-b border-pink-100 p-6 flex flex-col gap-4 lg:hidden text-center"
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="fixed inset-x-0 top-[60px] sm:top-[70px] z-30 bg-[#FFF6F0] shadow-xl rounded-b-3xl border-b border-[#3A2439]/10 p-6 flex flex-col gap-3 lg:hidden text-center"
             id="mobile_menu_container"
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {menuItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className="font-sans font-medium text-slate-700 py-3 rounded-xl hover:bg-pink-50 hover:text-brand-pink transition-all"
+                  onClick={(e) => handleNavClick(e, item)}
+                  className="font-sans font-semibold text-[#3A2439] py-2.5 px-4 rounded-xl hover:bg-white hover:text-[#E8527A] transition-all text-sm"
                 >
                   {item.label}
                 </a>
               ))}
             </div>
 
-            <div className="h-px bg-pink-100/60 my-2" />
+            <div className="h-px bg-[#3A2439]/10 my-1" />
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   onOpenBudgetSidebar();
                 }}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-brand-pink to-brand-lilac text-white py-3.5 rounded-xl font-bold font-sans shadow-md"
+                className="flex items-center justify-center gap-2 bg-[#E8527A] text-white py-3 rounded-full font-bold font-sans text-xs shadow-sm"
               >
                 <Heart className="w-4 h-4 fill-white" />
-                Orçamento Rápido ({cartItemsCount} itens)
+                Simulação de Orçamento ({cartItemsCount} itens)
               </button>
 
-              <div className="flex items-center justify-center gap-4 py-2 mt-1">
+              <div className="flex items-center justify-center gap-4 py-1">
                 <a
                   href={data.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-brand-pink"
+                  className="flex items-center gap-2 text-xs font-semibold text-[#3A2439]/70 hover:text-[#E8527A]"
                 >
-                  <Instagram className="w-5 h-5 text-pink-500" />
+                  <Instagram className="w-4 h-4 text-[#E8527A]" />
                   {data.instagramHandle}
                 </a>
               </div>

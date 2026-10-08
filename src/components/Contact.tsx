@@ -311,7 +311,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
                   <p className="font-sans text-[10px] text-[#3A2439]/60 uppercase tracking-widest font-semibold">Entregas em todo o DF e Brasil</p>
                 </div>
                 <span className="bg-[#FFF6F0] text-[9px] font-bold text-[#E8527A] px-2.5 py-1 rounded-full border border-[#E8527A]/20">
-                  Planaltina / Brasília
+                  Brasília - DF
                 </span>
               </div>
 
@@ -329,7 +329,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
               </div>
 
               <div className="relative z-10 pt-2 border-t border-[#3A2439]/10 flex justify-between items-center text-[11px] text-[#3A2439]/70 font-sans">
-                <span>🛵 Entrega por Motoboy no DF</span>
+                <span>📍 Ateliê em Brasília</span>
                 <span>📦 Envio para Todo o Brasil</span>
               </div>
 

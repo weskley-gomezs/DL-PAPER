@@ -92,7 +92,7 @@ export default function Footer() {
               <p className="leading-relaxed">
                 <strong className="text-white">Brasília - DF</strong>
                 <br />
-                Planaltina e Entregas em todo o Distrito Federal
+                Ateliê em Brasília e envios para todo o Brasil
               </p>
               
               <div className="pt-2 flex items-center gap-3">

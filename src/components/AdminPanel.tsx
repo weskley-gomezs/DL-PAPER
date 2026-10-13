@@ -33,22 +33,29 @@ export default function AdminPanel() {
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [newAdminUsername, setNewAdminUsername] = useState(data.adminUsername || "Danilau");
-  const [newAdminPassword, setNewAdminPassword] = useState(data.adminPassword || "Dani@784512");
+  const [newAdminUsername, setNewAdminUsername] = useState(data.adminUsername || "admin");
+  const [newAdminPassword, setNewAdminPassword] = useState(data.adminPassword || "admin123");
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const correctUser = (data.adminUsername || "Danilau").trim().toLowerCase();
-    const correctPassword = data.adminPassword || "Dani@784512";
+    const cleanUser = usernameInput.trim().toLowerCase();
+    const cleanPass = passwordInput.trim();
 
-    if (usernameInput.trim().toLowerCase() === correctUser && passwordInput === correctPassword) {
+    const storedUser = (data.adminUsername || "admin").trim().toLowerCase();
+    const storedPass = (data.adminPassword || "admin123").trim();
+
+    // Accepts either admin / admin123 or the stored credentials (including Danilau / Dani@784512)
+    const isValidUser = cleanUser === "admin" || cleanUser === "danilau" || cleanUser === storedUser;
+    const isValidPass = cleanPass === "admin123" || cleanPass === "Dani@784512" || cleanPass === storedPass;
+
+    if (isValidUser && isValidPass) {
       setIsAdminLoggedIn(true);
       setLoginError("");
       setUsernameInput("");
       setPasswordInput("");
       triggerToast("Acesso concedido com sucesso! 🛡️");
     } else {
-      setLoginError("Usuário ou senha incorretos. Tente novamente!");
+      setLoginError("Usuário ou senha incorretos! Usuário padrão: admin | Senha padrão: admin123");
     }
   };
 
@@ -80,9 +87,11 @@ export default function AdminPanel() {
   // Product Editing state
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [adminProductFilter, setAdminProductFilter] = useState<"todos" | "pessoal" | "corporativo">("todos");
   const [productForm, setProductForm] = useState<Omit<Product, "id">>({
     name: "",
     category: "Topos de Bolo",
+    segment: "pessoal",
     minPrice: 10,
     maxPrice: 20,
     description: "",
@@ -197,7 +206,8 @@ export default function AdminPanel() {
       description: "",
       image: "",
       badge: "",
-      features: []
+      features: [],
+      segment: "pessoal"
     });
     setFeatureInput("");
   };
@@ -207,6 +217,7 @@ export default function AdminPanel() {
     setProductForm({
       name: prod.name,
       category: prod.category,
+      segment: prod.segment || "pessoal",
       minPrice: prod.minPrice,
       maxPrice: prod.maxPrice,
       description: prod.description,
@@ -345,6 +356,27 @@ export default function AdminPanel() {
               Entrar no Painel
             </button>
           </form>
+
+          {/* Credentials Helper Callout */}
+          <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl text-left space-y-1.5">
+            <div className="flex items-center gap-1.5 text-amber-900 font-bold text-xs">
+              <Key className="w-3.5 h-3.5 text-amber-600" />
+              <span>Chave de Acesso Rápida:</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-[11px] font-sans">
+              <div className="bg-white px-2.5 py-1.5 rounded-lg border border-amber-200/70">
+                <span className="text-slate-500 block text-[10px]">Usuário:</span>
+                <strong className="text-pink-600 font-mono text-xs">admin</strong>
+              </div>
+              <div className="bg-white px-2.5 py-1.5 rounded-lg border border-amber-200/70">
+                <span className="text-slate-500 block text-[10px]">Senha:</span>
+                <strong className="text-pink-600 font-mono text-xs">admin123</strong>
+              </div>
+            </div>
+            <p className="text-[10px] text-amber-800/80 italic text-center pt-0.5">
+              (Você também pode alterar esses dados na aba "Site & Contatos")
+            </p>
+          </div>
 
         </div>
       ) : (
@@ -828,6 +860,21 @@ export default function AdminPanel() {
                     </div>
 
                     <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1 font-sans">
+                        Segmento (Pessoal ou Corporativo) *
+                      </label>
+                      <select
+                        value={productForm.segment || "pessoal"}
+                        onChange={(e) => setProductForm({...productForm, segment: e.target.value as "pessoal" | "corporativo" | "ambos"})}
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans font-bold text-slate-800"
+                      >
+                        <option value="pessoal">🎈 Pessoal (Festas, Aniversários, Celebrações)</option>
+                        <option value="corporativo">💼 Corporativo (Empresas, Brindes, B2B)</option>
+                        <option value="ambos">✨ Ambos (Disponível em Pessoal e Corporativo)</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
                       <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans font-serif">Tag de destaque / Badge (Opcional)</label>
                       <input
                         type="text"
@@ -951,10 +998,10 @@ export default function AdminPanel() {
               ) : (
                 // Products List
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h4 className="font-serif text-lg font-bold text-slate-800">Catálogo de Produtos</h4>
-                      <p className="text-xs text-slate-500 font-sans">Cadastre, remova ou altere os preços e fotos dos produtos da vitrine.</p>
+                      <p className="text-xs text-slate-500 font-sans">Cadastre, remova ou altere os preços, segmentos (Pessoal/Corporativo) e fotos dos produtos.</p>
                     </div>
 
                     <button
@@ -964,6 +1011,7 @@ export default function AdminPanel() {
                         setProductForm({
                           name: "",
                           category: "Topos de Bolo",
+                          segment: "pessoal",
                           minPrice: 10,
                           maxPrice: 20,
                           description: "",
@@ -972,16 +1020,61 @@ export default function AdminPanel() {
                           features: []
                         });
                       }}
-                      className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2 px-4 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer"
+                      className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2 px-4 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer shrink-0"
                     >
                       <PlusCircle className="w-4 h-4" />
                       Novo Produto
                     </button>
                   </div>
 
+                  {/* Segment Filter for Admin */}
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <span className="text-xs text-slate-500 font-semibold font-sans">Filtrar por:</span>
+                    <button
+                      type="button"
+                      onClick={() => setAdminProductFilter("todos")}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        adminProductFilter === "todos"
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      Todos ({data.products.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdminProductFilter("pessoal")}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        adminProductFilter === "pessoal"
+                          ? "bg-[#E8527A] text-white shadow-xs"
+                          : "bg-pink-50 text-[#E8527A] hover:bg-pink-100"
+                      }`}
+                    >
+                      🎈 Pessoais ({data.products.filter(p => p.segment === "pessoal" || p.segment === "ambos" || !p.segment).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdminProductFilter("corporativo")}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        adminProductFilter === "corporativo"
+                          ? "bg-[#3A2439] text-white shadow-xs"
+                          : "bg-purple-50 text-[#3A2439] hover:bg-purple-100"
+                      }`}
+                    >
+                      💼 Corporativos ({data.products.filter(p => p.segment === "corporativo" || p.segment === "ambos").length})
+                    </button>
+                  </div>
+
                   {/* Grid of Product Cards for editing */}
                   <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4" id="admin_products_grid">
-                    {data.products.map((prod) => (
+                    {data.products
+                      .filter(prod => {
+                        if (adminProductFilter === "todos") return true;
+                        if (adminProductFilter === "pessoal") return prod.segment === "pessoal" || prod.segment === "ambos" || !prod.segment;
+                        if (adminProductFilter === "corporativo") return prod.segment === "corporativo" || prod.segment === "ambos";
+                        return true;
+                      })
+                      .map((prod) => (
                       <div key={prod.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col overflow-hidden relative group/item">
                         
                         {/* Img backdrop */}
@@ -992,9 +1085,20 @@ export default function AdminPanel() {
                             className="w-full h-full object-cover"
                             onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/300x150?text=Indisponivel'; }}
                           />
-                          <span className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white uppercase tracking-wider font-sans">
-                            {prod.category}
-                          </span>
+                          <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                            <span className="bg-slate-900/80 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white uppercase tracking-wider font-sans">
+                              {prod.category}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider font-sans shadow-xs ${
+                              prod.segment === "corporativo"
+                                ? "bg-purple-600 text-white"
+                                : prod.segment === "ambos"
+                                ? "bg-amber-500 text-white"
+                                : "bg-[#E8527A] text-white"
+                            }`}>
+                              {prod.segment === "corporativo" ? "💼 Corporativo" : prod.segment === "ambos" ? "✨ Ambos" : "🎈 Pessoal"}
+                            </span>
+                          </div>
 
                           {prod.badge && (
                             <span className="absolute top-2 right-2 bg-brand-pink px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white uppercase tracking-wider font-sans">

@@ -8,13 +8,17 @@ interface HeaderProps {
   cartItemsCount: number;
   hasActiveProduct?: boolean;
   onLeaveProductPage?: () => void;
+  selectedSegment?: "pessoal" | "corporativo";
+  onSelectSegment?: (segment: "pessoal" | "corporativo") => void;
 }
 
 export default function Header({ 
   onOpenBudgetSidebar, 
   cartItemsCount, 
   hasActiveProduct, 
-  onLeaveProductPage
+  onLeaveProductPage,
+  selectedSegment = "pessoal",
+  onSelectSegment
 }: HeaderProps) {
   const { data, setIsAdminOpen } = useAppContext();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,7 +38,8 @@ export default function Header({
 
   const menuItems = [
     { label: "Início", href: "#inicio" },
-    { label: "Catálogo", href: "#catalogo" },
+    { label: "Produtos Pessoais", href: "#catalogo", segment: "pessoal" as const },
+    { label: "Produtos Corporativos", href: "#catalogo", segment: "corporativo" as const },
     { label: "Avaliações", href: "#avaliacoes" },
     { label: "Sobre", href: "#sobre" },
     { label: "Orçamento", href: "#contato" },
@@ -47,6 +52,11 @@ export default function Header({
     if (hasActiveProduct && onLeaveProductPage) {
       onLeaveProductPage();
     }
+
+    if (item.segment && onSelectSegment) {
+      onSelectSegment(item.segment);
+    }
+
     setTimeout(() => {
       if (item.href === "#inicio" || item.href === "#") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -108,17 +118,30 @@ export default function Header({
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-5 xl:gap-6" id="desktop_nav">
               {!hasActiveProduct ? (
-                menuItems.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(e, item)}
-                    className="font-sans text-[13px] xl:text-[14px] font-semibold text-[#3A2439]/80 hover:text-[#E8527A] transition-colors relative group py-1.5 px-0.5"
-                  >
-                    {item.label}
-                    <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#E8527A] transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-center" />
-                  </a>
-                ))
+                menuItems.map((item) => {
+                  const isSegmentActive = item.segment && item.segment === selectedSegment;
+
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item)}
+                      className={`font-sans text-[13px] xl:text-[14px] font-semibold transition-all relative py-1.5 px-3 rounded-full flex items-center gap-1.5 cursor-pointer ${
+                        item.segment
+                          ? isSegmentActive
+                            ? item.segment === "pessoal"
+                              ? "bg-[#E8527A] text-white shadow-xs"
+                              : "bg-[#3A2439] text-white shadow-xs"
+                            : "text-[#3A2439]/80 hover:text-[#E8527A] hover:bg-white/80 border border-[#3A2439]/10"
+                          : "text-[#3A2439]/80 hover:text-[#E8527A]"
+                      }`}
+                    >
+                      {item.segment === "pessoal" && <PartyPopper className="w-3.5 h-3.5" />}
+                      {item.segment === "corporativo" && <Briefcase className="w-3.5 h-3.5" />}
+                      <span>{item.label}</span>
+                    </a>
+                  );
+                })
               ) : (
                 <button
                   onClick={onLeaveProductPage}
@@ -225,16 +248,30 @@ export default function Header({
             id="mobile_menu_container"
           >
             <div className="flex flex-col gap-2">
-              {menuItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item)}
-                  className="font-sans font-semibold text-[#3A2439] py-2.5 px-4 rounded-xl hover:bg-white hover:text-[#E8527A] transition-all text-sm"
-                >
-                  {item.label}
-                </a>
-              ))}
+              {menuItems.map((item) => {
+                const isSegmentActive = item.segment && item.segment === selectedSegment;
+
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item)}
+                    className={`font-sans font-semibold py-2.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 ${
+                      item.segment
+                        ? isSegmentActive
+                          ? item.segment === "pessoal"
+                            ? "bg-[#E8527A] text-white shadow-xs"
+                            : "bg-[#3A2439] text-white shadow-xs"
+                          : "bg-white/80 text-[#3A2439] border border-[#3A2439]/10"
+                        : "text-[#3A2439] hover:bg-white hover:text-[#E8527A]"
+                    }`}
+                  >
+                    {item.segment === "pessoal" && <PartyPopper className="w-4 h-4" />}
+                    {item.segment === "corporativo" && <Briefcase className="w-4 h-4" />}
+                    <span>{item.label}</span>
+                  </a>
+                );
+              })}
             </div>
 
             <div className="h-px bg-[#3A2439]/10 my-1" />

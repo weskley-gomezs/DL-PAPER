@@ -125,6 +125,42 @@ export const PRODUCTS: Product[] = [
     features: ["Cores institucionais e logo da empresa", "Acabamento nobre de luxo", "Ideal para bombons, brindes ou mimos", "Apresentação de alto impacto"],
     segment: "corporativo"
   },
+  {
+    id: "brinde-tubolata-corporativa",
+    name: "Tubolata Corporativa com Logotipo",
+    category: "Lembrancinhas",
+    minPrice: 4.50,
+    maxPrice: 6.90,
+    description: "Tubolata de papelão rígido com tampa metálica dourada/prata e rótulo personalizado com a identidade da empresa. Perfeita para biscoitos finos, doces ou pequenos brindes B2B.",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_YsULBmgfd9LZDwjZ9iEeoiKQjhPIcwaJUO-KiJwCwSstX1H3YMkvhnJ1&s=10",
+    badge: "Mais Pedido B2B",
+    features: ["Rótulo com logotipo em alta resolução", "Tampa metálica dourada, prata ou branca", "Laço de cetim opcional na cor da empresa", "Pedido mínimo de 10 unidades"],
+    segment: "corporativo"
+  },
+  {
+    id: "brinde-sacola-corporativa",
+    name: "Sacola Institucional com Fita de Cetim e Tag",
+    category: "Lembrancinhas",
+    minPrice: 5.20,
+    maxPrice: 6.80,
+    description: "Sacola de papel de alta gramatura personalizada com o logotipo da sua marca e alças luxuosas em fita de cetim. A apresentação ideal para presentear clientes e parceiros.",
+    image: "https://i.imgur.com/QLJ0hjg.png",
+    badge: "Luxo Institucional",
+    features: ["Papel resistente de alta gramatura", "Alças em fita de cetim personalizada", "Tag de agradecimento com sua mensagem", "Design sofisticado"],
+    segment: "corporativo"
+  },
+  {
+    id: "brinde-caixa-doces-corporativa",
+    name: "Caixa Corporativa para Doces Gourmet",
+    category: "Lembrancinhas",
+    minPrice: 3.90,
+    maxPrice: 5.50,
+    description: "Caixa fina com berço para 4 a 6 brigadeiros gourmet, personalizada com as cores da empresa e logotipo no visor. Um mimo carinhoso e inesquecível.",
+    image: "https://images.tcdn.com.br/img/img_prod/574525/caixa_para_6_doces_kraft_119_2_20190705095514.jpg",
+    badge: "Mimo Executivo",
+    features: ["Divisórias para doces finos", "Aplicação do logotipo na tampa", "Ideal para workshops e datas comemorativas"],
+    segment: "corporativo"
+  },
 
   // 🍭 LEMBRANCINHAS & BRINDES
   {

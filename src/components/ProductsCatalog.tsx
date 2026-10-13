@@ -9,16 +9,25 @@ import {
   Cake, 
   Heart, 
   Layers, 
-  SlidersHorizontal 
+  PartyPopper,
+  Briefcase,
+  CheckCircle2,
+  RefreshCw
 } from "lucide-react";
 import { Product } from "../types";
 import { useAppContext } from "../context/DataContext";
 
 interface ProductsCatalogProps {
   onSelectProduct: (product: Product) => void;
+  activeSegment?: "pessoal" | "corporativo";
+  onChangeSegment?: (segment: "pessoal" | "corporativo") => void;
 }
 
-export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProps) {
+export default function ProductsCatalog({ 
+  onSelectProduct,
+  activeSegment = "pessoal",
+  onChangeSegment
+}: ProductsCatalogProps) {
   const { data } = useAppContext();
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,10 +45,25 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
     return () => window.removeEventListener("filterCategory", handleFilterEvent);
   }, []);
 
-  // Compute all available categories from the products list ("pelo que é")
+  // 1. STRICT SEGMENT FILTERING
+  // Pessoais: only 'pessoal' or 'ambos' (corporativo is completely hidden)
+  // Corporativo: only 'corporativo' or 'ambos' (pessoal is completely hidden)
+  const segmentProducts = useMemo(() => {
+    return data.products.filter((p) => {
+      if (activeSegment === "pessoal") {
+        return p.segment === "pessoal" || p.segment === "ambos" || !p.segment;
+      }
+      if (activeSegment === "corporativo") {
+        return p.segment === "corporativo" || p.segment === "ambos";
+      }
+      return true;
+    });
+  }, [data.products, activeSegment]);
+
+  // Compute available categories dynamically from the current segment
   const categoriesList = useMemo(() => {
     const uniqueCats = new Set<string>();
-    data.products.forEach((p) => {
+    segmentProducts.forEach((p) => {
       if (p.category) uniqueCats.add(p.category);
     });
     
@@ -60,24 +84,31 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
     });
     
     return result;
-  }, [data.products]);
+  }, [segmentProducts]);
 
-  // Count items per category
+  // If active category does not exist in this segment, reset to "Todos"
+  useEffect(() => {
+    if (selectedCategory !== "Todos" && !categoriesList.includes(selectedCategory)) {
+      setSelectedCategory("Todos");
+    }
+  }, [categoriesList, selectedCategory]);
+
+  // Count items per category in this segment
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      Todos: data.products.length,
+      Todos: segmentProducts.length,
     };
-    data.products.forEach((p) => {
+    segmentProducts.forEach((p) => {
       if (p.category) {
         counts[p.category] = (counts[p.category] || 0) + 1;
       }
     });
     return counts;
-  }, [data.products]);
+  }, [segmentProducts]);
 
   // Filter products based on category and search
   const filteredProducts = useMemo(() => {
-    return data.products
+    return segmentProducts
       .filter((product) => {
         const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
         const matchesSearch =
@@ -101,7 +132,7 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
 
         return a.name.localeCompare(b.name);
       });
-  }, [data.products, selectedCategory, searchTerm]);
+  }, [segmentProducts, selectedCategory, searchTerm]);
 
   // Category Icon helper
   const getCategoryIcon = (category: string) => {
@@ -122,6 +153,16 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
     }
   };
 
+  const handleSwitchSegment = (newSegment: "pessoal" | "corporativo") => {
+    if (onChangeSegment) {
+      onChangeSegment(newSegment);
+    }
+    setSelectedCategory("Todos");
+    setSearchTerm("");
+  };
+
+  const isPersonal = activeSegment === "pessoal";
+
   return (
     <section id="catalogo" className="py-16 sm:py-24 bg-[#FFF6F0] relative z-10 border-t border-[#3A2439]/5">
       
@@ -131,28 +172,89 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
+        {/* PROMINENT SEGMENT SWITCHER (Alternador de prioridade Pessoal x Corporativo) */}
+        <div className="max-w-3xl mx-auto mb-10 sm:mb-12" id="catalog_segment_switcher_bar">
+          
+          <div className="bg-white/95 backdrop-blur-md p-2 rounded-[2rem] border-2 border-[#3A2439]/10 shadow-md flex flex-col sm:flex-row items-center gap-2">
+            
+            {/* Tab 1: Pessoal */}
+            <button
+              type="button"
+              onClick={() => handleSwitchSegment("pessoal")}
+              className={`w-full sm:w-1/2 py-3 px-5 rounded-[1.5rem] font-sans text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2.5 ${
+                isPersonal
+                  ? "bg-[#E8527A] text-white shadow-md shadow-[#E8527A]/25 scale-101"
+                  : "bg-transparent text-[#3A2439]/70 hover:bg-slate-50 hover:text-[#E8527A]"
+              }`}
+              id="tab_switch_pessoal"
+            >
+              <PartyPopper className={`w-4 h-4 ${isPersonal ? "text-white" : "text-[#E8527A]"}`} />
+              <span>Lembrancinhas Pessoais</span>
+              {isPersonal && (
+                <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">
+                  Ativo ✨
+                </span>
+              )}
+            </button>
+
+            {/* Tab 2: Corporativo */}
+            <button
+              type="button"
+              onClick={() => handleSwitchSegment("corporativo")}
+              className={`w-full sm:w-1/2 py-3 px-5 rounded-[1.5rem] font-sans text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2.5 ${
+                !isPersonal
+                  ? "bg-[#3A2439] text-white shadow-md shadow-[#3A2439]/25 scale-101"
+                  : "bg-transparent text-[#3A2439]/70 hover:bg-slate-50 hover:text-[#3A2439]"
+              }`}
+              id="tab_switch_corporativo"
+            >
+              <Briefcase className={`w-4 h-4 ${!isPersonal ? "text-[#FFC947]" : "text-[#3A2439]"}`} />
+              <span>Lembrancinhas Corporativas</span>
+              {!isPersonal && (
+                <span className="bg-[#FFC947] text-[#3A2439] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                  Ativo 💼
+                </span>
+              )}
+            </button>
+
+          </div>
+
+          {/* Quick Notice to the visitor */}
+          <div className="flex items-center justify-center gap-2 mt-2.5 text-[11px] text-[#3A2439]/65 text-center">
+            <RefreshCw className="w-3 h-3 text-[#E8527A]" />
+            <span>
+              Você pode alternar entre <strong>Pessoal</strong> e <strong>Corporativo</strong> a qualquer momento sem recarregar a página.
+            </span>
+          </div>
+        </div>
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-10 sm:mb-12">
+          
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
             <span className="font-sans text-xs font-bold uppercase tracking-wider text-[#E8527A]">
-              Catálogo de Produtos ✨
+              {isPersonal ? "Catálogo de Produtos Pessoais 🎈" : "Catálogo de Brindes Corporativos 💼"}
             </span>
           </div>
 
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
-            Nossos Personalizados Clássicos
+            {isPersonal ? "Lembrancinhas para Festas & Família" : "Lembrancinhas para Empresas & Brindes B2B"}
           </h2>
 
-          <p className="font-sans text-[#3A2439]/70 leading-relaxed font-normal text-sm sm:text-base max-w-2xl mx-auto">
-            Todos os nossos itens reunidos em um só lugar. Selecione uma categoria abaixo para filtrar pelo que você procura ou explore o catálogo completo:
+          <p className="font-sans text-[#3A2439]/75 leading-relaxed font-normal text-sm sm:text-base max-w-2xl mx-auto">
+            {isPersonal ? (
+              "Caixas clássicas personalizadas, topos de bolo em camadas 3D, kits de caixas e mimos afetivos feitos para transformar aniversários e momentos especiais em memórias inesquecíveis."
+            ) : (
+              "Brindes institucionais de alto impacto com o logotipo da sua marca, tubolatas luxuosas, sacolinhas personalizadas e kits sob medida para encantar clientes, parceiros e colaboradores."
+            )}
           </p>
         </div>
 
         {/* Filter and Search Controls */}
         <div className="space-y-6 mb-12">
           
-          {/* Category Filter Pills ("Separado só pelo que é") */}
+          {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-4xl mx-auto" id="catalog_category_pills">
             {categoriesList.map((category) => {
               const isSelected = selectedCategory === category;
@@ -165,12 +267,14 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
                   onClick={() => setSelectedCategory(category)}
                   className={`inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full font-sans text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#E8527A] text-white shadow-md shadow-[#E8527A]/25 scale-102"
+                      ? isPersonal
+                        ? "bg-[#E8527A] text-white shadow-md shadow-[#E8527A]/25 scale-102"
+                        : "bg-[#3A2439] text-white shadow-md shadow-[#3A2439]/25 scale-102"
                       : "bg-white text-[#3A2439]/80 border border-[#3A2439]/10 hover:border-[#E8527A]/40 hover:text-[#E8527A] hover:bg-white"
                   }`}
                   id={`cat_pill_${category.toLowerCase().replace(/\s+/g, '_')}`}
                 >
-                  <span className={isSelected ? "text-white" : "text-[#E8527A]"}>
+                  <span className={isSelected ? "text-white" : isPersonal ? "text-[#E8527A]" : "text-[#3A2439]"}>
                     {getCategoryIcon(category)}
                   </span>
                   <span>{category}</span>
@@ -189,7 +293,7 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#3A2439]/40 w-4 h-4 pointer-events-none" />
             <input
               type="text"
-              placeholder="Pesquisar por nome, caixa, topo, lembrancinha..."
+              placeholder={isPersonal ? "Pesquisar caixas, topos, temas, forminhas..." : "Pesquisar tubolatas, sacolas, brindes, caixas..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-11 pr-20 py-3 bg-white border border-[#3A2439]/15 rounded-full font-sans text-[#3A2439] placeholder-[#3A2439]/40 focus:outline-hidden focus:ring-2 focus:ring-[#E8527A]/20 focus:border-[#E8527A] shadow-xs transition-all text-sm"
@@ -206,19 +310,33 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
           </div>
 
           {/* Active Filter Indicator */}
-          <div className="flex items-center justify-between max-w-7xl mx-auto px-1 pt-1 text-xs text-[#3A2439]/60">
-            <span>
-              Exibindo <strong className="text-[#3A2439] font-bold">{filteredProducts.length}</strong> produtos em <strong className="text-[#E8527A] font-bold">{selectedCategory}</strong>
-            </span>
-            {selectedCategory !== "Todos" && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto px-1 pt-1 text-xs text-[#3A2439]/70">
+            <div>
+              Mostrando <strong className="text-[#3A2439] font-bold">{filteredProducts.length}</strong> produtos do segmento{" "}
+              <strong className={isPersonal ? "text-[#E8527A] font-bold" : "text-[#3A2439] font-bold"}>
+                {isPersonal ? "Pessoal (Festas)" : "Corporativo (Empresas)"}
+              </strong>
+              {selectedCategory !== "Todos" && <> na categoria <strong>{selectedCategory}</strong></>}
+            </div>
+
+            <div className="flex items-center gap-3">
+              {selectedCategory !== "Todos" && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory("Todos")}
+                  className="text-[#E8527A] hover:underline font-semibold cursor-pointer"
+                >
+                  Ver todas as categorias
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setSelectedCategory("Todos")}
-                className="text-[#E8527A] hover:underline font-semibold cursor-pointer"
+                onClick={() => handleSwitchSegment(isPersonal ? "corporativo" : "pessoal")}
+                className="text-xs font-bold text-[#3A2439] hover:text-[#E8527A] underline cursor-pointer"
               >
-                Mostrar todos os produtos
+                Ver produtos {isPersonal ? "corporativos" : "pessoais"} ➔
               </button>
-            )}
+            </div>
           </div>
 
         </div>
@@ -227,6 +345,10 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7" id="catalog_products_grid">
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product) => {
+              const topStripColor = isPersonal 
+                ? "bg-gradient-to-r from-[#E8527A] via-[#FFC947] to-[#E8527A]" 
+                : "bg-gradient-to-r from-[#FFC947] via-[#3A2439] to-[#FFC947]";
+
               return (
                 <motion.div
                   key={product.id}
@@ -243,7 +365,7 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
                 >
                   
                   {/* Top Colorful Accent Strip */}
-                  <div className="h-2.5 w-full bg-gradient-to-r from-[#E8527A] via-[#FFC947] to-[#E8527A]" />
+                  <div className={`h-2.5 w-full ${topStripColor}`} />
 
                   {/* Card Main Body */}
                   <div className="p-4 sm:p-5 flex flex-col justify-between flex-1">
@@ -279,7 +401,7 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
-                              className="absolute inset-0 bg-[#3A2439]/70 backdrop-blur-xs flex flex-col justify-end p-4 text-white text-left pointer-events-none"
+                              className="absolute inset-0 bg-[#3A2439]/75 backdrop-blur-xs flex flex-col justify-end p-4 text-white text-left pointer-events-none"
                             >
                               <p className="text-xs uppercase tracking-wider font-extrabold text-[#FFC947] mb-1">
                                 Detalhes do Produto
@@ -337,7 +459,11 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
                       {/* Pill-shaped Button */}
                       <button
                         type="button"
-                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#E8527A] group-hover:bg-[#D43C65] font-sans font-bold text-xs uppercase tracking-wider text-white rounded-full shadow-sm shadow-[#E8527A]/25 transition-all group-hover:scale-[1.01] cursor-pointer"
+                        className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 font-sans font-bold text-xs uppercase tracking-wider text-white rounded-full shadow-sm transition-all group-hover:scale-[1.01] cursor-pointer ${
+                          isPersonal 
+                            ? "bg-[#E8527A] group-hover:bg-[#D43C65] shadow-[#E8527A]/25" 
+                            : "bg-[#3A2439] group-hover:bg-[#5E3D5C] shadow-[#3A2439]/25"
+                        }`}
                       >
                         <Sparkles className="w-3.5 h-3.5 text-[#FFC947]" />
                         <span>Personalizar & Pedir</span>
@@ -359,9 +485,9 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
               <span className="text-4xl block">✨</span>
               <h3 className="font-serif text-xl font-bold text-[#3A2439]">Nenhum produto encontrado neste filtro</h3>
               <p className="text-xs sm:text-sm font-sans text-[#3A2439]/70">
-                Tente buscar outro termo ou selecione outra categoria.
+                Tente buscar outro termo ou alterne para ver o outro catálogo.
               </p>
-              <div className="flex items-center justify-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -370,7 +496,14 @@ export default function ProductsCatalog({ onSelectProduct }: ProductsCatalogProp
                   }}
                   className="px-5 py-2.5 rounded-full bg-[#E8527A] text-white text-xs font-bold font-sans shadow-xs cursor-pointer hover:bg-[#D43C65]"
                 >
-                  Ver Todos os Produtos
+                  Limpar Filtros
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSwitchSegment(isPersonal ? "corporativo" : "pessoal")}
+                  className="px-5 py-2.5 rounded-full bg-[#3A2439] text-white text-xs font-bold font-sans shadow-xs cursor-pointer hover:bg-slate-800"
+                >
+                  Ver Catálogo {isPersonal ? "Corporativo" : "Pessoal"}
                 </button>
               </div>
             </div>

@@ -98,8 +98,8 @@ const defaultState: AppDataState = {
     paragraph3: "Nosso ateliê em Brasília une tecnologia de corte precisa a processos manuais rigorosos. Da colagem impecável das camadas 3D ao acabamento dos laços, cada detalhe carrega a nossa energia dedicada e o propósito de eternizar as suas celebrações.",
     floatingText: "Tudo feito à mão com papel e amor."
   },
-  adminPassword: "Dani@784512",
-  adminUsername: "Danilau"
+  adminPassword: "admin123",
+  adminUsername: "admin"
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);

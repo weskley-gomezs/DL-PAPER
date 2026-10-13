@@ -16,6 +16,9 @@ function AppContent() {
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
+  
+  // Segment state: strictly separates 'pessoal' vs 'corporativo'
+  const [selectedSegment, setSelectedSegment] = useState<"pessoal" | "corporativo">("pessoal");
 
   // Add Item to active budget catalog
   const handleAddProductToBudget = (product: Product, quantity: number, notes?: string, theme?: string) => {
@@ -69,12 +72,14 @@ function AppContent() {
       <div className="absolute top-[30%] -right-20 w-96 h-96 rounded-full bg-[#FFC947]/10 blur-3xl pointer-events-none" />
       <div className="absolute top-[65%] left-10 w-96 h-96 rounded-full bg-[#E8527A]/5 blur-3xl pointer-events-none" />
 
-      {/* 1. Header (Navbar, controls & dynamic cart toggles) */}
+      {/* 1. Header (Navbar, controls & dynamic cart toggles with Pessoais / Corporativos) */}
       <Header
         onOpenBudgetSidebar={() => setIsBudgetOpen(true)}
         cartItemsCount={cartItemsCount}
         hasActiveProduct={!!activeProduct}
         onLeaveProductPage={() => setActiveProduct(null)}
+        selectedSegment={selectedSegment}
+        onSelectSegment={(segment) => setSelectedSegment(segment)}
       />
 
       {activeProduct ? (
@@ -91,11 +96,17 @@ function AppContent() {
         />
       ) : (
         <>
-          {/* 1. Tela de Boas-Vindas / Apresentação Acolhedora com Banners */}
-          <Hero onOpenBudgetSidebar={() => setIsBudgetOpen(true)} />
+          {/* 1. Tela de Boas-Vindas com Escolha Prioritária entre Pessoal e Corporativo */}
+          <Hero 
+            onOpenBudgetSidebar={() => setIsBudgetOpen(true)}
+            selectedSegment={selectedSegment}
+            onSelectSegment={(segment) => setSelectedSegment(segment)}
+          />
 
-          {/* 2. Catálogo com Todos os Produtos Separados por Categoria ("o que é") */}
+          {/* 2. Catálogo Filtrado Exclusivamente por Segmento (com alternador rápido) */}
           <ProductsCatalog
+            activeSegment={selectedSegment}
+            onChangeSegment={(segment) => setSelectedSegment(segment)}
             onSelectProduct={(product) => {
               setActiveProduct(product);
               window.scrollTo({ top: 0, behavior: "smooth" });

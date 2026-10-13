@@ -10,15 +10,24 @@ import {
   Gift, 
   Layers, 
   MessageCircle,
-  Scissors
+  Scissors,
+  PartyPopper,
+  Briefcase,
+  CheckCircle2
 } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
 
 interface HeroProps {
   onOpenBudgetSidebar: () => void;
+  selectedSegment?: "pessoal" | "corporativo";
+  onSelectSegment?: (segment: "pessoal" | "corporativo") => void;
 }
 
-export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
+export default function Hero({ 
+  onOpenBudgetSidebar, 
+  selectedSegment = "pessoal", 
+  onSelectSegment 
+}: HeroProps) {
   const { data } = useAppContext();
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -44,24 +53,14 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
     setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
   };
 
-  const handleScrollToCatalog = () => {
+  const handleChooseSegment = (segment: "pessoal" | "corporativo") => {
+    if (onSelectSegment) {
+      onSelectSegment(segment);
+    }
     const catalogEl = document.getElementById("catalogo");
     if (catalogEl) {
       const headerOffset = 80;
       const elementPosition = catalogEl.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-    }
-  };
-
-  const handleScrollToContact = () => {
-    const contactEl = document.getElementById("contato");
-    if (contactEl) {
-      const headerOffset = 80;
-      const elementPosition = contactEl.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - headerOffset;
       window.scrollTo({
         top: offsetPosition,
@@ -83,7 +82,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Welcome Intro Header */}
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           
           {/* Logo Badge */}
           <div className="inline-flex mb-4">
@@ -102,7 +101,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
             <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
               <span className="font-sans text-xs font-bold text-[#E8527A] tracking-wide">
-                Papelaria de Personalizados Clássicos & Afetiva
+                Papelaria Personalizada & Afetiva
               </span>
             </div>
           </div>
@@ -113,31 +112,126 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
           </h1>
           
           <p className="font-sans text-sm sm:text-base text-[#3A2439]/75 font-normal max-w-2xl mx-auto mt-3 leading-relaxed">
-            Transformamos papel em memórias inesquecíveis. Caixas clássicas com laços de luxo, topos de bolo 3D em camadas, kits para festas e mimos produzidos artesanalmente com muito amor e carinho em Brasília.
+            Transformamos papel em memórias inesquecíveis. Escolha abaixo se o seu pedido é para sua <strong>festa pessoal</strong> ou para sua <strong>empresa</strong> para acessar o catálogo exclusivo:
           </p>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-6">
+        {/* PRIORITY SEGMENT SELECTION CARDS (A pessoa escolhe um dos dois para entrar no catálogo) */}
+        <div className="max-w-4xl mx-auto mb-10 sm:mb-12" id="hero_segment_choice_container">
+          <div className="text-center mb-4">
+            <span className="font-sans text-xs uppercase font-extrabold tracking-widest text-[#E8527A] bg-white px-3.5 py-1 rounded-full border border-[#E8527A]/20 shadow-2xs">
+              👇 Escolha uma opção para entrar no catálogo
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+            
+            {/* Opção 1: Lembrancinhas Pessoais */}
             <button
               type="button"
-              onClick={handleScrollToCatalog}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#E8527A] hover:bg-[#D43C65] text-white font-sans text-sm font-bold shadow-md shadow-[#E8527A]/20 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-              id="hero_btn_ver_catalogo"
+              onClick={() => handleChooseSegment("pessoal")}
+              className={`group text-left p-6 sm:p-7 rounded-[2rem] border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 ${
+                selectedSegment === "pessoal"
+                  ? "bg-white border-[#E8527A] ring-4 ring-[#E8527A]/20 shadow-md"
+                  : "bg-white/90 hover:bg-white border-[#E8527A]/25 hover:border-[#E8527A]"
+              }`}
+              id="hero_btn_segment_pessoal"
             >
-              <Package className="w-4 h-4" />
-              Ver Catálogo Completo
-              <ArrowRight className="w-4 h-4 ml-0.5" />
+              {/* Top Accent Strip */}
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#E8527A] to-[#FFC947]" />
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E8527A]/15 flex items-center justify-center text-[#E8527A] group-hover:scale-110 transition-transform">
+                    <PartyPopper className="w-6 h-6 text-[#E8527A]" />
+                  </div>
+                  {selectedSegment === "pessoal" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E8527A] bg-[#FFF6F0] px-2.5 py-1 rounded-full border border-[#E8527A]/20">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#E8527A]" />
+                      Selecionado
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#E8527A] font-sans block">
+                    Festas & Celebrações
+                  </span>
+                  <h3 className="font-serif text-2xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-snug">
+                    Lembrancinhas Pessoais
+                  </h3>
+                </div>
+
+                <p className="font-sans text-xs sm:text-sm text-[#3A2439]/75 font-normal leading-relaxed">
+                  Caixas clássicas (Milk, Bala, Pirâmide, Sushi, Mala), topos de bolo 3D em camadas, forminhas de doces e mimos para aniversários e família.
+                </p>
+              </div>
+
+              {/* Pill Button */}
+              <div className="mt-6 pt-4 border-t border-[#E8527A]/15 flex items-center justify-between">
+                <span className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-[#E8527A] text-white font-sans text-xs font-bold shadow-xs group-hover:bg-[#D43C65] transition-colors">
+                  <span>Ver Produtos Pessoais</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <span className="text-[11px] font-semibold text-[#3A2439]/50">
+                  Para festas
+                </span>
+              </div>
             </button>
 
+            {/* Opção 2: Lembrancinhas Corporativas */}
             <button
               type="button"
-              onClick={handleScrollToContact}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-white/90 text-[#3A2439] border border-[#3A2439]/15 font-sans text-sm font-bold shadow-xs hover:border-[#E8527A] hover:text-[#E8527A] transition-all cursor-pointer"
-              id="hero_btn_orcamento"
+              onClick={() => handleChooseSegment("corporativo")}
+              className={`group text-left p-6 sm:p-7 rounded-[2rem] border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 ${
+                selectedSegment === "corporativo"
+                  ? "bg-white border-[#3A2439] ring-4 ring-[#FFC947]/30 shadow-md"
+                  : "bg-white/90 hover:bg-white border-[#3A2439]/20 hover:border-[#3A2439]"
+              }`}
+              id="hero_btn_segment_corporativo"
             >
-              <MessageCircle className="w-4 h-4 text-[#E8527A]" />
-              Pedir Orçamento no WhatsApp
+              {/* Top Accent Strip */}
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#FFC947] to-[#3A2439]" />
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-[#FFC947]/25 flex items-center justify-center text-[#3A2439] group-hover:scale-110 transition-transform">
+                    <Briefcase className="w-6 h-6 text-[#3A2439]" />
+                  </div>
+                  {selectedSegment === "corporativo" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#3A2439] bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#3A2439]" />
+                      Selecionado
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#3A2439]/70 font-sans block">
+                    Empresas & Clientes B2B
+                  </span>
+                  <h3 className="font-serif text-2xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-snug">
+                    Lembrancinhas Corporativas
+                  </h3>
+                </div>
+
+                <p className="font-sans text-xs sm:text-sm text-[#3A2439]/75 font-normal leading-relaxed">
+                  Brindes refinados com o logotipo da sua marca, tubolatas luxo, sacolinhas com fita de cetim, kits de onboarding e mimos para colaboradores e clientes.
+                </p>
+              </div>
+
+              {/* Pill Button */}
+              <div className="mt-6 pt-4 border-t border-[#3A2439]/10 flex items-center justify-between">
+                <span className="inline-flex items-center gap-2 py-2 px-4 rounded-full bg-[#3A2439] text-white font-sans text-xs font-bold shadow-xs group-hover:bg-[#E8527A] transition-colors">
+                  <span>Ver Produtos Corporativos</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <span className="text-[11px] font-semibold text-[#3A2439]/50">
+                  Para empresas
+                </span>
+              </div>
             </button>
+
           </div>
         </div>
 
@@ -210,7 +304,7 @@ export default function Hero({ onOpenBudgetSidebar }: HeroProps) {
               </div>
               <div>
                 <h4 className="font-serif font-bold text-sm text-[#3A2439]">100% Personalizado</h4>
-                <p className="font-sans text-xs text-[#3A2439]/65">Criamos no tema, nome e cores que você sonhar.</p>
+                <p className="font-sans text-xs text-[#3A2439]/65">Criamos no tema, nome, cores ou logo que você desejar.</p>
               </div>
             </div>
 

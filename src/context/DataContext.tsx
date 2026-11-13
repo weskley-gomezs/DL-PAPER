@@ -73,9 +73,9 @@ const LOCAL_STORAGE_KEY = "dl_magic_paper_admin_data";
 
 const defaultState: AppDataState = {
   logo: "https://i.imgur.com/fVtEcdv.png",
-  heroImage: "https://i.imgur.com/Es3OQW6.jpeg",
+  heroImage: "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
   aboutImage: "https://i.imgur.com/nsjJjnO.jpeg",
-  partyFavorsImage: "/src/assets/images/party_favors_1779734471509.png",
+  partyFavorsImage: "/src/assets/images/tubete_cofrinho_marmitinha_1794613746569.jpg",
   whatsappNumber: "5561998889577",
   whatsappFormatted: "(61) 99888-9577",
   instagramHandle: "@dlmagicpaper",
@@ -162,8 +162,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           merged.aboutImage = "https://i.imgur.com/nsjJjnO.jpeg";
         }
         
-        if (merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" || merged.heroImage === "https://i.imgur.com/MK4ydyR.jpeg" || !merged.heroImage) {
-          merged.heroImage = "https://i.imgur.com/Es3OQW6.jpeg";
+        if (
+          merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" ||
+          merged.heroImage === "https://i.imgur.com/MK4ydyR.jpeg" ||
+          merged.heroImage === "https://i.imgur.com/Es3OQW6.jpeg" ||
+          merged.heroImage === "https://i.imgur.com/QXmyxhn.jpeg" ||
+          !merged.heroImage
+        ) {
+          merged.heroImage = "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
         }
         
         // Automatically upgrade to the new beautiful Danyelle Lau / DLPaper story if they have the old placeholder

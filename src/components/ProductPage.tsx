@@ -15,21 +15,17 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
   
   // Custom gallery images for Kit Festas Clássico
   const femininaImages = [
-    "https://i.imgur.com/MIGyVNh.jpeg",
-    "https://i.imgur.com/I3ZSlWb.jpeg",
-    "https://i.imgur.com/Ai1fV66.jpeg",
-    "https://i.imgur.com/5qD7edf.jpeg",
-    "https://i.imgur.com/NVSCT1a.jpeg",
-    "https://i.imgur.com/gG7TyuB.jpeg"
+    "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+    "/src/assets/images/caixa_milk_laco_1794613744008.jpg",
+    "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
+    "/src/assets/images/hero_stationery_1779734437655.png"
   ];
 
   const masculinaImages = [
-    "https://i.imgur.com/QxlLjKz.jpeg",
-    "https://i.imgur.com/OtVDS5s.jpeg",
-    "https://i.imgur.com/boQBgeb.jpeg",
-    "https://i.imgur.com/mYMClJY.jpeg",
-    "https://i.imgur.com/XyHjuCE.jpeg",
-    "https://i.imgur.com/nIOVoqq.jpeg"
+    "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
+    "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+    "/src/assets/images/sacola_corporativa_luxo_1794613745685.jpg",
+    "/src/assets/images/caixas_doces_mimos_1794613748044.jpg"
   ];
 
   // Set default quantities according to product specifications (minimum constraints)
@@ -72,34 +68,26 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
     if (product.id === "caixa-milk") {
       return [
         product.image,
-        "https://i.imgur.com/I3ZSlWb.jpeg", // close up bow detail
-        "https://i.imgur.com/MIGyVNh.jpeg" // decoration context
+        "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+        "/src/assets/images/hero_stationery_1779734437655.png"
       ];
     }
-    if (product.id === "caixa-bala") {
+    if (product.id === "caixa-bala" || product.id === "caixa-piramide") {
       return [
         product.image,
-        "https://www.meusarquivosdigitais.com.br/wp-content/uploads/2023/03/Caixabala-Decorada-.png",
-        "https://i.imgur.com/5qD7edf.jpeg"
+        "/src/assets/images/kit_caixas_classicas_1794613744144.jpg"
       ];
     }
-    if (product.id === "caixa-piramide") {
+    if (product.id === "caixa-sushi" || product.id === "caixa-mala") {
       return [
         product.image,
-        "https://i.imgur.com/Ai1fV66.jpeg"
-      ];
-    }
-    if (product.id === "caixa-sushi") {
-      return [
-        product.image,
-        "https://i.imgur.com/I3ZSlWb.jpeg"
+        "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg"
       ];
     }
     if (product.id === "lembrancinha-tubolata-5x6") {
       return [
         product.image,
-        "https://i.imgur.com/gG7TyuB.jpeg",
-        "https://i.imgur.com/nIOVoqq.jpeg"
+        "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg"
       ];
     }
     return [product.image];
@@ -112,11 +100,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
 
   const getProductImage = () => {
     const gallery = getProductGallery();
-    const imgUrl = gallery[activeImageIndex] || gallery[0] || product.image;
-    if (product.id === "caixa-bala" && selectedLaco === "sem-laco" && activeImageIndex === 0) {
-      return "https://www.meusarquivosdigitais.com.br/wp-content/uploads/2023/03/Caixabala-Decorada-.png";
-    }
-    return imgUrl;
+    return gallery[activeImageIndex] || gallery[0] || product.image;
   };
 
   const getForminhasPrice = (qty: number, style: string) => {
@@ -273,14 +257,11 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
       finalQty = 1; // Price represents the whole custom kit
     } else if (hasLacoOption) {
       const optionLabel = selectedLaco === "com-laco" ? "Com Laço" : "Sem Laço";
-      const cartImg = (product.id === "caixa-bala" && selectedLaco === "sem-laco")
-        ? "https://www.meusarquivosdigitais.com.br/wp-content/uploads/2023/03/Caixabala-Decorada-.png"
-        : product.image;
       finalProduct = {
         ...product,
         id: `${product.id}-${selectedLaco}`,
         name: `${product.name} (${optionLabel})`,
-        image: cartImg,
+        image: product.image,
         minPrice: price,
         maxPrice: price,
         badge: optionLabel

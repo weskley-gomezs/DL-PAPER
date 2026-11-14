@@ -6,11 +6,27 @@ export interface Product {
   category: string;
   minPrice: number;
   maxPrice: number;
+  precoVenda?: number;
   description: string;
   image: string;
+  gallery?: string[];
   badge?: string;
   features?: string[];
   segment?: ProductSegment;
+  exibirNoSite?: boolean;
+}
+
+export interface HeroBannerItem {
+  id: string;
+  src: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface TestimonialPrintItem {
+  id: string;
+  url: string;
+  alt: string;
 }
 
 export interface ThemeItem {

@@ -19,35 +19,36 @@ import { useAppContext } from "../context/DataContext";
 
 interface HeroProps {
   onOpenBudgetSidebar: () => void;
-  selectedSegment?: "pessoal" | "corporativo";
-  onSelectSegment?: (segment: "pessoal" | "corporativo") => void;
+  selectedSegment?: "todos" | "pessoal" | "corporativo";
+  onSelectSegment?: (segment: "todos" | "pessoal" | "corporativo") => void;
 }
 
 export default function Hero({ 
   onOpenBudgetSidebar, 
-  selectedSegment = "pessoal", 
+  selectedSegment = "todos", 
   onSelectSegment 
 }: HeroProps) {
   const { data } = useAppContext();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // High-resolution generated 3D papercraft hero banner + studio showcase banners
-  const masterHeroBanner = "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
+  const masterHeroBanner = data.heroImage || "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
 
-  const promotionalBanners = [
-    {
-      src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-      title: "Lembrancinhas Clássicas em Camadas",
-      subtitle: "Papéis nobres de 180g e acabamentos acetinados"
-    },
-    {
-      src: "/src/assets/images/hero_stationery_1779734437655.png",
-      title: "Kits Completos para sua Comemoração",
-      subtitle: "Compre em conjunto com economia e harmonia visual"
-    }
-  ];
+  const promotionalBanners =
+    data.heroBanners && data.heroBanners.length > 0
+      ? data.heroBanners
+      : [
+          {
+            id: "banner-1",
+            src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+            title: "Lembrancinhas Clássicas em Camadas",
+            subtitle: "Papéis nobres de 180g e acabamentos acetinados"
+          }
+        ];
+
+  const safeSlide = currentSlide % promotionalBanners.length;
 
   useEffect(() => {
+    if (promotionalBanners.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % promotionalBanners.length);
     }, 6000);
@@ -322,13 +323,13 @@ export default function Hero({
               Mais Destaques do Ateliê
             </span>
             <div className="flex items-center gap-1.5">
-              {promotionalBanners.map((_, idx) => (
+              {promotionalBanners.map((banner, idx) => (
                 <button
-                  key={idx}
+                  key={banner.id || idx}
                   type="button"
                   onClick={() => setCurrentSlide(idx)}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
-                    currentSlide === idx 
+                    safeSlide === idx 
                       ? "bg-[#E8527A] w-6" 
                       : "bg-[#3A2439]/20 hover:bg-[#3A2439]/40 w-2"
                   }`}
@@ -345,9 +346,9 @@ export default function Hero({
             {/* Slider Layer */}
             <AnimatePresence initial={false} mode="wait">
               <motion.img
-                key={currentSlide}
-                src={promotionalBanners[currentSlide].src}
-                alt={promotionalBanners[currentSlide].title}
+                key={promotionalBanners[safeSlide].id || safeSlide}
+                src={promotionalBanners[safeSlide].src}
+                alt={promotionalBanners[safeSlide].title}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -379,10 +380,10 @@ export default function Hero({
             {/* Bottom Caption Overlay */}
             <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 bg-gradient-to-t from-black/60 to-transparent text-white pointer-events-none">
               <p className="font-serif font-bold text-sm sm:text-base drop-shadow-sm">
-                {promotionalBanners[currentSlide].title}
+                {promotionalBanners[safeSlide].title}
               </p>
               <p className="font-sans text-xs text-white/90 drop-shadow-sm">
-                {promotionalBanners[currentSlide].subtitle}
+                {promotionalBanners[safeSlide].subtitle}
               </p>
             </div>
           </div>

@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Product, ThemeItem, Differential, Testimonial } from "../types";
+import { Product, ThemeItem, HeroBannerItem, TestimonialPrintItem } from "../types";
 import {
-  IMAGES as DEFAULT_IMAGES,
   PRODUCTS as DEFAULT_PRODUCTS,
   THEMES as DEFAULT_THEMES,
-  DIFFERENTIALS as DEFAULT_DIFFERENTIALS,
-  TESTIMONIALS as DEFAULT_TESTIMONIALS,
   WHATSAPP_NUMBER as DEFAULT_WHATSAPP_NUMBER,
   WHATSAPP_FORMATTED as DEFAULT_WHATSAPP_FORMATTED,
   INSTAGRAM_HANDLE as DEFAULT_INSTAGRAM_HANDLE,
@@ -13,7 +10,6 @@ import {
   CATEGORIES as DEFAULT_CATEGORIES
 } from "../data";
 
-// Hero editable text fields
 export interface HeroTexts {
   tag: string;
   titlePrefix: string;
@@ -22,7 +18,6 @@ export interface HeroTexts {
   description: string;
 }
 
-// About editable text fields
 export interface AboutTexts {
   tag: string;
   title: string;
@@ -32,12 +27,16 @@ export interface AboutTexts {
   floatingText: string;
 }
 
-// Global data state interface
 export interface AppDataState {
+  dataVersion?: number;
   logo: string;
   heroImage: string;
   aboutImage: string;
   partyFavorsImage: string;
+  heroBanners: HeroBannerItem[];
+  testimonialPrints: TestimonialPrintItem[];
+  kitGalleryFeminina: string[];
+  kitGalleryMasculina: string[];
   whatsappNumber: string;
   whatsappFormatted: string;
   instagramHandle: string;
@@ -49,6 +48,9 @@ export interface AppDataState {
   aboutTexts: AboutTexts;
   adminPassword?: string;
   adminUsername?: string;
+  isComingSoon: boolean;
+  comingSoonTitle?: string;
+  comingSoonSubtitle?: string;
 }
 
 interface DataContextType {
@@ -70,16 +72,74 @@ interface DataContextType {
 }
 
 const LOCAL_STORAGE_KEY = "dl_magic_paper_admin_data";
+const CURRENT_DATA_VERSION = 2;
+
+export const DEFAULT_HERO_BANNERS: HeroBannerItem[] = [
+  {
+    id: "banner-1",
+    src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+    title: "Lembrancinhas Clássicas em Camadas",
+    subtitle: "Papéis nobres de 180g e acabamentos acetinados"
+  },
+  {
+    id: "banner-2",
+    src: "/src/assets/images/hero_stationery_1779734437655.png",
+    title: "Kits Completos para sua Comemoração",
+    subtitle: "Compre em conjunto com economia e harmonia visual"
+  }
+];
+
+export const DEFAULT_TESTIMONIAL_PRINTS: TestimonialPrintItem[] = [
+  {
+    id: "screenshot-1",
+    url: "https://i.imgur.com/pd6klyB.png",
+    alt: "Depoimento do WhatsApp de Cliente 1"
+  },
+  {
+    id: "screenshot-2",
+    url: "https://i.imgur.com/OGvCsV3.png",
+    alt: "Depoimento do WhatsApp de Cliente 2"
+  },
+  {
+    id: "screenshot-3",
+    url: "https://i.imgur.com/OYYILEl.png",
+    alt: "Depoimento do WhatsApp de Cliente 3"
+  },
+  {
+    id: "screenshot-4",
+    url: "https://i.imgur.com/cQ1hCX1.png",
+    alt: "Depoimento do WhatsApp de Cliente 4"
+  }
+];
+
+export const DEFAULT_KIT_GALLERY_FEMININA: string[] = [
+  "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+  "/src/assets/images/caixa_milk_laco_1794613744008.jpg",
+  "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
+  "/src/assets/images/hero_stationery_1779734437655.png"
+];
+
+export const DEFAULT_KIT_GALLERY_MASCULINA: string[] = [
+  "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
+  "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+  "/src/assets/images/sacola_corporativa_luxo_1794613745685.jpg",
+  "/src/assets/images/caixas_doces_mimos_1794613748044.jpg"
+];
 
 const defaultState: AppDataState = {
+  dataVersion: CURRENT_DATA_VERSION,
   logo: "https://i.imgur.com/fVtEcdv.png",
   heroImage: "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
   aboutImage: "https://i.imgur.com/nsjJjnO.jpeg",
   partyFavorsImage: "/src/assets/images/tubete_cofrinho_marmitinha_1794613746569.jpg",
-  whatsappNumber: "5561998889577",
-  whatsappFormatted: "(61) 99888-9577",
-  instagramHandle: "@dlmagicpaper",
-  instagramUrl: "https://instagram.com/dlmagicpaper",
+  heroBanners: [...DEFAULT_HERO_BANNERS],
+  testimonialPrints: [...DEFAULT_TESTIMONIAL_PRINTS],
+  kitGalleryFeminina: [...DEFAULT_KIT_GALLERY_FEMININA],
+  kitGalleryMasculina: [...DEFAULT_KIT_GALLERY_MASCULINA],
+  whatsappNumber: DEFAULT_WHATSAPP_NUMBER,
+  whatsappFormatted: DEFAULT_WHATSAPP_FORMATTED,
+  instagramHandle: DEFAULT_INSTAGRAM_HANDLE,
+  instagramUrl: DEFAULT_INSTAGRAM_URL,
   categories: [...DEFAULT_CATEGORIES],
   products: [...DEFAULT_PRODUCTS],
   themes: [...DEFAULT_THEMES],
@@ -99,7 +159,10 @@ const defaultState: AppDataState = {
     floatingText: "Tudo feito à mão com papel e amor."
   },
   adminPassword: "admin123",
-  adminUsername: "admin"
+  adminUsername: "admin",
+  isComingSoon: true,
+  comingSoonTitle: "Nosso Novo Catálogo Está Chegando!",
+  comingSoonSubtitle: "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos em camadas 3D."
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -128,62 +191,86 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Initialize data from localstorage or use default state
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        
-        // Handle migration if any key is missing in parsed data
-        const merged = {
+
+        const merged: AppDataState = {
           ...defaultState,
           ...parsed,
-          // Deep merge sub-objects
           heroTexts: { ...defaultState.heroTexts, ...(parsed.heroTexts || {}) },
-          aboutTexts: { ...defaultState.aboutTexts, ...(parsed.aboutTexts || {}) }
+          aboutTexts: { ...defaultState.aboutTexts, ...(parsed.aboutTexts || {}) },
+          heroBanners:
+            Array.isArray(parsed.heroBanners) && parsed.heroBanners.length > 0
+              ? parsed.heroBanners
+              : [...defaultState.heroBanners],
+          testimonialPrints:
+            Array.isArray(parsed.testimonialPrints) && parsed.testimonialPrints.length > 0
+              ? parsed.testimonialPrints
+              : [...defaultState.testimonialPrints],
+          kitGalleryFeminina:
+            Array.isArray(parsed.kitGalleryFeminina) && parsed.kitGalleryFeminina.length > 0
+              ? parsed.kitGalleryFeminina
+              : [...defaultState.kitGalleryFeminina],
+          kitGalleryMasculina:
+            Array.isArray(parsed.kitGalleryMasculina) && parsed.kitGalleryMasculina.length > 0
+              ? parsed.kitGalleryMasculina
+              : [...defaultState.kitGalleryMasculina]
         };
 
-        // Filter out any older built-in static products, and replace/prepend them with the fresh ones from defaultState.products.
-        // We can identify built-in ones because they do NOT start with "custom-prod-".
-        const customProducts = (parsed.products || []).filter((p: any) => p.id && p.id.startsWith("custom-prod-"));
-        merged.products = [...defaultState.products, ...customProducts];
+        // One-time migration from v1 to v2 to clear old copyrighted product/theme URLs,
+        // while preserving any future edits (v2+) the admin makes to all products & themes!
+        if ((parsed.dataVersion || 1) < CURRENT_DATA_VERSION) {
+          const customProducts = (parsed.products || []).filter(
+            (p: Product) => p.id && p.id.startsWith("custom-prod-")
+          );
+          merged.products = [...defaultState.products, ...customProducts];
 
-        // Filter out any older built-in static themes, and replace/prepend them with the fresh ones from defaultState.themes.
-        // We can identify built-in ones because they do NOT start with "custom-theme-".
-        const customThemes = (parsed.themes || []).filter((t: any) => t.id && t.id.startsWith("custom-theme-"));
-        merged.themes = [...defaultState.themes, ...customThemes];
+          const customThemes = (parsed.themes || []).filter(
+            (t: ThemeItem) => t.id && t.id.startsWith("custom-theme-")
+          );
+          merged.themes = [...defaultState.themes, ...customThemes];
+          merged.categories = [...defaultState.categories];
+          merged.dataVersion = CURRENT_DATA_VERSION;
 
-        // Ensure categories match the new categories list
-        merged.categories = [...defaultState.categories];
-        
-        // If they had the ancient local path or old Imgur link, upgrade it to the new given Imgur link
-        if (merged.aboutImage === "/src/assets/images/creative_studio_1779734454290.png" || merged.aboutImage === "https://i.imgur.com/OzgQoTA.png") {
-          merged.aboutImage = "https://i.imgur.com/nsjJjnO.jpeg";
+          if (
+            merged.aboutImage === "/src/assets/images/creative_studio_1779734454290.png" ||
+            merged.aboutImage === "https://i.imgur.com/OzgQoTA.png"
+          ) {
+            merged.aboutImage = "https://i.imgur.com/nsjJjnO.jpeg";
+          }
+
+          if (
+            merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" ||
+            merged.heroImage === "https://i.imgur.com/MK4ydyR.jpeg" ||
+            merged.heroImage === "https://i.imgur.com/Es3OQW6.jpeg" ||
+            merged.heroImage === "https://i.imgur.com/QXmyxhn.jpeg" ||
+            !merged.heroImage
+          ) {
+            merged.heroImage = "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
+          }
+        } else {
+          merged.products =
+            Array.isArray(parsed.products) && parsed.products.length > 0
+              ? parsed.products
+              : [...defaultState.products];
+          merged.themes =
+            Array.isArray(parsed.themes) && parsed.themes.length > 0
+              ? parsed.themes
+              : [...defaultState.themes];
         }
-        
+
         if (
-          merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" ||
-          merged.heroImage === "https://i.imgur.com/MK4ydyR.jpeg" ||
-          merged.heroImage === "https://i.imgur.com/Es3OQW6.jpeg" ||
-          merged.heroImage === "https://i.imgur.com/QXmyxhn.jpeg" ||
-          !merged.heroImage
+          merged.aboutTexts.paragraph1 &&
+          (merged.aboutTexts.paragraph1.includes("DL MAGIC PAPER nasceu") ||
+            merged.aboutTexts.paragraph1.includes("A DL MAGIC PAPER") ||
+            !merged.aboutTexts.paragraph3)
         ) {
-          merged.heroImage = "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
+          merged.aboutTexts = { ...defaultState.aboutTexts };
         }
-        
-        // Automatically upgrade to the new beautiful Danyelle Lau / DLPaper story if they have the old placeholder
-        if (
-          merged.aboutTexts.paragraph1 && 
-          (merged.aboutTexts.paragraph1.includes("DL MAGIC PAPER nasceu") || 
-           merged.aboutTexts.paragraph1.includes("A DL MAGIC PAPER") ||
-           !merged.aboutTexts.paragraph3)
-        ) {
-          merged.aboutTexts = {
-            ...defaultState.aboutTexts
-          };
-        }
-        
+
         setData(merged);
       }
     } catch (e) {
@@ -191,106 +278,86 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Save changes to localStorage whenever data edits occur
   const saveState = (newState: AppDataState) => {
-    setData(newState);
+    const withVersion = { ...newState, dataVersion: CURRENT_DATA_VERSION };
+    setData(withVersion);
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newState));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(withVersion));
     } catch (e) {
       console.error("Failed to save changes to localStorage", e);
     }
   };
 
   const updateData = (newData: Partial<AppDataState>) => {
-    const updated = { ...data, ...newData };
-    saveState(updated);
+    saveState({ ...data, ...newData });
   };
 
   const updateHeroTexts = (texts: Partial<HeroTexts>) => {
-    const updated = {
+    saveState({
       ...data,
       heroTexts: { ...data.heroTexts, ...texts }
-    };
-    saveState(updated);
+    });
   };
 
   const updateAboutTexts = (texts: Partial<AboutTexts>) => {
-    const updated = {
+    saveState({
       ...data,
       aboutTexts: { ...data.aboutTexts, ...texts }
-    };
-    saveState(updated);
+    });
   };
 
-  // Product helper actions
   const addProduct = (newProd: Omit<Product, "id">) => {
     const id = "custom-prod-" + Date.now();
     const productWithId: Product = { ...newProd, id };
-    const updated = {
+    saveState({
       ...data,
       products: [...data.products, productWithId]
-    };
-    saveState(updated);
+    });
   };
 
   const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    const updatedProducts = data.products.map(p => {
-      if (p.id === id) {
-        return { ...p, ...updatedFields };
-      }
-      return p;
-    });
-    const updated = {
+    const updatedProducts = data.products.map(p =>
+      p.id === id ? { ...p, ...updatedFields } : p
+    );
+    saveState({
       ...data,
       products: updatedProducts
-    };
-    saveState(updated);
+    });
   };
 
   const deleteProduct = (id: string) => {
-    const updatedProducts = data.products.filter(p => p.id !== id);
-    const updated = {
+    saveState({
       ...data,
-      products: updatedProducts
-    };
-    saveState(updated);
+      products: data.products.filter(p => p.id !== id)
+    });
   };
 
-  // Theme helper actions
   const addTheme = (newTheme: Omit<ThemeItem, "id">) => {
     const id = "custom-theme-" + Date.now();
     const themeWithId: ThemeItem = { ...newTheme, id };
-    const updated = {
+    saveState({
       ...data,
       themes: [...data.themes, themeWithId]
-    };
-    saveState(updated);
+    });
   };
 
   const updateTheme = (id: string, updatedFields: Partial<ThemeItem>) => {
-    const updatedThemes = data.themes.map(t => {
-      if (t.id === id) {
-        return { ...t, ...updatedFields };
-      }
-      return t;
-    });
-    const updated = {
+    const updatedThemes = data.themes.map(t =>
+      t.id === id ? { ...t, ...updatedFields } : t
+    );
+    saveState({
       ...data,
       themes: updatedThemes
-    };
-    saveState(updated);
+    });
   };
 
   const deleteTheme = (id: string) => {
-    const updatedThemes = data.themes.filter(t => t.id !== id);
-    const updated = {
+    saveState({
       ...data,
-      themes: updatedThemes
-    };
-    saveState(updated);
+      themes: data.themes.filter(t => t.id !== id)
+    });
   };
 
-  // Reset to default preset
   const resetAll = () => {
     setData(defaultState);
     try {

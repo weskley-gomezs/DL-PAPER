@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Check, Sparkles, AlertCircle, ShoppingBag, Plus, Minus, Heart, ArrowRight, ZoomIn, X } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, AlertCircle, ShoppingBag, Plus, Minus, Heart, ArrowRight, ZoomIn, X, Gift, MessageCircle } from "lucide-react";
 import { Product, ThemeItem } from "../types";
 import { useAppContext } from "../context/DataContext";
 
@@ -13,20 +13,16 @@ interface ProductPageProps {
 export default function ProductPage({ product, onBack, onAddProduct }: ProductPageProps) {
   const { data } = useAppContext();
   
-  // Custom gallery images for Kit Festas Clássico
-  const femininaImages = [
-    "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-    "/src/assets/images/caixa_milk_laco_1794613744008.jpg",
-    "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
-    "/src/assets/images/hero_stationery_1779734437655.png"
-  ];
+  // Custom gallery images for Kit Festas Clássico (editable in AdminPanel)
+  const femininaImages =
+    data.kitGalleryFeminina && data.kitGalleryFeminina.length > 0
+      ? data.kitGalleryFeminina
+      : [product.image];
 
-  const masculinaImages = [
-    "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
-    "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-    "/src/assets/images/sacola_corporativa_luxo_1794613745685.jpg",
-    "/src/assets/images/caixas_doces_mimos_1794613748044.jpg"
-  ];
+  const masculinaImages =
+    data.kitGalleryMasculina && data.kitGalleryMasculina.length > 0
+      ? data.kitGalleryMasculina
+      : [product.image];
 
   // Set default quantities according to product specifications (minimum constraints)
   const getMinQuantity = () => {
@@ -64,6 +60,9 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
     if (isKit) {
       return activeGenderTab === "feminina" ? femininaImages : masculinaImages;
     }
+    if (product.gallery && product.gallery.length > 0) {
+      return [product.image, ...product.gallery.filter((g) => g && g !== product.image)];
+    }
     // Individual products can have custom mini galleries
     if (product.id === "caixa-milk") {
       return [
@@ -87,10 +86,10 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
     if (product.id === "lembrancinha-tubolata-5x6") {
       return [
         product.image,
-        "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg"
+        data.heroImage || "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg"
       ];
     }
-    return [product.image];
+    return product.image ? [product.image] : [];
   };
 
   const activeGallery = getProductGallery();
@@ -100,7 +99,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
 
   const getProductImage = () => {
     const gallery = getProductGallery();
-    return gallery[activeImageIndex] || gallery[0] || product.image;
+    return gallery[activeImageIndex] || gallery[0] || product.image || "";
   };
 
   const getForminhasPrice = (qty: number, style: string) => {
@@ -162,7 +161,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
         return selectedLaco === "com-laco" ? 1.72 : 1.40;
       }
     }
-    return product.minPrice;
+    return product.precoVenda ?? product.minPrice;
   };
 
   // Total computation
@@ -375,26 +374,49 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
 
               {/* Main Image View with Hover Zoom & Full Screen Trigger */}
               <div 
-                className="group/mainimg relative aspect-square rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner cursor-zoom-in"
-                onClick={() => setIsLightboxOpen(true)}
+                className={`group/mainimg relative aspect-square rounded-[2rem] overflow-hidden bg-gradient-to-br from-[#FFF6F0] via-white to-[#FCEBF1] border border-slate-100 shadow-inner ${getProductImage() ? "cursor-zoom-in" : ""}`}
+                onClick={() => {
+                  if (getProductImage()) setIsLightboxOpen(true);
+                }}
               >
-                <img
-                  src={getProductImage()}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/mainimg:scale-105"
-                  referrerPolicy="no-referrer"
-                />
+                {getProductImage() ? (
+                  <>
+                    <img
+                      src={getProductImage()}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/mainimg:scale-105"
+                      referrerPolicy="no-referrer"
+                    />
 
-                {/* Glass reflection overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none" />
+                    {/* Glass reflection overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/10 pointer-events-none" />
 
-                {/* Interactive magnifying glass hover card */}
-                <div className="absolute inset-0 bg-black/15 opacity-0 group-hover/mainimg:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                  <div className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2.5 text-slate-850 font-sans text-xs font-extrabold shadow-xl flex items-center gap-2 border border-slate-200/50 transform scale-90 group-hover/mainimg:scale-100 transition-transform duration-250">
-                    <ZoomIn className="w-4 h-4 text-brand-pink" />
-                    <span>Clique para Ampliar Foto</span>
+                    {/* Interactive magnifying glass hover card */}
+                    <div className="absolute inset-0 bg-black/15 opacity-0 group-hover/mainimg:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                      <div className="bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2.5 text-slate-850 font-sans text-xs font-extrabold shadow-xl flex items-center gap-2 border border-slate-200/50 transform scale-90 group-hover/mainimg:scale-100 transition-transform duration-250">
+                        <ZoomIn className="w-4 h-4 text-brand-pink" />
+                        <span>Clique para Ampliar Foto</span>
+                      </div>
+                    </div>
+
+                    {/* Floating "Zoom" quick action badge inside image */}
+                    <div className="absolute bottom-4 right-4 bg-slate-900/40 backdrop-blur-xs text-white p-2.5 rounded-full shadow-lg z-10 pointer-events-none">
+                      <ZoomIn className="w-4 h-4" />
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-3">
+                    <div className="w-24 h-24 rounded-3xl bg-white shadow-sm border border-[#E8527A]/15 flex items-center justify-center text-[#E8527A]">
+                      <Gift className="w-12 h-12" />
+                    </div>
+                    <p className="font-serif text-base font-bold text-[#3A2439]/70">
+                      DL Magic Paper
+                    </p>
+                    <p className="font-sans text-xs text-[#3A2439]/50 max-w-xs">
+                      Produto personalizado sob medida no tema ou identidade visual da sua marca.
+                    </p>
                   </div>
-                </div>
+                )}
 
                 {/* Floating category / gender indicator label */}
                 {isKit ? (
@@ -408,11 +430,6 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     {product.badge}
                   </span>
                 ) : null}
-
-                {/* Floating "Zoom" quick action badge inside image */}
-                <div className="absolute bottom-4 right-4 bg-slate-900/40 backdrop-blur-xs text-white p-2.5 rounded-full shadow-lg z-10 pointer-events-none">
-                  <ZoomIn className="w-4 h-4" />
-                </div>
               </div>
 
               {/* Thumbnails Navigator carousel */}
@@ -505,7 +522,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-400 font-sans mt-0.5">
-                    {hasLacoOption ? `Com acabamento ${selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Normal Sem Laço"}` : isForminhas ? `Pacote com ${quantity} forminhas no estilo ${forminhasStyle}` : isToppers ? `Pacote com ${quantity} toppers no estilo ${toppersStyle}` : `Preço sugerido para Kit Completo` }
+                    {hasLacoOption ? `Com acabamento ${selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Normal Sem Laço"}` : isForminhas ? `Pacote com ${quantity} forminhas no estilo ${forminhasStyle}` : isToppers ? `Pacote com ${quantity} toppers no estilo ${toppersStyle}` : "Valor atualizado em tempo real pelo ateliê" }
                   </p>
                 </div>
                 <div className="text-right hidden sm:block">
@@ -859,18 +876,22 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
 
               {/* Action operations grid */}
               <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={onBack}
-                  type="button"
-                  className="flex-1 py-3.5 px-6 rounded-full font-sans font-bold text-xs text-center text-slate-300 hover:text-white border border-white/20 hover:border-white transition cursor-pointer"
+                <a
+                  href={`https://wa.me/${(data.whatsappNumber || "5561998889577").replace(/\D/g, "")}?text=${encodeURIComponent(
+                    `Olá! Vi o produto ${product.name} (R$ ${getCurrentUnitPrice().toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}) no site da DL Magic Paper e gostaria de fazer um orçamento.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-3.5 px-5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-full font-sans font-bold text-xs sm:text-sm text-center shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  Voltar ao Catálogo
-                </button>
+                  <MessageCircle className="w-4 h-4 shrink-0" />
+                  <span>Encomendar no WhatsApp</span>
+                </a>
 
                 <button
                   onClick={handleAddToCart}
                   type="button"
-                  className="flex-2 py-3.5 px-6 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white rounded-full font-serif font-black text-sm tracking-wide shadow-md shadow-brand-pink/20 hover:scale-102 transition flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3.5 px-5 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white rounded-full font-serif font-black text-sm tracking-wide shadow-md shadow-brand-pink/20 hover:scale-102 transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Adicionar ao Orçamento</span>

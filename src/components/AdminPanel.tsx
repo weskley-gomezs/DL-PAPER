@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   X, Save, Plus, Trash2, Edit, RotateCcw, 
   Instagram, MessageCircle, FileText, Layers, 
   Package, Palette, Check, AlertCircle, Sparkles, PlusCircle,
-  Lock, Key, LogOut
+  Lock, Key, LogOut, Image as ImageIcon, Upload
 } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
-import { Product, ThemeItem } from "../types";
+import { Product, ThemeItem, HeroBannerItem, TestimonialPrintItem } from "../types";
+import { compressImageToDataUrl } from "../utils/imageUpload";
 
 export default function AdminPanel() {
   const { 
@@ -27,7 +28,7 @@ export default function AdminPanel() {
     setIsAdminLoggedIn
   } = useAppContext();
 
-  const [activeTab, setActiveTab] = useState<"site" | "products" | "themes">("site");
+  const [activeTab, setActiveTab] = useState<"site" | "images" | "products" | "themes">("site");
   
   // Login flow local state
   const [usernameInput, setUsernameInput] = useState("");
@@ -55,7 +56,7 @@ export default function AdminPanel() {
       setPasswordInput("");
       triggerToast("Acesso concedido com sucesso! 🛡️");
     } else {
-      setLoginError("Usuário ou senha incorretos! Usuário padrão: admin | Senha padrão: admin123");
+      setLoginError("Usuário ou senha incorretos. Verifique suas credenciais de administrador.");
     }
   };
 
@@ -68,6 +69,14 @@ export default function AdminPanel() {
   const [whatsappFormatted, setWhatsappFormatted] = useState(data.whatsappFormatted);
   const [instagramHandle, setInstagramHandle] = useState(data.instagramHandle);
   const [instagramUrl, setInstagramUrl] = useState(data.instagramUrl);
+  const [comingSoonTitle, setComingSoonTitle] = useState(data.comingSoonTitle || "Nosso Novo Catálogo Está Chegando!");
+  const [comingSoonSubtitle, setComingSoonSubtitle] = useState(data.comingSoonSubtitle || "");
+
+  // Site-wide images state (Hero carousel, Testimonials WhatsApp prints, Kit Galleries)
+  const [heroBanners, setHeroBanners] = useState<HeroBannerItem[]>(data.heroBanners || []);
+  const [testimonialPrints, setTestimonialPrints] = useState<TestimonialPrintItem[]>(data.testimonialPrints || []);
+  const [kitGalleryFeminina, setKitGalleryFeminina] = useState<string[]>(data.kitGalleryFeminina || []);
+  const [kitGalleryMasculina, setKitGalleryMasculina] = useState<string[]>(data.kitGalleryMasculina || []);
 
   // Local state for Hero Texts
   const [heroTag, setHeroTag] = useState(data.heroTexts.tag);
@@ -96,10 +105,12 @@ export default function AdminPanel() {
     maxPrice: 20,
     description: "",
     image: "",
+    gallery: [],
     badge: "",
     features: []
   });
   const [featureInput, setFeatureInput] = useState("");
+  const [galleryInput, setGalleryInput] = useState("");
 
   // Theme Editing state
   const [editingTheme, setEditingTheme] = useState<ThemeItem | null>(null);
@@ -118,12 +129,94 @@ export default function AdminPanel() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const [toastMessage, setToastMessage] = useState("");
+  const [newFemininaUrl, setNewFemininaUrl] = useState("");
+  const [newMasculinaUrl, setNewMasculinaUrl] = useState("");
+  const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (isAdminOpen && !wasOpenRef.current) {
+      setLogo(data.logo);
+      setHeroImage(data.heroImage);
+      setAboutImage(data.aboutImage);
+      setPartyFavorsImage(data.partyFavorsImage);
+      setHeroBanners(data.heroBanners || []);
+      setTestimonialPrints(data.testimonialPrints || []);
+      setKitGalleryFeminina(data.kitGalleryFeminina || []);
+      setKitGalleryMasculina(data.kitGalleryMasculina || []);
+      setWhatsappNumber(data.whatsappNumber);
+      setWhatsappFormatted(data.whatsappFormatted);
+      setInstagramHandle(data.instagramHandle);
+      setInstagramUrl(data.instagramUrl);
+      setNewAdminUsername(data.adminUsername || "admin");
+      setNewAdminPassword(data.adminPassword || "admin123");
+      setComingSoonTitle(data.comingSoonTitle || "Nosso Novo Catálogo Está Chegando!");
+      setComingSoonSubtitle(data.comingSoonSubtitle || "");
+      setHeroTag(data.heroTexts.tag);
+      setHeroTitlePrefix(data.heroTexts.titlePrefix);
+      setHeroTitleColored(data.heroTexts.titleColored);
+      setHeroSubtitle(data.heroTexts.subtitle);
+      setHeroDescription(data.heroTexts.description);
+      setAboutTag(data.aboutTexts.tag);
+      setAboutTitle(data.aboutTexts.title);
+      setAboutParagraph1(data.aboutTexts.paragraph1);
+      setAboutParagraph2(data.aboutTexts.paragraph2);
+      setAboutParagraph3(data.aboutTexts.paragraph3 || "");
+      setAboutFloatingText(data.aboutTexts.floatingText);
+    }
+    wasOpenRef.current = isAdminOpen;
+  }, [isAdminOpen, data]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage("");
     }, 3000);
+  };
+
+  const handleImageFileUpload = async (
+    file: File | undefined,
+    onLoaded: (dataUrl: string) => void
+  ) => {
+    if (!file) return;
+    try {
+      const compressed = await compressImageToDataUrl(file, 1200, 0.82);
+      onLoaded(compressed);
+      triggerToast("Foto carregada! Clique em Salvar para confirmar no site. 📸");
+    } catch {
+      triggerToast("⚠️ Não foi possível ler essa imagem. Tente outro arquivo.");
+    }
+  };
+
+  const handleSaveAllSiteImages = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    updateData({
+      logo,
+      heroImage,
+      aboutImage,
+      partyFavorsImage,
+      heroBanners,
+      testimonialPrints,
+      kitGalleryFeminina,
+      kitGalleryMasculina
+    });
+    triggerToast("Todas as imagens do site foram atualizadas! 🖼️✨");
+  };
+
+  const addGalleryPhotoToProduct = (url?: string) => {
+    const clean = (url ?? galleryInput).trim();
+    if (!clean) return;
+    setProductForm(prev => ({
+      ...prev,
+      gallery: [...(prev.gallery || []), clean]
+    }));
+    if (!url) setGalleryInput("");
+  };
+
+  const removeGalleryPhotoFromProduct = (idx: number) => {
+    setProductForm(prev => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, i) => i !== idx)
+    }));
   };
 
   if (!isAdminOpen) return null;
@@ -142,6 +235,8 @@ export default function AdminPanel() {
       instagramUrl,
       adminUsername: newAdminUsername,
       adminPassword: newAdminPassword,
+      comingSoonTitle,
+      comingSoonSubtitle
     });
     updateHeroTexts({
       tag: heroTag,
@@ -205,11 +300,13 @@ export default function AdminPanel() {
       maxPrice: 20,
       description: "",
       image: "",
+      gallery: [],
       badge: "",
       features: [],
       segment: "pessoal"
     });
     setFeatureInput("");
+    setGalleryInput("");
   };
 
   const startEditProduct = (prod: Product) => {
@@ -222,9 +319,11 @@ export default function AdminPanel() {
       maxPrice: prod.maxPrice,
       description: prod.description,
       image: prod.image,
+      gallery: prod.gallery || [],
       badge: prod.badge || "",
       features: prod.features || []
     });
+    setGalleryInput("");
     setIsAddingProduct(false);
   };
 
@@ -357,24 +456,9 @@ export default function AdminPanel() {
             </button>
           </form>
 
-          {/* Credentials Helper Callout */}
-          <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl text-left space-y-1.5">
-            <div className="flex items-center gap-1.5 text-amber-900 font-bold text-xs">
-              <Key className="w-3.5 h-3.5 text-amber-600" />
-              <span>Chave de Acesso Rápida:</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-sans">
-              <div className="bg-white px-2.5 py-1.5 rounded-lg border border-amber-200/70">
-                <span className="text-slate-500 block text-[10px]">Usuário:</span>
-                <strong className="text-pink-600 font-mono text-xs">admin</strong>
-              </div>
-              <div className="bg-white px-2.5 py-1.5 rounded-lg border border-amber-200/70">
-                <span className="text-slate-500 block text-[10px]">Senha:</span>
-                <strong className="text-pink-600 font-mono text-xs">admin123</strong>
-              </div>
-            </div>
-            <p className="text-[10px] text-amber-800/80 italic text-center pt-0.5">
-              (Você também pode alterar esses dados na aba "Site & Contatos")
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+            <p className="text-[11px] text-slate-500 font-sans">
+              Acesso exclusivo para edição e gerenciamento do ateliê <strong>DL Magic Paper</strong>.
             </p>
           </div>
 
@@ -447,6 +531,23 @@ export default function AdminPanel() {
             </button>
             <button
               onClick={() => {
+                setActiveTab("images");
+                setEditingProduct(null);
+                setIsAddingProduct(false);
+                setEditingTheme(null);
+                setIsAddingTheme(false);
+              }}
+              className={`flex items-center gap-2 py-3.5 px-4 text-sm font-semibold border-b-2 transition-all font-sans cursor-pointer ${
+                activeTab === "images"
+                  ? "border-brand-pink text-brand-pink font-bold"
+                  : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <ImageIcon className="w-4 h-4" />
+              Imagens do Site
+            </button>
+            <button
+              onClick={() => {
                 setActiveTab("products");
                 setEditingProduct(null);
                 setIsAddingProduct(false);
@@ -499,53 +600,167 @@ export default function AdminPanel() {
           {/* TAB 1: SITE PRESENTATION & SOCIAL CHANNELS */}
           {activeTab === "site" && (
             <form onSubmit={handleSaveGeneral} className="space-y-8 max-w-4xl">
+
+              {/* Visibility / Em Breve Mode Card */}
+              <div className="bg-white p-6 rounded-2xl border-2 border-brand-pink/25 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <span className="w-2 h-5 rounded-full bg-brand-pink" />
+                      Visibilidade para o Público (Modo &ldquo;Em Breve&rdquo;)
+                    </h3>
+                    <p className="text-xs text-slate-500 font-sans mt-1">
+                      Quando ativado, visitantes comuns veem a página <strong>&ldquo;Em Breve&rdquo;</strong>, enquanto você (logada como admin) vê e edita o site completo normalmente.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !data.isComingSoon;
+                      updateData({ isComingSoon: next });
+                      triggerToast(
+                        next
+                          ? "Modo 'Em Breve' ativado para o público! 🔒"
+                          : "Site publicado e visível para todos os clientes! 🚀"
+                      );
+                    }}
+                    className={`px-4 py-2.5 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-2 border ${
+                      data.isComingSoon
+                        ? "bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                    }`}
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>{data.isComingSoon ? "Modo Em Breve: ATIVO" : "Site PUBLICADO (Público)"}</span>
+                  </button>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Título da Tela &ldquo;Em Breve&rdquo;</label>
+                    <input
+                      type="text"
+                      value={comingSoonTitle}
+                      onChange={(e) => setComingSoonTitle(e.target.value)}
+                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Texto da Tela &ldquo;Em Breve&rdquo;</label>
+                    <input
+                      type="text"
+                      value={comingSoonSubtitle}
+                      onChange={(e) => setComingSoonSubtitle(e.target.value)}
+                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                    />
+                  </div>
+                </div>
+              </div>
               
               {/* Media links card */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <span className="w-2 h-5 rounded-full bg-brand-pink" />
-                  Imagens Principais (Links)
-                </h3>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-5 rounded-full bg-brand-pink" />
+                    Imagens Principais (Link ou Upload)
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("images")}
+                    className="text-xs font-bold text-brand-pink hover:underline cursor-pointer"
+                  >
+                    Abrir Gerenciador Completo de Imagens →
+                  </button>
+                </div>
                 <p className="text-xs text-slate-400 mb-2 font-sans">
-                  Insira links das imagens desejadas (hospedadas no Imgur, PostImg, Pinterest ou similares). Elas se atualizarão instantaneamente no catálogo!
+                  Cole o link de qualquer imagem ou clique no botão de upload para enviar do seu aparelho.
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Logo do Ateliê (Sem fundo)</label>
-                    <input 
-                      type="text" 
-                      value={logo} 
-                      onChange={(e) => setLogo(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                    />
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={logo} 
+                        onChange={(e) => setLogo(e.target.value)}
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                      />
+                      <label className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        Subir
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageFileUpload(e.target.files?.[0], setLogo)}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Banner do Hero (Topo do site)</label>
-                    <input 
-                      type="text" 
-                      value={heroImage} 
-                      onChange={(e) => setHeroImage(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                    />
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Banner Principal (Topo do site)</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={heroImage} 
+                        onChange={(e) => setHeroImage(e.target.value)}
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                      />
+                      <label className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        Subir
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageFileUpload(e.target.files?.[0], setHeroImage)}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Foto Sobre Nós (Nossa História)</label>
-                    <input 
-                      type="text" 
-                      value={aboutImage} 
-                      onChange={(e) => setAboutImage(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                    />
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Foto Sobre Nós (Quem Faz com Amor)</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={aboutImage} 
+                        onChange={(e) => setAboutImage(e.target.value)}
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                      />
+                      <label className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        Subir
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageFileUpload(e.target.files?.[0], setAboutImage)}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Foto Lateral Kit Luxo</label>
-                    <input 
-                      type="text" 
-                      value={partyFavorsImage} 
-                      onChange={(e) => setPartyFavorsImage(e.target.value)}
-                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                    />
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Foto Auxiliar do Ateliê</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={partyFavorsImage} 
+                        onChange={(e) => setPartyFavorsImage(e.target.value)}
+                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                      />
+                      <label className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                        <Upload className="w-3.5 h-3.5" />
+                        Subir
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageFileUpload(e.target.files?.[0], setPartyFavorsImage)}
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -556,15 +771,15 @@ export default function AdminPanel() {
                     <img src={logo} alt="Preview" className="w-12 h-12 object-contain bg-slate-100 rounded-lg p-1 border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-slate-400 font-sans">Hero</span>
+                    <span className="text-[10px] text-slate-400 font-sans">Banner Topo</span>
                     <img src={heroImage} alt="Preview" className="w-12 h-12 object-cover bg-slate-100 rounded-lg border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-slate-400 font-sans">Sobre</span>
+                    <span className="text-[10px] text-slate-400 font-sans">Sobre Nós</span>
                     <img src={aboutImage} alt="Preview" className="w-12 h-12 object-cover bg-slate-100 rounded-lg border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] text-slate-400 font-sans">Kit Luxo</span>
+                    <span className="text-[10px] text-slate-400 font-sans">Auxiliar</span>
                     <img src={partyFavorsImage} alt="Preview" className="w-12 h-12 object-cover bg-slate-100 rounded-lg border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
                   </div>
                 </div>
@@ -809,6 +1024,431 @@ export default function AdminPanel() {
             </form>
           )}
 
+          {/* TAB: SITE-WIDE IMAGES MANAGER */}
+          {activeTab === "images" && (
+            <form onSubmit={handleSaveAllSiteImages} className="space-y-8 max-w-4xl">
+              
+              {/* Bloco 1: Identidade & Seções Principais */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <span className="w-2 h-5 rounded-full bg-brand-pink" />
+                      1. Identidade Visual &amp; Seções Principais
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Altere a logo, o banner principal de entrada, a foto da criadora e a imagem auxiliar enviando do seu aparelho ou colando um link.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
+                  {[
+                    { label: "Logo do Ateliê (Navbar, Rodapé e Tela Em Breve)", val: logo, setter: setLogo, contain: true },
+                    { label: "Banner Principal do Topo (Linha Festas & Corporativa)", val: heroImage, setter: setHeroImage, contain: false },
+                    { label: "Foto Sobre Nós (Quem Faz com Amor e Propósito)", val: aboutImage, setter: setAboutImage, contain: false },
+                    { label: "Foto Auxiliar do Ateliê", val: partyFavorsImage, setter: setPartyFavorsImage, contain: false }
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
+                      <label className="block text-xs font-bold text-slate-700 font-sans">{item.label}</label>
+                      <div className="h-32 w-full rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center p-1">
+                        <img
+                          src={item.val}
+                          alt={item.label}
+                          className={`w-full h-full ${item.contain ? "object-contain" : "object-cover"} rounded-lg`}
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x200?text=Sem+Imagem"; }}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={item.val}
+                          onChange={(e) => item.setter(e.target.value)}
+                          placeholder="Cole o link da imagem ou use Subir Foto"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-white font-sans"
+                        />
+                        <label className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-brand-pink text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                          <Upload className="w-3.5 h-3.5" />
+                          Subir Foto
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleImageFileUpload(e.target.files?.[0], item.setter)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bloco 2: Carrossel Mais Destaques do Ateliê */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <span className="w-2 h-5 rounded-full bg-brand-tiffany" />
+                      2. Carrossel &ldquo;Mais Destaques do Ateliê&rdquo; (Hero)
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Gerencie as fotos e legendas dos banners rotativos na página inicial.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setHeroBanners(prev => [
+                        ...prev,
+                        {
+                          id: `banner-${Date.now()}`,
+                          src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
+                          title: "Novo Destaque DL Magic Paper",
+                          subtitle: "Personalizado com carinho em camadas 3D"
+                        }
+                      ])
+                    }
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Adicionar Banner
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {heroBanners.map((banner, idx) => (
+                    <div key={banner.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 grid sm:grid-cols-[160px_1fr] gap-4 items-center">
+                      <div className="h-28 w-full rounded-xl bg-white border border-slate-200 overflow-hidden">
+                        <img
+                          src={banner.src}
+                          alt={banner.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/320x180?text=Banner"; }}
+                        />
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-sans">
+                            Banner #{idx + 1}
+                          </span>
+                          {heroBanners.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setHeroBanners(prev => prev.filter((_, i) => i !== idx))}
+                              className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Remover
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={banner.src}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setHeroBanners(prev => prev.map((b, i) => (i === idx ? { ...b, src: val } : b)));
+                            }}
+                            placeholder="Link da imagem do banner"
+                            className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-sans"
+                          />
+                          <label className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-brand-pink text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            Subir Foto
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) =>
+                                handleImageFileUpload(e.target.files?.[0], (url) =>
+                                  setHeroBanners(prev => prev.map((b, i) => (i === idx ? { ...b, src: url } : b)))
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={banner.title}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setHeroBanners(prev => prev.map((b, i) => (i === idx ? { ...b, title: val } : b)));
+                            }}
+                            placeholder="Título do banner"
+                            className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-sans font-semibold"
+                          />
+                          <input
+                            type="text"
+                            value={banner.subtitle}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setHeroBanners(prev => prev.map((b, i) => (i === idx ? { ...b, subtitle: val } : b)));
+                            }}
+                            placeholder="Subtítulo do banner"
+                            className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-sans"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bloco 3: Prints de Avaliações Reais (WhatsApp) */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <span className="w-2 h-5 rounded-full bg-emerald-500" />
+                      3. Avaliações Reais / Prints do WhatsApp
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Troque, adicione ou remova os prints de feedbacks exibidos na seção de depoimentos.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTestimonialPrints(prev => [
+                        ...prev,
+                        {
+                          id: `screenshot-${Date.now()}`,
+                          url: "",
+                          alt: `Depoimento do WhatsApp de Cliente ${prev.length + 1}`
+                        }
+                      ])
+                    }
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Adicionar Print
+                  </button>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {testimonialPrints.map((item, idx) => (
+                    <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 font-sans">
+                          Print #{idx + 1}
+                        </span>
+                        {testimonialPrints.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setTestimonialPrints(prev => prev.filter((_, i) => i !== idx))}
+                            className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Remover
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="h-36 w-full rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center p-1">
+                        <img
+                          src={item.url || "https://placehold.co/300x300?text=Envie+um+Print"}
+                          alt={item.alt}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/300x300?text=Sem+Print"; }}
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={item.url}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setTestimonialPrints(prev => prev.map((p, i) => (i === idx ? { ...p, url: val } : p)));
+                          }}
+                          placeholder="Link da imagem do print"
+                          className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-sans"
+                        />
+                        <label className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-brand-pink text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors">
+                          <Upload className="w-3.5 h-3.5" />
+                          Subir
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageFileUpload(e.target.files?.[0], (url) =>
+                                setTestimonialPrints(prev => prev.map((p, i) => (i === idx ? { ...p, url } : p)))
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+
+                      <input
+                        type="text"
+                        value={item.alt}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTestimonialPrints(prev => prev.map((p, i) => (i === idx ? { ...p, alt: val } : p)));
+                        }}
+                        placeholder="Descrição do depoimento"
+                        className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white font-sans"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bloco 4: Galerias do Kit Festas Clássico */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div className="border-b border-slate-100 pb-3">
+                  <h3 className="font-serif text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span className="w-2 h-5 rounded-full bg-brand-lilac" />
+                    4. Galerias da Página do &ldquo;Kit Festas Clássico&rdquo;
+                  </h3>
+                  <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    Fotos mostradas na página de detalhes do Kit Festas Clássico (Coleção Feminina e Coleção Masculina).
+                  </p>
+                </div>
+
+                {/* Coleção Feminina */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 font-sans">Coleção Feminina ({kitGalleryFeminina.length} fotos)</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {kitGalleryFeminina.map((url, idx) => (
+                      <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 h-24">
+                        <img
+                          src={url}
+                          alt={`Feminina ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/200x150?text=Foto"; }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setKitGalleryFeminina(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 cursor-pointer"
+                          title="Remover foto"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newFemininaUrl}
+                      onChange={(e) => setNewFemininaUrl(e.target.value)}
+                      placeholder="Cole o link de uma foto para Coleção Feminina"
+                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-sans"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newFemininaUrl.trim()) {
+                          setKitGalleryFeminina(prev => [...prev, newFemininaUrl.trim()]);
+                          setNewFemininaUrl("");
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold shrink-0 cursor-pointer"
+                    >
+                      Adicionar Link
+                    </button>
+                    <label className="px-3.5 py-2 rounded-xl bg-brand-pink hover:bg-brand-pink-hover text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                      <Upload className="w-3.5 h-3.5" />
+                      Subir Foto
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) =>
+                          handleImageFileUpload(e.target.files?.[0], (url) =>
+                            setKitGalleryFeminina(prev => [...prev, url])
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Coleção Masculina */}
+                <div className="space-y-3 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 font-sans">Coleção Masculina ({kitGalleryMasculina.length} fotos)</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {kitGalleryMasculina.map((url, idx) => (
+                      <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 h-24">
+                        <img
+                          src={url}
+                          alt={`Masculina ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/200x150?text=Foto"; }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setKitGalleryMasculina(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md hover:bg-red-700 cursor-pointer"
+                          title="Remover foto"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newMasculinaUrl}
+                      onChange={(e) => setNewMasculinaUrl(e.target.value)}
+                      placeholder="Cole o link de uma foto para Coleção Masculina"
+                      className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 font-sans"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newMasculinaUrl.trim()) {
+                          setKitGalleryMasculina(prev => [...prev, newMasculinaUrl.trim()]);
+                          setNewMasculinaUrl("");
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold shrink-0 cursor-pointer"
+                    >
+                      Adicionar Link
+                    </button>
+                    <label className="px-3.5 py-2 rounded-xl bg-brand-pink hover:bg-brand-pink-hover text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                      <Upload className="w-3.5 h-3.5" />
+                      Subir Foto
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) =>
+                          handleImageFileUpload(e.target.files?.[0], (url) =>
+                            setKitGalleryMasculina(prev => [...prev, url])
+                          )
+                        }
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 bg-gradient-to-r from-brand-pink to-brand-pink-hover text-white px-8 py-3.5 rounded-xl font-bold font-sans shadow-lg shadow-brand-pink/20 hover:scale-101 hover:shadow-brand-pink/30 hover:-translate-y-0.5 active:scale-98 transition-all cursor-pointer"
+                >
+                  <Save className="w-5 h-5" />
+                  Salvar Todas as Imagens do Site
+                </button>
+              </div>
+            </form>
+          )}
+
           {/* TAB 2: PRODUCTS MANAGER (CATALOG) */}
           {activeTab === "products" && (
             <div className="space-y-6">
@@ -907,16 +1547,105 @@ export default function AdminPanel() {
                       />
                     </div>
 
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Link da Imagem</label>
-                      <input
-                        type="text"
-                        required
-                        value={productForm.image}
-                        onChange={(e) => setProductForm({...productForm, image: e.target.value})}
-                        placeholder="https://imgur.com/link-da-imagem.png"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                      />
+                    <div className="md:col-span-2 space-y-2.5">
+                      <label className="block text-xs font-semibold text-slate-600 font-sans">Imagem Principal do Produto (Link ou Upload)</label>
+                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                        <div className="w-20 h-20 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                          <img
+                            src={productForm.image || "https://placehold.co/150x150?text=Foto"}
+                            alt="Preview produto"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/150x150?text=Foto"; }}
+                          />
+                        </div>
+                        <div className="flex-1 w-full flex gap-2">
+                          <input
+                            type="text"
+                            required
+                            value={productForm.image}
+                            onChange={(e) => setProductForm({...productForm, image: e.target.value})}
+                            placeholder="https://... ou envie uma foto do aparelho"
+                            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                          />
+                          <label className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-brand-pink text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            Subir Foto
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) =>
+                                handleImageFileUpload(e.target.files?.[0], (url) =>
+                                  setProductForm(prev => ({ ...prev, image: url }))
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Optional Product Gallery Photos */}
+                    <div className="md:col-span-2 border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-3">
+                      <label className="block text-xs font-bold text-slate-700 font-sans">
+                        Fotos Extras da Galeria do Produto (Opcional)
+                      </label>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={galleryInput}
+                          onChange={(e) => setGalleryInput(e.target.value)}
+                          placeholder="Cole o link de uma foto extra"
+                          className="w-full text-xs px-3.5 py-2 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-white font-sans"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => addGalleryPhotoToProduct()}
+                          className="px-3.5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-700 transition shrink-0 cursor-pointer"
+                        >
+                          Adicionar
+                        </button>
+                        <label className="px-3.5 py-2 rounded-xl bg-brand-pink hover:bg-brand-pink-hover text-white text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                          <Upload className="w-3.5 h-3.5" />
+                          Subir
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageFileUpload(e.target.files?.[0], (url) =>
+                                addGalleryPhotoToProduct(url)
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+
+                      {productForm.gallery && productForm.gallery.length > 0 ? (
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 pt-1">
+                          {productForm.gallery.map((imgUrl, idx) => (
+                            <div key={idx} className="relative rounded-xl overflow-hidden border border-slate-200 bg-white h-20">
+                              <img
+                                src={imgUrl}
+                                alt={`Galeria ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/150x150?text=Foto"; }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeGalleryPhotoFromProduct(idx)}
+                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold shadow cursor-pointer"
+                                title="Remover"
+                              >
+                                &times;
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 italic font-sans">Nenhuma foto extra adicionada.</p>
+                      )}
                     </div>
 
                     <div className="md:col-span-2">
@@ -1016,9 +1745,12 @@ export default function AdminPanel() {
                           maxPrice: 20,
                           description: "",
                           image: "",
+                          gallery: [],
                           badge: "",
                           features: []
                         });
+                        setGalleryInput("");
+                        setFeatureInput("");
                       }}
                       className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white py-2 px-4 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-colors cursor-pointer shrink-0"
                     >
@@ -1194,16 +1926,42 @@ export default function AdminPanel() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Link da Foto (De Decoração ou Amostra)</label>
-                      <input
-                        type="text"
-                        required
-                        value={themeForm.image}
-                        onChange={(e) => setThemeForm({...themeForm, image: e.target.value})}
-                        placeholder="https://imgur.com/link-do-tema.png"
-                        className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
-                      />
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold text-slate-600 font-sans">Foto do Tema (Link ou Upload)</label>
+                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                        <div className="w-20 h-20 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                          <img
+                            src={themeForm.image || "https://placehold.co/150x150?text=Tema"}
+                            alt="Preview tema"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/150x150?text=Tema"; }}
+                          />
+                        </div>
+                        <div className="flex-1 w-full flex gap-2">
+                          <input
+                            type="text"
+                            required
+                            value={themeForm.image}
+                            onChange={(e) => setThemeForm({...themeForm, image: e.target.value})}
+                            placeholder="https://... ou envie uma foto do tema"
+                            className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                          />
+                          <label className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-brand-pink text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shrink-0 transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            Subir Foto
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) =>
+                                handleImageFileUpload(e.target.files?.[0], (url) =>
+                                  setThemeForm(prev => ({ ...prev, image: url }))
+                                )
+                              }
+                            />
+                          </label>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Palette hex controller */}
@@ -1466,8 +2224,9 @@ export default function AdminPanel() {
                 type="button"
                 onClick={() => {
                   resetAll();
-                  triggerToast("Configurações redefinidas com sucesso! 🔄");
+                  triggerToast("Configurações redefinidas com sucesso! 🔄 (Feche e reabra o painel se desejar recarregar os campos)");
                   setShowResetConfirm(false);
+                  setIsAdminOpen(false);
                 }}
                 className="flex-1 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-xs transition cursor-pointer font-sans"
               >

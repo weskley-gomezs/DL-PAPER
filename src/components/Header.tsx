@@ -8,8 +8,8 @@ interface HeaderProps {
   cartItemsCount: number;
   hasActiveProduct?: boolean;
   onLeaveProductPage?: () => void;
-  selectedSegment?: "pessoal" | "corporativo";
-  onSelectSegment?: (segment: "pessoal" | "corporativo") => void;
+  selectedSegment?: "todos" | "pessoal" | "corporativo";
+  onSelectSegment?: (segment: "todos" | "pessoal" | "corporativo") => void;
 }
 
 export default function Header({ 
@@ -17,7 +17,7 @@ export default function Header({
   cartItemsCount, 
   hasActiveProduct, 
   onLeaveProductPage,
-  selectedSegment = "pessoal",
+  selectedSegment = "todos",
   onSelectSegment
 }: HeaderProps) {
   const { data, setIsAdminOpen } = useAppContext();

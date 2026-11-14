@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "Produto": {
+      "title": "Produto",
+      "description": "Produto personalizado do catálogo da DL Magic Paper sincronizado com o sistema interno DL Sistema.",
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Nome do produto exibido na vitrine",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "precoVenda": {
+          "type": "number",
+          "description": "Preço final de venda em reais (BRL) calculado pelo sistema interno"
+        },
+        "categoriaLinha": {
+          "type": "string",
+          "description": "Segmento do catálogo em que o produto é exibido",
+          "enum": ["pessoal", "corporativo", "ambos"]
+        },
+        "descricao": {
+          "type": "string",
+          "description": "Descrição breve opcional com detalhes do produto",
+          "maxLength": 2000
+        },
+        "imagemUrl": {
+          "type": "string",
+          "description": "URL opcional da imagem do produto",
+          "maxLength": 2048
+        },
+        "exibirNoSite": {
+          "type": "boolean",
+          "description": "Define se o produto deve ser exibido na vitrine pública"
+        }
+      },
+      "required": ["nome", "precoVenda", "categoriaLinha"]
+    }
+  },
+  "firestore": {
+    "/produtos/{produtoId}": {
+      "schema": {
+        "$ref": "#/entities/Produto"
+      },
+      "description": "Coleção pública de produtos sincronizados com o DL Sistema para exibição em tempo real no catálogo."
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Lock, Settings, Eye, Rocket } from "lucide-react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ProductsCatalog from "./components/ProductsCatalog";
@@ -9,16 +10,18 @@ import BudgetFloat from "./components/BudgetFloat";
 import Footer from "./components/Footer";
 import AdminPanel from "./components/AdminPanel";
 import ProductPage from "./components/ProductPage";
-import { DataProvider } from "./context/DataContext";
+import ComingSoon from "./components/ComingSoon";
+import { DataProvider, useAppContext } from "./context/DataContext";
 import { Product, BudgetItem } from "./types";
 
 function AppContent() {
+  const { data, isAdminLoggedIn, setIsAdminLoggedIn, setIsAdminOpen, updateData } = useAppContext();
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   
-  // Segment state: strictly separates 'pessoal' vs 'corporativo'
-  const [selectedSegment, setSelectedSegment] = useState<"pessoal" | "corporativo">("pessoal");
+  // Segment state: 'todos', 'pessoal' or 'corporativo'
+  const [selectedSegment, setSelectedSegment] = useState<"todos" | "pessoal" | "corporativo">("todos");
 
   // Add Item to active budget catalog
   const handleAddProductToBudget = (product: Product, quantity: number, notes?: string, theme?: string) => {
@@ -63,6 +66,16 @@ function AppContent() {
   };
 
   const cartItemsCount = budgetItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  // Public visitors see Coming Soon when isComingSoon is active and not logged in as Admin
+  if (data.isComingSoon && !isAdminLoggedIn) {
+    return (
+      <>
+        <ComingSoon />
+        <AdminPanel />
+      </>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-[#FFF6F0] text-[#3A2439] overflow-x-hidden selection:bg-[#E8527A]/20 selection:text-[#E8527A] transition-colors" id="app_root_layout">
@@ -136,6 +149,47 @@ function AppContent() {
 
       {/* Footer com link 'Feito por Weskley Gomes' */}
       <Footer />
+
+      {/* Floating Admin Mode Banner when site is in "Em Breve" for public */}
+      {data.isComingSoon && isAdminLoggedIn && (
+        <div
+          className="fixed bottom-4 left-4 z-40 max-w-[calc(100vw-6rem)] bg-[#3A2439]/95 backdrop-blur-md text-white px-4 py-2.5 rounded-2xl shadow-xl border border-white/15 flex flex-wrap items-center gap-2.5 text-xs font-sans"
+          id="admin_coming_soon_status_bar"
+        >
+          <span className="inline-flex items-center gap-1.5 font-bold text-[#FFC947]">
+            <Lock className="w-3.5 h-3.5" />
+            Modo &ldquo;Em Breve&rdquo; ativo para o público
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsAdminOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors cursor-pointer"
+            >
+              <Settings className="w-3 h-3" />
+              Painel
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAdminLoggedIn(false)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors cursor-pointer"
+              title="Sair e visualizar a tela Em Breve que o público vê"
+            >
+              <Eye className="w-3 h-3" />
+              Ver como Público
+            </button>
+            <button
+              type="button"
+              onClick={() => updateData({ isComingSoon: false })}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#E8527A] hover:bg-[#D43C65] text-white font-bold transition-colors cursor-pointer"
+              title="Liberar o site completo para todos os visitantes"
+            >
+              <Rocket className="w-3 h-3" />
+              Publicar Site
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Admin Control Center Drawer Overlay */}
       <AdminPanel />

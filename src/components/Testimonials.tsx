@@ -1,33 +1,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Heart, ZoomIn, X, ChevronLeft, ChevronRight, Star, Sparkles } from "lucide-react";
-
-const TESTIMONIAL_IMAGES = [
-  {
-    id: "screenshot-1",
-    url: "https://i.imgur.com/pd6klyB.png",
-    alt: "Depoimento do WhatsApp de Cliente 1"
-  },
-  {
-    id: "screenshot-2",
-    url: "https://i.imgur.com/OGvCsV3.png",
-    alt: "Depoimento do WhatsApp de Cliente 2"
-  },
-  {
-    id: "screenshot-3",
-    url: "https://i.imgur.com/OYYILEl.png",
-    alt: "Depoimento do WhatsApp de Cliente 3"
-  },
-  {
-    id: "screenshot-4",
-    url: "https://i.imgur.com/cQ1hCX1.png",
-    alt: "Depoimento do WhatsApp de Cliente 4"
-  }
-];
+import { useAppContext } from "../context/DataContext";
 
 export default function Testimonials() {
+  const { data } = useAppContext();
   const [likes, setLikes] = useState<Record<string, boolean>>({});
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
+  const testimonialImages = data.testimonialPrints || [];
 
   const toggleLike = (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Avoid triggering lightbox
@@ -35,14 +16,14 @@ export default function Testimonials() {
   };
 
   const handleNext = () => {
-    if (selectedImageIndex !== null) {
-      setSelectedImageIndex((selectedImageIndex + 1) % TESTIMONIAL_IMAGES.length);
+    if (selectedImageIndex !== null && testimonialImages.length > 0) {
+      setSelectedImageIndex((selectedImageIndex + 1) % testimonialImages.length);
     }
   };
 
   const handlePrev = () => {
-    if (selectedImageIndex !== null) {
-      setSelectedImageIndex((selectedImageIndex - 1 + TESTIMONIAL_IMAGES.length) % TESTIMONIAL_IMAGES.length);
+    if (selectedImageIndex !== null && testimonialImages.length > 0) {
+      setSelectedImageIndex((selectedImageIndex - 1 + testimonialImages.length) % testimonialImages.length);
     }
   };
 
@@ -73,7 +54,7 @@ export default function Testimonials() {
 
         {/* Real Screenshots Grid with Glassmorphism Framing */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
-          {TESTIMONIAL_IMAGES.map((item, index) => (
+          {testimonialImages.map((item, index) => (
             <div 
               key={item.id}
               onClick={() => setSelectedImageIndex(index)}
@@ -174,14 +155,16 @@ export default function Testimonials() {
               </button>
 
               {/* Main Screenshot Render */}
-              <div className="bg-white/5 p-2 rounded-3xl border border-white/10 shadow-2xl overflow-hidden max-h-[75vh] flex items-center justify-center">
-                <img 
-                  src={TESTIMONIAL_IMAGES[selectedImageIndex].url} 
-                  alt={TESTIMONIAL_IMAGES[selectedImageIndex].alt}
-                  className="max-h-[70vh] w-auto object-contain rounded-2xl"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
+              {testimonialImages[selectedImageIndex] && (
+                <div className="bg-white/5 p-2 rounded-3xl border border-white/10 shadow-2xl overflow-hidden max-h-[75vh] flex items-center justify-center">
+                  <img 
+                    src={testimonialImages[selectedImageIndex].url} 
+                    alt={testimonialImages[selectedImageIndex].alt}
+                    className="max-h-[70vh] w-auto object-contain rounded-2xl"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              )}
 
               {/* Navigation Controls Right */}
               <button 
@@ -194,7 +177,7 @@ export default function Testimonials() {
 
               {/* Bottom helper text */}
               <div className="mt-4 flex items-center gap-6 text-white/80 font-sans text-xs sm:text-sm">
-                <span>{selectedImageIndex + 1} de {TESTIMONIAL_IMAGES.length}</span>
+                <span>{selectedImageIndex + 1} de {testimonialImages.length}</span>
                 <span className="text-white/40">|</span>
                 <span className="font-semibold text-[#FFC947]">DL Magic Paper</span>
               </div>

@@ -128,7 +128,7 @@ export const DEFAULT_KIT_GALLERY_MASCULINA: string[] = [
 
 const defaultState: AppDataState = {
   dataVersion: CURRENT_DATA_VERSION,
-  logo: "/logo-dlmagic.png",
+  logo: "https://i.imgur.com/LiPwTKg.png",
   heroImage: "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
   aboutImage: "https://i.imgur.com/nsjJjnO.jpeg",
   partyFavorsImage: "/src/assets/images/tubete_cofrinho_marmitinha_1794613746569.jpg",
@@ -271,8 +271,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           merged.aboutTexts = { ...defaultState.aboutTexts };
         }
 
-        if (!merged.logo || merged.logo === "https://i.imgur.com/fVtEcdv.png") {
-          merged.logo = "/logo-dlmagic.png";
+        if (
+          !merged.logo ||
+          merged.logo === "https://i.imgur.com/fVtEcdv.png" ||
+          merged.logo === "/logo-dlmagic.png" ||
+          merged.logo === "https://i.imgur.com/8zQS15l.png"
+        ) {
+          merged.logo = "https://i.imgur.com/LiPwTKg.png";
         }
 
         setData(merged);

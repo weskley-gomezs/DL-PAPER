@@ -296,7 +296,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
   }, [kitQty, isKit]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-16" id="product_detail_page">
+    <div className="min-h-screen bg-slate-50 pt-28 sm:pt-32 md:pt-36 pb-16" id="product_detail_page">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top bar back button */}

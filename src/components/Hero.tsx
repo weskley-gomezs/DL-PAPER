@@ -84,7 +84,7 @@ export default function Hero({
   return (
     <section
       id="inicio"
-      className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 bg-[#FFF6F0] overflow-hidden"
+      className="relative pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 bg-[#FFF6F0] overflow-hidden"
     >
       {/* Background Soft Glows */}
       <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#E8527A]/10 rounded-full blur-3xl pointer-events-none" />
@@ -98,9 +98,9 @@ export default function Hero({
           
           {/* Logo Badge */}
           <div className="inline-flex mb-4">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-2.5 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full bg-white p-2.5 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
               <img 
-                src={data.logo || "/logo-dlmagic.png"} 
+                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -119,9 +119,9 @@ export default function Hero({
           </div>
 
           {/* Main Welcome Title */}
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
             Bem-vindo(a) ao DL Magic Paper!
-          </h1>
+          </h2>
           
           <p className="font-sans text-sm sm:text-base text-[#3A2439]/75 font-normal max-w-2xl mx-auto mt-3 leading-relaxed">
             Criamos papelaria afetiva em camadas 3D para festas inesquecíveis e embalagens elegantes para valorizar a marca da sua empresa.

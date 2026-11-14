@@ -5,7 +5,7 @@ export const IMAGES = {
   hero: "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
   about: "/src/assets/images/creative_studio_1779734454290.png",
   partyFavors: "/src/assets/images/party_favors_1779734471509.png",
-  logo: "/logo-dlmagic.png"
+  logo: "https://i.imgur.com/LiPwTKg.png"
 };
 
 export const INSTAGRAM_HANDLE = "@dlmagicpaper";

@@ -85,8 +85,8 @@ export default function Header({
             : "bg-[#FFF6F0]/90 backdrop-blur-md shadow-xs border-b border-[#3A2439]/5 py-2.5 sm:py-3"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             
             {/* Logo */}
             <a 
@@ -99,22 +99,26 @@ export default function Header({
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }
               }}
-              className="group flex items-center gap-2.5"
+              className="group flex items-center gap-2 sm:gap-3.5 shrink-0"
               id="header_logo"
             >
               <img 
-                src={data.logo || "/logo-dlmagic.png"} 
+                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper Logo" 
-                className="w-12 h-12 sm:w-14 sm:h-14 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
+                className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
                 referrerPolicy="no-referrer"
               />
-              <span className="font-serif font-bold text-lg sm:text-xl text-[#3A2439] tracking-tight hidden sm:inline-block">
-                DL Magic Paper
-              </span>
+              <h1
+                className="font-bold text-lg sm:text-xl md:text-2xl leading-[1.08] select-none tracking-tight text-left text-[#1e132c]"
+                style={{ fontFamily: "'Bodoni Moda', serif" }}
+              >
+                <span className="block whitespace-nowrap">DL Magic</span>
+                <span className="block whitespace-nowrap">Paper</span>
+              </h1>
             </a>
 
             {/* Desktop Navigation */}
-            <nav aria-label="Navegação Principal" className="hidden lg:flex items-center gap-4 xl:gap-5" id="desktop_nav">
+            <nav aria-label="Navegação Principal" className="hidden lg:flex items-center gap-2 xl:gap-4" id="desktop_nav">
               {!hasActiveProduct ? (
                 menuItems.map((item) => {
                   const isSegmentActive =
@@ -127,7 +131,7 @@ export default function Header({
                       key={item.href}
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item)}
-                      className={`font-sans text-[13px] xl:text-[14px] font-semibold transition-all relative py-1.5 px-3 rounded-full flex items-center gap-1.5 cursor-pointer ${
+                      className={`font-sans text-xs xl:text-[13px] font-semibold transition-all relative py-1.5 px-2.5 xl:px-3 rounded-full flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                         item.segment && item.segment !== "todos"
                           ? isSegmentActive
                             ? item.segment === "pessoal"
@@ -137,8 +141,8 @@ export default function Header({
                           : "text-[#3A2439]/80 hover:text-[#E8527A]"
                       }`}
                     >
-                      {item.segment === "pessoal" && <PartyPopper className="w-3.5 h-3.5" />}
-                      {item.segment === "corporativo" && <Briefcase className="w-3.5 h-3.5" />}
+                      {item.segment === "pessoal" && <PartyPopper className="w-3.5 h-3.5 shrink-0" />}
+                      {item.segment === "corporativo" && <Briefcase className="w-3.5 h-3.5 shrink-0" />}
                       <span>{item.label}</span>
                     </a>
                   );
@@ -155,12 +159,12 @@ export default function Header({
             </nav>
 
             {/* Right Side Icons & CTA */}
-            <div className="flex items-center gap-2.5 sm:gap-3" id="header_controls">
+            <div className="flex items-center gap-1 sm:gap-2.5 shrink-0" id="header_controls">
               
               {/* Admin Panel Launcher */}
               <button
                 onClick={() => setIsAdminOpen(true)}
-                className="flex items-center justify-center p-2 rounded-full text-[#3A2439]/60 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
+                className="flex items-center justify-center p-1.5 sm:p-2 rounded-full text-[#3A2439]/60 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
                 title="Painel de Administração"
                 id="admin_panel_launcher_header"
               >
@@ -182,7 +186,7 @@ export default function Header({
               {/* Dynamic Budget Cart Trigger Button */}
               <button
                 onClick={onOpenBudgetSidebar}
-                className="relative flex items-center justify-center p-2 rounded-full text-[#3A2439]/70 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
+                className="relative flex items-center justify-center p-1.5 sm:p-2 rounded-full text-[#3A2439]/70 hover:text-[#E8527A] hover:bg-white transition-all cursor-pointer"
                 title="Ver meu orçamento simulado"
                 id="budget_cart_button"
               >
@@ -201,7 +205,7 @@ export default function Header({
               {/* CTA Budget request button */}
               <button
                 onClick={onOpenBudgetSidebar}
-                className="hidden md:flex items-center gap-1.5 bg-[#E8527A] hover:bg-[#D43C65] text-white px-4 py-2 rounded-full font-bold shadow-xs hover:scale-102 transition-all cursor-pointer text-xs"
+                className="hidden xl:flex items-center gap-1.5 bg-[#E8527A] hover:bg-[#D43C65] text-white px-4 py-2 rounded-full font-bold shadow-xs hover:scale-102 transition-all cursor-pointer text-xs whitespace-nowrap"
                 id="header_cta_budget"
               >
                 <Heart className="w-3.5 h-3.5 fill-white" />
@@ -212,7 +216,7 @@ export default function Header({
               {!hasActiveProduct ? (
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="flex lg:hidden items-center justify-center p-2 rounded-full text-[#3A2439] hover:bg-white transition-all cursor-pointer"
+                  className="flex lg:hidden items-center justify-center p-1.5 sm:p-2 rounded-full text-[#3A2439] hover:bg-white transition-all cursor-pointer"
                   id="mobile_menu_toggle"
                 >
                   {isMobileMenuOpen ? (
@@ -245,7 +249,7 @@ export default function Header({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="fixed inset-x-0 top-[60px] sm:top-[70px] z-30 bg-[#FFF6F0] shadow-xl rounded-b-3xl border-b border-[#3A2439]/10 p-6 flex flex-col gap-3 lg:hidden text-center"
+            className="fixed inset-x-0 top-[76px] sm:top-[84px] z-30 bg-[#FFF6F0] shadow-xl rounded-b-3xl border-b border-[#3A2439]/10 p-6 flex flex-col gap-3 lg:hidden text-center"
             id="mobile_menu_container"
           >
             <nav aria-label="Navegação Principal Mobile" className="flex flex-col gap-2">

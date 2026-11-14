@@ -61,7 +61,7 @@ export default function ComingSoon() {
           <div className="inline-flex mb-5">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#FFF6F0] p-3 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center">
               <img
-                src={data.logo || "/logo-dlmagic.png"}
+                src={data.logo || "https://i.imgur.com/LiPwTKg.png"}
                 alt="DL Magic Paper"
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"

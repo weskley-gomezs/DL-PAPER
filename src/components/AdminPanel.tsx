@@ -768,7 +768,7 @@ export default function AdminPanel() {
                 <div className="pt-2 grid grid-cols-4 gap-2">
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] text-slate-400 font-sans">Logo</span>
-                    <img src={logo} alt="Preview" className="w-12 h-12 object-contain bg-slate-100 rounded-lg p-1 border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
+                    <img src={logo} alt="Preview" referrerPolicy="no-referrer" className="w-12 h-12 object-contain bg-slate-100 rounded-lg p-1 border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=Sem+Foto'; }} />
                   </div>
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] text-slate-400 font-sans">Banner Topo</span>

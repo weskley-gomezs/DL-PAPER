@@ -52,7 +52,7 @@ export default function Footer() {
           <div className="md:col-span-5 space-y-4 text-left">
             <div className="flex items-center">
               <img 
-                src={data.logo || "/logo-dlmagic.png"} 
+                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-24 h-24 sm:w-28 sm:h-28 object-contain bg-white/10 p-2 rounded-2xl border border-white/15"
                 referrerPolicy="no-referrer"

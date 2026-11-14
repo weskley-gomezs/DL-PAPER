@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Loader2,
   AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Product } from "../types";
 import { useAppContext } from "../context/DataContext";
@@ -37,8 +38,9 @@ export default function ProductsCatalog({
   activeSegment = "todos",
   onChangeSegment,
 }: ProductsCatalogProps) {
-  const { data, isAdminLoggedIn } = useAppContext();
-  const { products, loading, permissionError } = useFirebaseProducts();
+  const { data } = useAppContext();
+  const { products, loading, permissionError, errorMessage, refreshProducts } =
+    useFirebaseProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
@@ -147,7 +149,7 @@ export default function ProductsCatalog({
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
             <span className="font-sans text-xs font-bold uppercase tracking-wider text-[#E8527A]">
-              Vitrine Online em Tempo Real
+              Vitrine Oficial DL Magic Paper
             </span>
           </div>
 
@@ -443,6 +445,55 @@ export default function ProductsCatalog({
                   </AnimatePresence>
                 </div>
               </>
+            ) : errorMessage ? (
+              /* CLEAR ERROR STATE WITH DISCREET DIAGNOSTIC */
+              <div
+                className="py-12 sm:py-14 text-center space-y-4 bg-white rounded-3xl border border-rose-200 p-8 max-w-xl mx-auto shadow-sm"
+                id="catalog_error_state"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center mx-auto text-rose-500">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#3A2439]">
+                  {permissionError
+                    ? "Permissão pendente no banco de produtos"
+                    : "Não foi possível carregar o catálogo agora"}
+                </h3>
+
+                <p className="text-xs sm:text-sm font-sans text-[#3A2439]/75 leading-relaxed max-w-md mx-auto">
+                  {permissionError
+                    ? "O Firestore do projeto dl-sistema-6eee9 bloqueou a leitura pública da coleção produtos. Verifique as regras de leitura ou fale com nossa equipe no WhatsApp."
+                    : "Houve uma instabilidade ou pendência de configuração ao consultar o Firebase. Tente atualizar ou faça seu orçamento direto pelo WhatsApp."}
+                </p>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-[11px] font-mono text-slate-500 break-words max-w-md mx-auto">
+                  Diagnóstico: {errorMessage}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={refreshProducts}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#3A2439] hover:bg-[#5E3D5C] text-white text-xs font-bold font-sans shadow-xs cursor-pointer transition-colors"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Tentar novamente</span>
+                  </button>
+
+                  <a
+                    href={`https://wa.me/${(data.whatsappNumber || "5561998889577").replace(/\D/g, "")}?text=${encodeURIComponent(
+                      "Olá! Vim pelo site da DL Magic Paper e gostaria de solicitar um orçamento personalizado."
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold font-sans shadow-xs transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Falar no WhatsApp</span>
+                  </a>
+                </div>
+              </div>
             ) : (
               /* FRIENDLY EMPTY STATE */
               <div
@@ -469,19 +520,6 @@ export default function ProductsCatalog({
                     : "Ainda estamos cadastrando novidades nesta categoria. Se quiser um item sob medida, fale direto com a nossa equipe no WhatsApp!"}
                 </p>
 
-                {permissionError && isAdminLoggedIn && (
-                  <div className="text-left bg-amber-50 border border-amber-200 rounded-2xl p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-                    <div>
-                      <strong>Aviso de Administrador:</strong> O banco padrão do projeto{" "}
-                      <code>dl-sistema-6eee9</code> bloqueou leitura pública da coleção{" "}
-                      <code>produtos</code>. Libere{" "}
-                      <code>allow read: if true;</code> na coleção{" "}
-                      <code>produtos</code> nas Regras do Firestore para exibir os itens automaticamente.
-                    </div>
-                  </div>
-                )}
-
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   {searchTerm ? (
                     <button
@@ -492,15 +530,25 @@ export default function ProductsCatalog({
                       Limpar Busca
                     </button>
                   ) : (
-                    activeSegment !== "todos" && (
+                    <>
+                      {activeSegment !== "todos" && (
+                        <button
+                          type="button"
+                          onClick={() => handleSwitchSegment("todos")}
+                          className="px-5 py-2.5 rounded-full bg-[#3A2439] text-white text-xs font-bold font-sans shadow-xs cursor-pointer hover:bg-[#5E3D5C]"
+                        >
+                          Ver Todos os Produtos
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => handleSwitchSegment("todos")}
-                        className="px-5 py-2.5 rounded-full bg-[#3A2439] text-white text-xs font-bold font-sans shadow-xs cursor-pointer hover:bg-[#5E3D5C]"
+                        onClick={refreshProducts}
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#FFF6F0] border border-[#3A2439]/15 text-[#3A2439] text-xs font-bold font-sans cursor-pointer hover:border-[#E8527A]"
                       >
-                        Ver Todos os Produtos
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Atualizar vitrine</span>
                       </button>
-                    )
+                    </>
                   )}
 
                   <a

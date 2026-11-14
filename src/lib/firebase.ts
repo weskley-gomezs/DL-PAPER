@@ -1,26 +1,37 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { doc, getDocFromServer, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  getDocFromServer,
+  getFirestore,
+  initializeFirestore,
+  Firestore,
+} from "firebase/firestore";
 import appletFirebaseConfig from "../../firebase-applet-config.json";
 
 // =============================================================================
 // CONFIGURAÇÃO DO FIREBASE (Projeto: DL Sistema - dl-sistema-6eee9)
-// Para substituir manualmente pelo Console do Firebase ou variáveis de ambiente,
-// basta atualizar FIREBASE_API_KEY e FIREBASE_APP_ID abaixo (ou definir
-// VITE_FIREBASE_API_KEY e VITE_FIREBASE_APP_ID no .env).
+// Banco nomeado onde o DL Sistema salva os dados em produção.
 // =============================================================================
-const FIREBASE_API_KEY =
-  import.meta.env.VITE_FIREBASE_API_KEY || appletFirebaseConfig.apiKey;
-const FIREBASE_APP_ID =
-  import.meta.env.VITE_FIREBASE_APP_ID || appletFirebaseConfig.appId;
+export const DL_SISTEMA_DATABASE_ID =
+  "ai-studio-f11e477e-6093-47d6-8fee-39ec150930ee";
+
+const FIREBASE_API_KEY = (
+  import.meta.env.VITE_FIREBASE_API_KEY ||
+  appletFirebaseConfig.apiKey ||
+  "AIzaSyCzKf4E23Lc6iOlGJ0LCMADWN9u2bnhGhI"
+).trim();
+
+const FIREBASE_APP_ID = (
+  import.meta.env.VITE_FIREBASE_APP_ID ||
+  "1:1062844818476:web:b1a04a13bfafc2ae781d89"
+).trim();
 
 export const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
-  authDomain:
-    appletFirebaseConfig.authDomain || "dl-sistema-6eee9.firebaseapp.com",
+  authDomain: "dl-sistema-6eee9.firebaseapp.com",
   projectId: "dl-sistema-6eee9",
-  storageBucket:
-    appletFirebaseConfig.storageBucket || "dl-sistema-6eee9.firebasestorage.app",
+  storageBucket: "dl-sistema-6eee9.firebasestorage.app",
   messagingSenderId: "1062844818476",
   appId: FIREBASE_APP_ID,
 };
@@ -29,13 +40,20 @@ export const firebaseConfig = {
 export const firebaseApp =
   getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Banco de dados padrão (default) do projeto dl-sistema-6eee9 (DL Sistema interno)
-export const defaultDb = getFirestore(firebaseApp);
+function initNamedFirestore(databaseId: string): Firestore {
+  try {
+    return initializeFirestore(
+      firebaseApp,
+      { experimentalForceLongPolling: true },
+      databaseId
+    );
+  } catch {
+    return getFirestore(firebaseApp, databaseId);
+  }
+}
 
-// Banco de dados provisionado no firebase-applet-config.json
-export const db = appletFirebaseConfig.firestoreDatabaseId
-  ? getFirestore(firebaseApp, appletFirebaseConfig.firestoreDatabaseId)
-  : defaultDb;
+// Aponta explicitamente para o banco de dados nomeado do DL Sistema (não usa "(default)")
+export const db = initNamedFirestore(DL_SISTEMA_DATABASE_ID);
 
 export const auth = getAuth(firebaseApp);
 
@@ -103,8 +121,8 @@ export function handleFirestoreError(
   return errInfo;
 }
 
-// Teste inicial de conectividade com o servidor Firestore
-async function testConnection() {
+// Teste de conectividade com o servidor Firestore
+export async function testConnection(): Promise<void> {
   try {
     await getDocFromServer(doc(db, "test", "connection"));
   } catch (error) {
@@ -113,10 +131,8 @@ async function testConnection() {
       error.message.includes("the client is offline")
     ) {
       console.error(
-        "Não foi possível conectar ao Firestore (dl-sistema-6eee9). Verifique sua configuração do Firebase."
+        `Não foi possível conectar ao Firestore (${DL_SISTEMA_DATABASE_ID}). Verifique sua configuração do Firebase.`
       );
     }
   }
 }
-
-void testConnection();

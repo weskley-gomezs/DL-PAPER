@@ -1,7 +1,23 @@
-import { useState, useEffect } from "react";
-import { collection, onSnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
-import { db, defaultDb, handleFirestoreError, OperationType } from "../lib/firebase";
+import { useState, useEffect, useCallback } from "react";
+import {
+  collection,
+  getDocs,
+  QueryDocumentSnapshot,
+  DocumentData,
+} from "firebase/firestore";
+import {
+  db,
+  DL_SISTEMA_DATABASE_ID,
+  firebaseConfig,
+  handleFirestoreError,
+  OperationType,
+  testConnection,
+} from "../lib/firebase";
 import { Product, ProductSegment } from "../types";
+
+const SESSION_CACHE_KEY = "dl_magic_paper_produtos_cache_v2";
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos
+const FIRESTORE_TIMEOUT_MS = 12000; // Evita loading infinito
 
 export interface FirestoreProdutoRaw {
   nome?: unknown;
@@ -12,9 +28,18 @@ export interface FirestoreProdutoRaw {
   exibirNoSite?: unknown;
 }
 
+interface CachedProductsPayload {
+  timestamp: number;
+  products: Product[];
+}
+
 function normalizeSegment(value: unknown): ProductSegment {
   const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-  if (normalized === "corporativo" || normalized === "empresa" || normalized === "empresas") {
+  if (
+    normalized === "corporativo" ||
+    normalized === "empresa" ||
+    normalized === "empresas"
+  ) {
     return "corporativo";
   }
   if (normalized === "ambos" || normalized === "todos") {
@@ -37,7 +62,9 @@ function parsePrice(value: unknown): number {
   return 0;
 }
 
-function mapDocToProduct(docSnap: QueryDocumentSnapshot<DocumentData>): Product | null {
+function mapDocToProduct(
+  docSnap: QueryDocumentSnapshot<DocumentData>
+): Product | null {
   const raw = docSnap.data() as FirestoreProdutoRaw;
 
   // Se exibirNoSite === false, não exibe na vitrine pública
@@ -89,90 +116,172 @@ function mapDocToProduct(docSnap: QueryDocumentSnapshot<DocumentData>): Product 
   };
 }
 
+function readValidCache(): Product[] | null {
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as CachedProductsPayload;
+    if (
+      !parsed ||
+      typeof parsed.timestamp !== "number" ||
+      !Array.isArray(parsed.products)
+    ) {
+      return null;
+    }
+
+    const isFresh = Date.now() - parsed.timestamp < CACHE_TTL_MS;
+    if (!isFresh) {
+      window.sessionStorage.removeItem(SESSION_CACHE_KEY);
+      return null;
+    }
+
+    return parsed.products;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(products: Product[]): void {
+  try {
+    const payload: CachedProductsPayload = {
+      timestamp: Date.now(),
+      products,
+    };
+    window.sessionStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignora falha de quota do sessionStorage
+  }
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error(`Tempo limite excedido ao consultar ${label}.`));
+    }, ms);
+
+    promise
+      .then((res) => {
+        window.clearTimeout(timer);
+        resolve(res);
+      })
+      .catch((err) => {
+        window.clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
 export interface UseFirebaseProductsResult {
   products: Product[];
   loading: boolean;
+  fromCache: boolean;
   permissionError: boolean;
   errorMessage: string | null;
+  refreshProducts: () => void;
 }
 
 export function useFirebaseProducts(): UseFirebaseProductsResult {
-  const [defaultProducts, setDefaultProducts] = useState<Product[]>([]);
-  const [appletProducts, setAppletProducts] = useState<Product[]>([]);
-  const [defaultLoaded, setDefaultLoaded] = useState(false);
-  const [appletLoaded, setAppletLoaded] = useState(db === defaultDb);
-  const [defaultError, setDefaultError] = useState<string | null>(null);
-  const [appletError, setAppletError] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [fromCache, setFromCache] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [permissionError, setPermissionError] = useState<boolean>(false);
+  const [reloadToken, setReloadToken] = useState<number>(0);
+
+  const refreshProducts = useCallback(() => {
+    try {
+      window.sessionStorage.removeItem(SESSION_CACHE_KEY);
+    } catch {
+      // ignore
+    }
+    setReloadToken((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
-    const unsubDefault = onSnapshot(
-      collection(defaultDb, "produtos"),
-      (snapshot) => {
-        const mapped = snapshot.docs
+    let isMounted = true;
+
+    async function loadProducts() {
+      // 1. Verifica cache no sessionStorage (15 min) antes de qualquer consulta
+      const cached = readValidCache();
+      if (cached !== null) {
+        if (isMounted) {
+          setProducts(cached);
+          setFromCache(true);
+          setErrorMessage(null);
+          setPermissionError(false);
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (isMounted) {
+        setLoading(true);
+        setFromCache(false);
+        setErrorMessage(null);
+        setPermissionError(false);
+      }
+
+      try {
+        if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
+          throw new Error(
+            "Configuração do Firebase incompleta: verifique apiKey e appId para o projeto dl-sistema-6eee9."
+          );
+        }
+
+        // Teste leve de conexão com o servidor quando não há cache
+        void testConnection();
+
+        const snapshot = await withTimeout(
+          getDocs(collection(db, "produtos")),
+          FIRESTORE_TIMEOUT_MS,
+          `produtos (${DL_SISTEMA_DATABASE_ID})`
+        );
+
+        const loadedProducts = snapshot.docs
           .map(mapDocToProduct)
           .filter((item): item is Product => item !== null)
           .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-        setDefaultProducts(mapped);
-        setDefaultError(null);
-        setDefaultLoaded(true);
-      },
-      (error) => {
-        const info = handleFirestoreError(error, OperationType.GET, "produtos", false);
-        setDefaultError(info.error);
-        setDefaultLoaded(true);
-      }
-    );
 
-    let unsubApplet = () => {};
-    if (db !== defaultDb) {
-      unsubApplet = onSnapshot(
-        collection(db, "produtos"),
-        (snapshot) => {
-          const mapped = snapshot.docs
-            .map(mapDocToProduct)
-            .filter((item): item is Product => item !== null)
-            .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
-          setAppletProducts(mapped);
-          setAppletError(null);
-          setAppletLoaded(true);
-        },
-        (error) => {
-          const info = handleFirestoreError(error, OperationType.GET, "produtos", false);
-          setAppletError(info.error);
-          setAppletLoaded(true);
+        if (isMounted) {
+          setProducts(loadedProducts);
+          setErrorMessage(null);
+          setPermissionError(false);
         }
-      );
+
+        // Salva no sessionStorage por 15 minutos
+        writeCache(loadedProducts);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, "produtos", false);
+        const msg = error instanceof Error ? error.message : String(error);
+        const isPerm =
+          msg.toLowerCase().includes("permission") ||
+          msg.toLowerCase().includes("insufficient");
+
+        if (isMounted) {
+          setErrorMessage(msg);
+          setPermissionError(isPerm);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     }
 
+    void loadProducts();
+
     return () => {
-      unsubDefault();
-      unsubApplet();
+      isMounted = false;
     };
-  }, []);
-
-  // Prioriza o banco (default) do projeto dl-sistema-6eee9 (DL Sistema); combina sem duplicar caso ambos tenham docs
-  const combinedMap = new Map<string, Product>();
-  for (const prod of appletProducts) {
-    combinedMap.set(prod.id, prod);
-  }
-  for (const prod of defaultProducts) {
-    combinedMap.set(prod.id, prod);
-  }
-
-  const products = Array.from(combinedMap.values()).sort((a, b) =>
-    a.name.localeCompare(b.name, "pt-BR")
-  );
-
-  const loading = !(defaultLoaded && appletLoaded);
-  const hasPermissionIssue =
-    products.length === 0 &&
-    Boolean(defaultError && defaultError.toLowerCase().includes("permission")) &&
-    (db === defaultDb || Boolean(appletError));
+  }, [reloadToken]);
 
   return {
     products,
     loading,
-    permissionError: hasPermissionIssue,
-    errorMessage: products.length === 0 ? defaultError || appletError : null,
+    fromCache,
+    permissionError,
+    errorMessage,
+    refreshProducts,
   };
 }

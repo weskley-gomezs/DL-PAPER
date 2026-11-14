@@ -69,7 +69,7 @@ export default function Hero({
     if (onSelectSegment) {
       onSelectSegment(segment);
     }
-    const catalogEl = document.getElementById("catalogo");
+    const catalogEl = document.getElementById("produtos");
     if (catalogEl) {
       const headerOffset = 80;
       const elementPosition = catalogEl.getBoundingClientRect().top;
@@ -100,7 +100,7 @@ export default function Hero({
           <div className="inline-flex mb-4">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-2.5 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
               <img 
-                src={data.logo || "https://i.imgur.com/fVtEcdv.png"} 
+                src={data.logo || "/logo-dlmagic.png"} 
                 alt="DL Magic Paper" 
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
@@ -184,8 +184,10 @@ export default function Hero({
         <div className="max-w-5xl mx-auto mb-12 sm:mb-14" id="hero_segment_choice_container">
           <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
             
-            {/* Bloco 1: Linha Festas (Lembrancinhas Pessoais) */}
-            <div
+            {/* Bloco 1: Kit de Festas Pessoais (#kit-festas) */}
+            <section
+              id="kit-festas"
+              aria-labelledby="heading-kit-festas"
               onClick={() => handleChooseSegment("pessoal")}
               role="button"
               tabIndex={0}
@@ -200,7 +202,6 @@ export default function Hero({
                   ? "bg-white border-[#E8527A] ring-4 ring-[#E8527A]/20 shadow-md"
                   : "bg-white/95 hover:bg-white border-[#E8527A]/25 hover:border-[#E8527A]"
               }`}
-              id="hero_btn_segment_pessoal"
             >
               {/* Top Pink/Gold Accent Strip */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#E8527A] to-[#FFC947]" />
@@ -217,39 +218,44 @@ export default function Hero({
                     </span>
                   ) : (
                     <span className="text-[11px] font-semibold text-[#E8527A] bg-[#FFF6F0] px-2.5 py-0.5 rounded-full">
-                      Celebrações
+                      Brasília - DF
                     </span>
                   )}
                 </div>
 
                 <div>
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#E8527A] font-sans block mb-1">
-                    Lembrancinhas Pessoais & Afetivas
+                    Lembrancinhas Pessoais &amp; Afetivas
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-tight">
-                    Linha Festas
-                  </h3>
+                  <h2
+                    id="heading-kit-festas"
+                    className="font-serif text-2xl sm:text-3xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-tight"
+                  >
+                    Kit de Festas Pessoais
+                  </h2>
                 </div>
 
                 <p className="font-sans text-xs sm:text-sm text-[#3A2439]/75 font-normal leading-relaxed">
-                  Caixas clássicas em camadas 3D (Milk, Bala, Pirâmide, Sushi, Mala), topos de bolo exclusivos, forminhas de doces e detalhes encantadores para aniversários, batizados e momentos em família.
+                  Caixas personalizadas em camadas 3D (Milk, Bala, Pirâmide, Sushi, Mala), topos de bolo exclusivos, forminhas de doces, convites e kits festa em casa produzidos com carinho em Brasília - DF e entregues em todo o Distrito Federal.
                 </p>
               </div>
 
               {/* Bottom Action Pill Button */}
               <div className="mt-6 pt-4 border-t border-[#E8527A]/15 flex items-center justify-between">
                 <span className="inline-flex items-center gap-2 py-2.5 px-5 rounded-full bg-[#E8527A] text-white font-sans text-xs font-bold shadow-xs group-hover:bg-[#D43C65] transition-colors">
-                  <span>Ver Linha Festas</span>
+                  <span>Ver Kit de Festas Pessoais</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <span className="text-[11px] font-semibold text-[#3A2439]/50">
-                  Para sua festa
+                  Festas no DF
                 </span>
               </div>
-            </div>
+            </section>
 
-            {/* Bloco 2: Linha Corporativa (Brindes & Empresas B2B) */}
-            <div
+            {/* Bloco 2: Lembrancinhas Corporativas (#corporativo) */}
+            <section
+              id="corporativo"
+              aria-labelledby="heading-corporativo"
               onClick={() => handleChooseSegment("corporativo")}
               role="button"
               tabIndex={0}
@@ -264,7 +270,6 @@ export default function Hero({
                   ? "bg-white border-[#3A2439] ring-4 ring-[#FFC947]/30 shadow-md"
                   : "bg-white/95 hover:bg-white border-[#3A2439]/20 hover:border-[#3A2439]"
               }`}
-              id="hero_btn_segment_corporativo"
             >
               {/* Top Gold/Plum Accent Strip */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#FFC947] to-[#3A2439]" />
@@ -281,36 +286,39 @@ export default function Hero({
                     </span>
                   ) : (
                     <span className="text-[11px] font-semibold text-[#3A2439] bg-amber-50 px-2.5 py-0.5 rounded-full">
-                      Empresas & B2B
+                      Empresas Brasília - DF
                     </span>
                   )}
                 </div>
 
                 <div>
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#3A2439]/70 font-sans block mb-1">
-                    Brindes & Clientes Corporativos
+                    Brindes &amp; Clientes Corporativos
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-tight">
-                    Linha Corporativa
-                  </h3>
+                  <h2
+                    id="heading-corporativo"
+                    className="font-serif text-2xl sm:text-3xl font-bold text-[#3A2439] group-hover:text-[#E8527A] transition-colors leading-tight"
+                  >
+                    Lembrancinhas Corporativas
+                  </h2>
                 </div>
 
                 <p className="font-sans text-xs sm:text-sm text-[#3A2439]/75 font-normal leading-relaxed">
-                  Embalagens personalizadas com a sua marca, tubolatas luxo, sacolinhas premium com laço de cetim, caixas rígidas e brindes refinados para colaboradores, eventos corporativos e datas comemorativas.
+                  Papelaria corporativa e embalagens personalizadas com o logotipo da sua empresa em Brasília - DF: tubolatas luxo, sacolinhas premium com laço de cetim, blocos de notas, planners e brindes B2B para eventos no Distrito Federal.
                 </p>
               </div>
 
               {/* Bottom Action Pill Button */}
               <div className="mt-6 pt-4 border-t border-[#3A2439]/10 flex items-center justify-between">
                 <span className="inline-flex items-center gap-2 py-2.5 px-5 rounded-full bg-[#3A2439] text-white font-sans text-xs font-bold shadow-xs group-hover:bg-[#E8527A] transition-colors">
-                  <span>Ver Linha Corporativa</span>
+                  <span>Ver Lembrancinhas Corporativas</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </span>
                 <span className="text-[11px] font-semibold text-[#3A2439]/50">
-                  Para sua empresa
+                  B2B no DF
                 </span>
               </div>
-            </div>
+            </section>
 
           </div>
         </div>

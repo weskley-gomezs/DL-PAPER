@@ -122,23 +122,25 @@ export default function ProductsCatalog({
 
   const sectionHeading =
     activeSegment === "pessoal"
-      ? "Linha Pessoal & Festas"
+      ? "Catálogo: Kit de Festas Pessoais em Brasília - DF"
       : activeSegment === "corporativo"
-      ? "Linha Corporativa"
-      : "Catálogo Completo DL Magic Paper";
+      ? "Catálogo: Lembrancinhas Corporativas em Brasília - DF"
+      : "Catálogo de Produtos em Brasília - DF";
 
   const sectionDescription =
     activeSegment === "pessoal"
-      ? "Lembrancinhas afetivas, caixas personalizadas e itens em camadas 3D para aniversários, batizados e celebrações em família."
+      ? "Lembrancinhas afetivas, caixas personalizadas, topos de bolo e kits festa em camadas 3D para aniversários, casamentos e celebrações em Brasília - DF e entorno."
       : activeSegment === "corporativo"
-      ? "Brindes corporativos, embalagens personalizadas com a sua marca e mimos sofisticados para empresas, eventos e parceiros."
-      : "Explore em tempo real nossos produtos de papelaria personalizada com preços atualizados diretamente pelo sistema do ateliê em Brasília - DF.";
+      ? "Brindes corporativos, tubolatas, blocos de notas e embalagens personalizadas com a sua marca para empresas e eventos em Brasília - DF e todo o Distrito Federal."
+      : "Explore o catálogo oficial da DL Magic Paper com preços atualizados diretamente pelo ateliê em Brasília - DF. Atendimento para festas pessoais, casamentos e empresas no Distrito Federal.";
 
   return (
     <section
-      id="catalogo"
+      id="produtos"
+      aria-labelledby="heading-produtos"
       className="py-16 sm:py-24 bg-[#FFF6F0] relative z-10 border-t border-[#3A2439]/5"
     >
+      <span id="catalogo" className="sr-only" aria-hidden="true" />
       {/* Decorative Glow Elements */}
       <div className="absolute top-10 left-10 w-64 h-64 bg-[#E8527A]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-72 h-72 bg-[#FFC947]/15 rounded-full blur-3xl pointer-events-none" />
@@ -149,11 +151,14 @@ export default function ProductsCatalog({
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
             <span className="font-sans text-xs font-bold uppercase tracking-wider text-[#E8527A]">
-              Vitrine Oficial DL Magic Paper
+              Vitrine Oficial DL Magic Paper • Brasília - DF
             </span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
+          <h2
+            id="heading-produtos"
+            className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight"
+          >
             {sectionHeading}
           </h2>
 

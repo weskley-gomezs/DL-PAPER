@@ -15,13 +15,15 @@ export default function Contact() {
   });
   
   const [isSent, setIsSent] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.nome || !formData.whatsapp) {
-      alert("Por favor, preencha o seu nome e WhatsApp!");
+    if (!formData.nome.trim() || !formData.whatsapp.trim()) {
+      setFormError("Por favor, preencha o seu nome e WhatsApp para enviarmos o orçamento.");
       return;
     }
+    setFormError("");
 
     // Format WhatsApp Message beautifully
     const textMessage = `Olá DL Magic Paper! Gostaria de solicitar um orçamento personalizado ✨
@@ -52,7 +54,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
   };
 
   return (
-    <section id="contato" className="py-20 lg:py-28 bg-[#FFF6F0] relative border-t border-[#3A2439]/5">
+    <section id="contato" aria-labelledby="heading-contato" className="py-20 lg:py-28 bg-[#FFF6F0] relative border-t border-[#3A2439]/5">
       
       <div className="absolute top-1/4 right-10 w-44 h-44 bg-[#FFC947]/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-10 w-44 h-44 bg-[#E8527A]/10 rounded-full blur-3xl pointer-events-none" />
@@ -64,15 +66,15 @@ _Enviado através do site catálogo DL Magic Paper._`;
           <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
             <span className="font-sans text-xs font-bold uppercase tracking-wider text-[#E8527A]">
-              Fale com Nosso Ateliê 💬
+              Atendimento em Brasília - DF e Entorno
             </span>
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3A2439] tracking-tight">
-            Solicite Agora o Seu Orçamento
+          <h2 id="heading-contato" className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#3A2439] tracking-tight">
+            Orçamento WhatsApp em Brasília - DF
           </h2>
           <p className="font-sans text-[#3A2439]/70 leading-relaxed font-normal text-sm sm:text-base">
-            Estamos prontas para criar as peças perfeitas para a sua festa ou para os brindes da sua empresa! Preencha abaixo para falar direto no WhatsApp:
+            Solicite seu orçamento personalizado de papelaria para festas, casamentos e brindes corporativos em Brasília e todo o Distrito Federal. Preencha abaixo para falar direto no WhatsApp do nosso ateliê:
           </p>
         </div>
 
@@ -201,6 +203,12 @@ _Enviado através do site catálogo DL Magic Paper._`;
                     className="w-full px-4 py-3 bg-[#FFF6F0]/60 border border-[#3A2439]/15 rounded-xl font-sans text-[#3A2439] placeholder-[#3A2439]/40 focus:outline-hidden focus:ring-2 focus:ring-[#E8527A]/20 focus:border-[#E8527A] transition-all text-sm font-medium resize-none"
                   />
                 </div>
+
+                {formError && (
+                  <p role="alert" className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3.5 py-2.5">
+                    {formError}
+                  </p>
+                )}
 
                 {/* Submit Pill Button */}
                 <button

@@ -101,7 +101,7 @@ function AppContent() {
           onBack={() => {
             setActiveProduct(null);
             setTimeout(() => {
-              const el = document.getElementById("catalogo");
+              const el = document.getElementById("produtos");
               el?.scrollIntoView({ behavior: "smooth" });
             }, 50);
           }}

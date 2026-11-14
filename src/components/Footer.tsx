@@ -8,12 +8,12 @@ export default function Footer() {
 
   const quickLinks = [
     { label: "Início", href: "#inicio" },
-    { label: "Catálogo", href: "#catalogo" },
-    { label: "Para Sua Festa", href: "#catalogo" },
-    { label: "Para Sua Empresa", href: "#catalogo" },
+    { label: "Kit de Festas Pessoais", href: "#kit-festas" },
+    { label: "Lembrancinhas Corporativas", href: "#corporativo" },
+    { label: "Catálogo de Produtos", href: "#produtos" },
     { label: "Avaliações", href: "#avaliacoes" },
     { label: "Sobre o Ateliê", href: "#sobre" },
-    { label: "Orçamento", href: "#contato" }
+    { label: "Orçamento WhatsApp", href: "#contato" }
   ];
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -52,7 +52,7 @@ export default function Footer() {
           <div className="md:col-span-5 space-y-4 text-left">
             <div className="flex items-center">
               <img 
-                src={data.logo || "https://i.imgur.com/fVtEcdv.png"} 
+                src={data.logo || "/logo-dlmagic.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-24 h-24 sm:w-28 sm:h-28 object-contain bg-white/10 p-2 rounded-2xl border border-white/15"
                 referrerPolicy="no-referrer"

@@ -37,12 +37,10 @@ export default function Header({
   }, []);
 
   const menuItems = [
-    { label: "Início", href: "#inicio" },
-    { label: "Produtos Pessoais", href: "#catalogo", segment: "pessoal" as const },
-    { label: "Produtos Corporativos", href: "#catalogo", segment: "corporativo" as const },
-    { label: "Avaliações", href: "#avaliacoes" },
-    { label: "Sobre", href: "#sobre" },
-    { label: "Orçamento", href: "#contato" },
+    { label: "Kit de Festas Pessoais", href: "#kit-festas", segment: "pessoal" as const },
+    { label: "Lembrancinhas Corporativas", href: "#corporativo", segment: "corporativo" as const },
+    { label: "Catálogo de Produtos", href: "#produtos", segment: "todos" as const },
+    { label: "Orçamento WhatsApp", href: "#contato" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, item: typeof menuItems[0]) => {
@@ -105,7 +103,7 @@ export default function Header({
               id="header_logo"
             >
               <img 
-                src={data.logo || "https://i.imgur.com/fVtEcdv.png"} 
+                src={data.logo || "/logo-dlmagic.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-12 h-12 sm:w-14 sm:h-14 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300"
                 referrerPolicy="no-referrer"
@@ -116,18 +114,21 @@ export default function Header({
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-6" id="desktop_nav">
+            <nav aria-label="Navegação Principal" className="hidden lg:flex items-center gap-4 xl:gap-5" id="desktop_nav">
               {!hasActiveProduct ? (
                 menuItems.map((item) => {
-                  const isSegmentActive = item.segment && item.segment === selectedSegment;
+                  const isSegmentActive =
+                    item.segment &&
+                    item.segment !== "todos" &&
+                    item.segment === selectedSegment;
 
                   return (
                     <a
-                      key={item.label}
+                      key={item.href}
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item)}
                       className={`font-sans text-[13px] xl:text-[14px] font-semibold transition-all relative py-1.5 px-3 rounded-full flex items-center gap-1.5 cursor-pointer ${
-                        item.segment
+                        item.segment && item.segment !== "todos"
                           ? isSegmentActive
                             ? item.segment === "pessoal"
                               ? "bg-[#E8527A] text-white shadow-xs"
@@ -247,17 +248,20 @@ export default function Header({
             className="fixed inset-x-0 top-[60px] sm:top-[70px] z-30 bg-[#FFF6F0] shadow-xl rounded-b-3xl border-b border-[#3A2439]/10 p-6 flex flex-col gap-3 lg:hidden text-center"
             id="mobile_menu_container"
           >
-            <div className="flex flex-col gap-2">
+            <nav aria-label="Navegação Principal Mobile" className="flex flex-col gap-2">
               {menuItems.map((item) => {
-                const isSegmentActive = item.segment && item.segment === selectedSegment;
+                const isSegmentActive =
+                  item.segment &&
+                  item.segment !== "todos" &&
+                  item.segment === selectedSegment;
 
                 return (
                   <a
-                    key={item.label}
+                    key={item.href}
                     href={item.href}
                     onClick={(e) => handleNavClick(e, item)}
                     className={`font-sans font-semibold py-2.5 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 ${
-                      item.segment
+                      item.segment && item.segment !== "todos"
                         ? isSegmentActive
                           ? item.segment === "pessoal"
                             ? "bg-[#E8527A] text-white shadow-xs"
@@ -272,7 +276,7 @@ export default function Header({
                   </a>
                 );
               })}
-            </div>
+            </nav>
 
             <div className="h-px bg-[#3A2439]/10 my-1" />
 

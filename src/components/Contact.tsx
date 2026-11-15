@@ -164,7 +164,7 @@ _Enviado através do site catálogo DL Magic Paper._`;
                       <option value="Tubolatas">Tubolatas Personalizadas</option>
                       <option value="Adesivos & Rótulos">Adesivos & Rótulos com Logo</option>
                       <option value="Sacolas com Laço">Sacolinhas com Fita de Cetim</option>
-                      <option value="Topos de Bolo">Topos de Bolo 3D</option>
+                      <option value="Topos de Bolo">Topos de Bolo Personalizados</option>
                       <option value="Brindes Corporativos">Kit Brindes Corporativos</option>
                       <option value="Outros">Outros / Combinação Especial</option>
                     </select>

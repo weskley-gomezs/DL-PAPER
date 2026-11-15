@@ -181,10 +181,10 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 1.40,
     maxPrice: 1.40,
-    description: "Frasco cilíndrico acrílico transparente com tampa colorida e lindo aplique 3D em destaque.",
+    description: "Frasco cilíndrico acrílico transparente com tampa colorida e lindo aplique em destaque.",
     image: "/src/assets/images/tubete_cofrinho_marmitinha_1794613746569.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Acrílico rígido transparente", "Aplique em camadas 3D recortado", "Tampa rosqueável firme", "Excelente para confeitos"],
+    features: ["Acrílico rígido transparente", "Aplique recortado em papel nobre", "Tampa rosqueável firme", "Excelente para confeitos"],
     segment: "pessoal"
   },
   {
@@ -253,10 +253,10 @@ export const PRODUCTS: Product[] = [
     category: "Lembrancinhas",
     minPrice: 1.80,
     maxPrice: 1.80,
-    description: "Embalagem suporte charmosa projetada sob medida para abrigar dois chocolates individuais com aplique 3D. Excelente para festas ou pequenos mimos para colaboradores.",
+    description: "Embalagem suporte charmosa projetada sob medida para abrigar dois chocolates individuais com aplique especial. Excelente para festas ou pequenos mimos para colaboradores.",
     image: "/src/assets/images/caixas_doces_mimos_1794613748044.jpg",
     badge: "Mín. 10 unid.",
-    features: ["Serve 2 chocolates individuais", "Elemento 3D saliente", "Enche a mesa com pequenos charmes"],
+    features: ["Serve 2 chocolates individuais", "Elemento em relevo saliente", "Enche a mesa com pequenos charmes"],
     segment: "ambos"
   },
   {
@@ -318,7 +318,7 @@ export const PRODUCTS: Product[] = [
     description: "Combina as tags clássicas com o nome do aniversariante em relevo de camadas destacadas.",
     image: "/src/assets/images/topo_bolo_camadas_1794613747094.jpg",
     badge: "Recomendado",
-    features: ["Nome em destaque 3D", "Sobreposição elegante", "Aproximadamente 6 peças decorativas"],
+    features: ["Nome em destaque", "Sobreposição elegante", "Aproximadamente 6 peças decorativas"],
     segment: "pessoal"
   },
   {
@@ -329,8 +329,8 @@ export const PRODUCTS: Product[] = [
     maxPrice: 22.90,
     description: "O topo definitivo de luxo com todas as tags montadas em dupla camada de papéis coloridos especiais.",
     image: "/src/assets/images/topo_bolo_camadas_1794613747094.jpg",
-    badge: "Premium 3D",
-    features: ["Efeito real 3D no bolo", "Papéis especiais metalizados/texturas", "Várias camadas coladas à mão"],
+    badge: "Premium Especial",
+    features: ["Efeito nobre no bolo", "Papéis especiais metalizados/texturas", "Várias camadas coladas à mão"],
     segment: "pessoal"
   },
 
@@ -344,7 +344,7 @@ export const PRODUCTS: Product[] = [
     description: "Kits de forminhas personalizadas para doces. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Premium) desejados.",
     image: "/src/assets/images/forminhas_toppers_doces_1794613748286.jpg",
     badge: "Configurável",
-    features: ["Várias quantidades (20, 30, 50, 100)", "Linhas Simples e Premium 3D", "Papelaria afetiva fotográfica premium", "Pedido mínimo de 20 forminhas"],
+    features: ["Várias quantidades (20, 30, 50, 100)", "Linhas Simples e Premium", "Papelaria afetiva fotográfica premium", "Pedido mínimo de 20 forminhas"],
     segment: "pessoal"
   },
 
@@ -358,7 +358,7 @@ export const PRODUCTS: Product[] = [
     description: "Mini toppers de alta resolução fixados em palito de acrílico higiênico. Escolha a quantidade (20, 30, 50 ou 100 unidades) e o modelo (Simples ou Dupla Camada).",
     image: "/src/assets/images/forminhas_toppers_doces_1794613748286.jpg",
     badge: "Configurável",
-    features: ["Várias quantidades (20, 30, 50, 100)", "Opções Simples e Dupla Camada 3D", "Hastes acrílicas de alta qualidade", "Pedido mínimo de 20 toppers"],
+    features: ["Várias quantidades (20, 30, 50, 100)", "Opções Simples e Dupla Camada", "Hastes acrílicas de alta qualidade", "Pedido mínimo de 20 toppers"],
     segment: "pessoal"
   }
 ];
@@ -387,7 +387,7 @@ export const THEMES: ThemeItem[] = [
   },
   {
     id: "geometrico-lilas",
-    name: "Lavanda & Geometria 3D",
+    name: "Lavanda & Geometria",
     image: "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
     colors: ["#D3C2FF", "#F5E1FD", "#D4AF37"],
     vibe: "MODERNO, ARTESANAL E EXCLUSIVO"

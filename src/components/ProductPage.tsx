@@ -225,10 +225,10 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
       finalProduct = {
         ...product,
         id: `forminhas-custom-${quantity}-${forminhasStyle}`,
-        name: `Kit Forminhas - ${quantity} un. (${forminhasStyle === "simples" ? "Simples" : "Premium 3D"})`,
+        name: `Kit Forminhas - ${quantity} un. (${forminhasStyle === "simples" ? "Simples" : "Premium com Aplique"})`,
         minPrice: price,
         maxPrice: price,
-        badge: "Configurado 3D"
+        badge: "Configurado"
       };
       finalQty = 1; // Since price represents the whole pack with chosen quantity
     } else if (isToppers) {
@@ -238,7 +238,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
         name: `Toppers para Docinhos - ${quantity} un. (${toppersStyle === "simples" ? "Simples" : "Dupla Camada"})`,
         minPrice: price,
         maxPrice: price,
-        badge: "Configurado 3D"
+        badge: "Configurado"
       };
       finalQty = 1; // Since price is for entire package
     } else if (isKit) {
@@ -273,7 +273,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
     if (personAge) noteParts.push(`Idade: ${personAge}`);
     if (specialNotes) noteParts.push(`Observação: ${specialNotes}`);
     if (hasLacoOption) noteParts.push(`Acabamento: ${selectedLaco === "com-laco" ? "Com Laço" : "Sem Laço"}`);
-    if (isForminhas) noteParts.push(`Modelo: ${forminhasStyle === "simples" ? "Simples" : "Premium 3D"}`);
+    if (isForminhas) noteParts.push(`Modelo: ${forminhasStyle === "simples" ? "Simples" : "Premium com Aplique"}`);
     if (isToppers) noteParts.push(`Modelo: ${toppersStyle === "simples" ? "Simples" : "Dupla Camada"}`);
     if (isKit) noteParts.push(`Coleção: ${activeGenderTab === "feminina" ? "Coleção Feminina" : "Coleção Masculina"}`);
     
@@ -613,10 +613,10 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                           }`}
                         >
                           <span className="text-xs font-bold block">
-                            {style === "simples" ? "Linha Simples" : "Linha Premium 3D com Aplique"}
+                            {style === "simples" ? "Linha Simples" : "Linha Premium com Aplique"}
                           </span>
                           <span className={`text-[9px] font-light mt-0.5 block ${style === "simples" ? "text-slate-400" : "text-slate-300"}`}>
-                            {style === "simples" ? "Papel fotográfico simples coordenado" : "Sobreposições adicionais e corte alto relevo"}
+                            {style === "simples" ? "Papel fotográfico simples coordenado" : "Sobreposições adicionais e corte especial em relevo"}
                           </span>
                         </button>
                       ))}
@@ -666,10 +666,10 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                           }`}
                         >
                           <span className="text-xs font-bold block">
-                            {style === "simples" ? "Topper Simples" : "Dupla Camada 3D"}
+                            {style === "simples" ? "Topper Simples" : "Topper Dupla Camada"}
                           </span>
                           <span className={`text-[9px] font-light mt-0.5 block ${style === "simples" ? "text-slate-400" : "text-slate-300"}`}>
-                            {style === "simples" ? "Haste acrílica com arte lisa cortada" : "Efeito 3D com sobreposição de papéis especiais"}
+                            {style === "simples" ? "Haste acrílica com arte lisa cortada" : "Sobreposição de papéis especiais com acabamento refinado"}
                           </span>
                         </button>
                       ))}
@@ -859,7 +859,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     {quantity}x {isForminhas || isToppers || isKit ? "Pacote" : "Unidades de"} • {product.name}
                   </p>
                   <p className="font-sans text-[11px] text-slate-300">
-                    Acabamento: {hasLacoOption ? (selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Clean Sem Laço") : isForminhas ? (forminhasStyle === "simples" ? "Forminho Simples" : "Premium 3D") : isToppers ? (toppersStyle === "simples" ? "Topper Simples" : "Dupla Camada 3D") : "Geral"}
+                    Acabamento: {hasLacoOption ? (selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Clean Sem Laço") : isForminhas ? (forminhasStyle === "simples" ? "Forminha Simples" : "Premium com Aplique") : isToppers ? (toppersStyle === "simples" ? "Topper Simples" : "Dupla Camada") : "Geral"}
                   </p>
                 </div>
 

@@ -129,7 +129,7 @@ export default function ProductsCatalog({
 
   const sectionDescription =
     activeSegment === "pessoal"
-      ? "Lembrancinhas afetivas, caixas personalizadas, topos de bolo e kits festa em camadas 3D para aniversários, casamentos e celebrações em Brasília - DF e entorno."
+      ? "Lembrancinhas afetivas, caixas personalizadas, topos de bolo e kits festa para aniversários, casamentos e celebrações em Brasília - DF e entorno."
       : activeSegment === "corporativo"
       ? "Brindes corporativos, tubolatas, blocos de notas e embalagens personalizadas com a sua marca para empresas e eventos em Brasília - DF e todo o Distrito Federal."
       : "Explore o catálogo oficial da DL Magic Paper com preços atualizados diretamente pelo ateliê em Brasília - DF. Atendimento para festas pessoais, casamentos e empresas no Distrito Federal.";

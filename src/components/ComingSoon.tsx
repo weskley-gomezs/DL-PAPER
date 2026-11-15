@@ -85,7 +85,7 @@ export default function ComingSoon() {
           {/* Subtitle */}
           <p className="font-sans text-sm sm:text-base text-[#3A2439]/75 max-w-xl mx-auto mt-4 leading-relaxed">
             {data.comingSoonSubtitle ||
-              "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos em camadas 3D."}
+              "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos."}
           </p>
 
           {/* Teaser Highlights */}
@@ -97,7 +97,7 @@ export default function ComingSoon() {
               <div>
                 <h2 className="font-serif font-bold text-sm text-[#3A2439]">Linha Festas</h2>
                 <p className="font-sans text-xs text-[#3A2439]/65 mt-0.5">
-                  Caixas personalizadas, topos de bolo 3D e lembrancinhas afetivas.
+                  Caixas personalizadas, topos de bolo e lembrancinhas afetivas.
                 </p>
               </div>
             </div>

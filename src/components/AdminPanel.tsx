@@ -63,6 +63,7 @@ export default function AdminPanel() {
   // Local state for General Settings
   const [logo, setLogo] = useState(data.logo);
   const [heroImage, setHeroImage] = useState(data.heroImage);
+  const [heroVideo, setHeroVideo] = useState(data.heroVideo || "https://i.imgur.com/WMweeTZ.mp4");
   const [aboutImage, setAboutImage] = useState(data.aboutImage);
   const [partyFavorsImage, setPartyFavorsImage] = useState(data.partyFavorsImage);
   const [whatsappNumber, setWhatsappNumber] = useState(data.whatsappNumber);
@@ -137,6 +138,7 @@ export default function AdminPanel() {
     if (isAdminOpen && !wasOpenRef.current) {
       setLogo(data.logo);
       setHeroImage(data.heroImage);
+      setHeroVideo(data.heroVideo || "https://i.imgur.com/WMweeTZ.mp4");
       setAboutImage(data.aboutImage);
       setPartyFavorsImage(data.partyFavorsImage);
       setHeroBanners(data.heroBanners || []);
@@ -192,6 +194,7 @@ export default function AdminPanel() {
     updateData({
       logo,
       heroImage,
+      heroVideo,
       aboutImage,
       partyFavorsImage,
       heroBanners,
@@ -227,6 +230,7 @@ export default function AdminPanel() {
     updateData({
       logo,
       heroImage,
+      heroVideo,
       aboutImage,
       partyFavorsImage,
       whatsappNumber,
@@ -721,6 +725,16 @@ export default function AdminPanel() {
                     </div>
                   </div>
                   <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Vídeo de Fundo do Topo (MP4 / Link direto)</label>
+                    <input 
+                      type="text" 
+                      value={heroVideo} 
+                      onChange={(e) => setHeroVideo(e.target.value)}
+                      placeholder="https://... ou /hero_video.mp4"
+                      className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-brand-pink outline-hidden bg-slate-50 font-sans"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1 font-sans">Foto Sobre Nós (Quem Faz com Amor)</label>
                     <div className="flex gap-2">
                       <input 
@@ -1104,7 +1118,7 @@ export default function AdminPanel() {
                           id: `banner-${Date.now()}`,
                           src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
                           title: "Novo Destaque DL Magic Paper",
-                          subtitle: "Personalizado com carinho em camadas 3D"
+                          subtitle: "Personalizado com carinho e qualidade"
                         }
                       ])
                     }

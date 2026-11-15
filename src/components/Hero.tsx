@@ -40,7 +40,7 @@ export default function Hero({
           {
             id: "banner-1",
             src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-            title: "Lembrancinhas Clássicas em Camadas",
+            title: "Lembrancinhas Clássicas Personalizadas",
             subtitle: "Papéis nobres de 180g e acabamentos acetinados"
           }
         ];
@@ -95,36 +95,13 @@ export default function Hero({
         
         {/* Welcome Intro Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          
-          {/* Logo Badge */}
-          <div className="inline-flex mb-4">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full bg-white p-2.5 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
-              <img 
-                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
-                alt="DL Magic Paper" 
-                className="w-full h-full object-contain"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-
-          {/* Pill Badge */}
-          <div className="flex justify-center mb-3">
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white border border-[#E8527A]/20 shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#E8527A]" />
-              <span className="font-sans text-xs font-bold text-[#E8527A] tracking-wide">
-                Papelaria Personalizada Premium & Camadas 3D
-              </span>
-            </div>
-          </div>
-
           {/* Main Welcome Title */}
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#3A2439] tracking-tight leading-tight">
             Bem-vindo(a) ao DL Magic Paper!
           </h2>
           
           <p className="font-sans text-sm sm:text-base text-[#3A2439]/75 font-normal max-w-2xl mx-auto mt-3 leading-relaxed">
-            Criamos papelaria afetiva em camadas 3D para festas inesquecíveis e embalagens elegantes para valorizar a marca da sua empresa.
+            Criamos papelaria afetiva para festas inesquecíveis e embalagens elegantes para valorizar a marca da sua empresa.
           </p>
         </div>
 
@@ -137,14 +114,20 @@ export default function Hero({
             className="relative w-full rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-white group"
             id="hero_main_dual_banner"
           >
-            {/* Imagem do Banner Hero Principal em Alta Resolução */}
+            {/* Vídeo do Banner Hero Principal em Alta Resolução */}
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#FFF6F0]">
-              <img
-                src={masterHeroBanner}
-                alt="DL Magic Paper - Linha Festas e Linha Corporativa em Papelaria Personalizada 3D"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                referrerPolicy="no-referrer"
-              />
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                poster="/hero_video_poster.jpg"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
+              >
+                <source src={data.heroVideo || "https://i.imgur.com/WMweeTZ.mp4"} type="video/mp4" />
+                <source src="/hero_video.mp4" type="video/mp4" />
+                Seu navegador não suporta a reprodução deste vídeo.
+              </video>
 
               {/* Indicadores Visuais Sutis sobre as duas metades da foto */}
               <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 sm:p-6 bg-gradient-to-t from-black/40 via-transparent to-black/20 sm:to-transparent">
@@ -236,7 +219,7 @@ export default function Hero({
                 </div>
 
                 <p className="font-sans text-xs sm:text-sm text-[#3A2439]/75 font-normal leading-relaxed">
-                  Caixas personalizadas em camadas 3D (Milk, Bala, Pirâmide, Sushi, Mala), topos de bolo exclusivos, forminhas de doces, convites e kits festa em casa produzidos com carinho em Brasília - DF e entregues em todo o Distrito Federal.
+                  Caixas personalizadas (Milk, Bala, Pirâmide, Sushi, Mala), topos de bolo exclusivos, forminhas de doces, convites e kits festa em casa produzidos com carinho em Brasília - DF e entregues em todo o Distrito Federal.
                 </p>
               </div>
 
@@ -416,7 +399,7 @@ export default function Hero({
                 <Layers className="w-5 h-5 text-[#E8527A]" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-sm text-[#3A2439]">Papelaria em Camadas 3D</h4>
+                <h4 className="font-serif font-bold text-sm text-[#3A2439]">Papelaria de Luxo</h4>
                 <p className="font-sans text-xs text-[#3A2439]/65">Papéis nobres de 180g com laços de cetim luxuosos.</p>
               </div>
             </div>

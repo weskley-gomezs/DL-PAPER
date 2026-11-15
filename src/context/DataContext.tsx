@@ -31,6 +31,7 @@ export interface AppDataState {
   dataVersion?: number;
   logo: string;
   heroImage: string;
+  heroVideo?: string;
   aboutImage: string;
   partyFavorsImage: string;
   heroBanners: HeroBannerItem[];
@@ -78,7 +79,7 @@ export const DEFAULT_HERO_BANNERS: HeroBannerItem[] = [
   {
     id: "banner-1",
     src: "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-    title: "Lembrancinhas Clássicas em Camadas",
+    title: "Lembrancinhas Clássicas Personalizadas",
     subtitle: "Papéis nobres de 180g e acabamentos acetinados"
   },
   {
@@ -130,6 +131,7 @@ const defaultState: AppDataState = {
   dataVersion: CURRENT_DATA_VERSION,
   logo: "https://i.imgur.com/LiPwTKg.png",
   heroImage: "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
+  heroVideo: "https://i.imgur.com/WMweeTZ.mp4",
   aboutImage: "https://i.imgur.com/nsjJjnO.jpeg",
   partyFavorsImage: "/src/assets/images/tubete_cofrinho_marmitinha_1794613746569.jpg",
   heroBanners: [...DEFAULT_HERO_BANNERS],
@@ -148,21 +150,21 @@ const defaultState: AppDataState = {
     titlePrefix: "Mágica em forma de papel:",
     titleColored: "DL MAGIC PAPER",
     subtitle: "“Personalizando com propósito.”",
-    description: "Transformamos detalhes simples em experiências inesquecíveis através da nossa papelaria rica em camadas, carinho e dedicação artesanal."
+    description: "Transformamos detalhes simples em experiências inesquecíveis através da nossa papelaria rica em carinho e dedicação artesanal."
   },
   aboutTexts: {
     tag: "A nossa história 🌸",
     title: "Quem Faz com Amor e Propósito",
     paragraph1: "Olá! Eu sou a Danyelle Lau. Sou casada, mãe de dois filhos e formada em Letras Português e Inglês. A minha trajetória como professora trouxe consigo um encanto profundo pelo universo da papelaria. Com a maternidade, nasceu também o forte desejo de trabalhar mais perto dos meus filhos, o que me impulsionou a transformar essa paixão em profissão.",
     paragraph2: "Foi assim que a DLPaper nasceu, com o propósito de transformar momentos especiais em memórias inesquecíveis através da papelaria personalizada. Para nós, o aniversário de uma criança — ou qualquer festa em família — é um marco único. Por isso, nossas peças são concebidas como lembranças afetivas duráveis, feitas para encantar e arrancar suspiros.",
-    paragraph3: "Nosso ateliê em Brasília une tecnologia de corte precisa a processos manuais rigorosos. Da colagem impecável das camadas 3D ao acabamento dos laços, cada detalhe carrega a nossa energia dedicada e o propósito de eternizar as suas celebrações.",
+    paragraph3: "Nosso ateliê em Brasília une tecnologia de corte precisa a processos manuais rigorosos. Da colagem impecável ao acabamento dos laços, cada detalhe carrega a nossa energia dedicada e o propósito de eternizar as suas celebrações.",
     floatingText: "Tudo feito à mão com papel e amor."
   },
   adminPassword: "admin123",
   adminUsername: "admin",
   isComingSoon: true,
   comingSoonTitle: "Nosso Novo Catálogo Está Chegando!",
-  comingSoonSubtitle: "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos em camadas 3D."
+  comingSoonSubtitle: "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos."
 };
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -200,6 +202,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const merged: AppDataState = {
           ...defaultState,
           ...parsed,
+          heroVideo: parsed.heroVideo || "https://i.imgur.com/WMweeTZ.mp4",
           heroTexts: { ...defaultState.heroTexts, ...(parsed.heroTexts || {}) },
           aboutTexts: { ...defaultState.aboutTexts, ...(parsed.aboutTexts || {}) },
           heroBanners:
@@ -278,6 +281,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           merged.logo === "https://i.imgur.com/8zQS15l.png"
         ) {
           merged.logo = "https://i.imgur.com/LiPwTKg.png";
+        }
+
+        if (merged.comingSoonSubtitle && merged.comingSoonSubtitle.includes("em camadas 3D")) {
+          merged.comingSoonSubtitle = defaultState.comingSoonSubtitle;
+        }
+
+        if (merged.aboutTexts?.paragraph3 && merged.aboutTexts.paragraph3.includes("camadas 3D")) {
+          merged.aboutTexts.paragraph3 = defaultState.aboutTexts.paragraph3;
+        }
+
+        if (merged.heroTexts?.description && merged.heroTexts.description.includes("em camadas")) {
+          merged.heroTexts.description = defaultState.heroTexts.description;
         }
 
         setData(merged);

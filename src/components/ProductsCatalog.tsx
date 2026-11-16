@@ -14,7 +14,17 @@ import {
 } from "lucide-react";
 import { Product } from "../types";
 import { useAppContext } from "../context/DataContext";
-import { useFirebaseProducts } from "../hooks/useFirebaseProducts";
+import {
+  useFirebaseProducts,
+  MAX_PRODUCT_DESCRIPTION_LENGTH,
+  MAX_PRODUCT_NAME_LENGTH,
+} from "../hooks/useFirebaseProducts";
+import {
+  buildSafeWhatsAppUrl,
+  isStrictHttpsUrl,
+  isValidPositivePrice,
+  sanitizePlainText,
+} from "../lib/security";
 
 interface ProductsCatalogProps {
   onSelectProduct: (product: Product) => void;
@@ -39,31 +49,46 @@ export default function ProductsCatalog({
   onChangeSegment,
 }: ProductsCatalogProps) {
   const { data } = useAppContext();
-  const { products, loading, permissionError, errorMessage, refreshProducts } =
-    useFirebaseProducts();
+  const {
+    products,
+    loading,
+    permissionError,
+    errorMessage,
+    rateLimited,
+    refreshProducts,
+  } = useFirebaseProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
+  // Garantia adicional em camada de UI: só exibe itens públicos e com preço positivo válido
+  const safeProducts = useMemo(() => {
+    return products.filter(
+      (p) =>
+        p.exibirNoSite !== false &&
+        isValidPositivePrice(p.precoVenda ?? p.minPrice)
+    );
+  }, [products]);
+
   // Contadores por linha
   const counts = useMemo(() => {
-    const pessoal = products.filter(
+    const pessoal = safeProducts.filter(
       (p) => p.segment === "pessoal" || p.segment === "ambos" || !p.segment
     ).length;
-    const corporativo = products.filter(
+    const corporativo = safeProducts.filter(
       (p) => p.segment === "corporativo" || p.segment === "ambos"
     ).length;
     return {
-      todos: products.length,
+      todos: safeProducts.length,
       pessoal,
       corporativo,
     };
-  }, [products]);
+  }, [safeProducts]);
 
   // Filtro dinâmico por linha + busca textual
   const filteredProducts = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    return products.filter((product) => {
+    return safeProducts.filter((product) => {
       const seg = product.segment || "pessoal";
       const matchesLine =
         activeSegment === "todos"
@@ -81,7 +106,7 @@ export default function ProductsCatalog({
         product.category.toLowerCase().includes(query)
       );
     });
-  }, [products, activeSegment, searchTerm]);
+  }, [safeProducts, activeSegment, searchTerm]);
 
   const handleSwitchSegment = (newSegment: "todos" | "pessoal" | "corporativo") => {
     if (onChangeSegment) {
@@ -91,11 +116,15 @@ export default function ProductsCatalog({
   };
 
   const buildWhatsAppOrderUrl = (product: Product) => {
+    const safeName = sanitizePlainText(
+      product.name,
+      MAX_PRODUCT_NAME_LENGTH,
+      "Produto Personalizado"
+    );
     const finalPrice = product.precoVenda ?? product.minPrice ?? 0;
     const precoFormatado = formatPriceNumber(finalPrice);
-    const message = `Olá! Vi o produto ${product.name} (R$ ${precoFormatado}) no site da DL Magic Paper e gostaria de fazer um orçamento.`;
-    const phone = (data.whatsappNumber || "5561998889577").replace(/\D/g, "");
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    const message = `Olá! Vi o produto ${safeName} (R$ ${precoFormatado}) no site da DL Magic Paper e gostaria de fazer um orçamento.`;
+    return buildSafeWhatsAppUrl(data.whatsappNumber, message);
   };
 
   const getLineBadgeInfo = (segment?: Product["segment"]) => {
@@ -253,6 +282,7 @@ export default function ProductsCatalog({
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#3A2439]/40 w-4 h-4 pointer-events-none" />
           <input
             type="text"
+            maxLength={80}
             placeholder={
               activeSegment === "corporativo"
                 ? "Buscar brindes, blocos, sacolas..."
@@ -349,8 +379,18 @@ export default function ProductsCatalog({
                     {filteredProducts.map((product) => {
                       const badgeInfo = getLineBadgeInfo(product.segment);
                       const finalPrice = product.precoVenda ?? product.minPrice ?? 0;
+                      const safeImageUrl = isStrictHttpsUrl(product.image);
                       const hasValidImage =
-                        Boolean(product.image) && !brokenImages[product.id];
+                        Boolean(safeImageUrl) && !brokenImages[product.id];
+                      const safeName = sanitizePlainText(
+                        product.name,
+                        MAX_PRODUCT_NAME_LENGTH,
+                        "Produto Personalizado"
+                      );
+                      const safeDescription = sanitizePlainText(
+                        product.description,
+                        MAX_PRODUCT_DESCRIPTION_LENGTH
+                      );
                       const whatsappUrl = buildWhatsAppOrderUrl(product);
 
                       return (
@@ -382,8 +422,9 @@ export default function ProductsCatalog({
 
                                 {hasValidImage ? (
                                   <img
-                                    src={product.image}
-                                    alt={product.name}
+                                    src={safeImageUrl}
+                                    alt={safeName}
+                                    loading="lazy"
                                     onError={() =>
                                       setBrokenImages((prev) => ({
                                         ...prev,
@@ -411,12 +452,12 @@ export default function ProductsCatalog({
 
                               {/* Product Info */}
                               <div className="text-left space-y-1.5">
-                                <h3 className="font-serif text-lg font-bold text-[#3A2439] tracking-tight leading-snug group-hover:text-[#E8527A] transition-colors line-clamp-2">
-                                  {product.name}
+                                <h3 className="font-serif text-lg font-bold text-[#3A2439] tracking-tight leading-snug group-hover:text-[#E8527A] transition-colors line-clamp-2 break-words">
+                                  {safeName}
                                 </h3>
 
-                                <p className="font-sans text-xs text-[#3A2439]/70 line-clamp-2 leading-relaxed">
-                                  {product.description}
+                                <p className="font-sans text-xs text-[#3A2439]/70 line-clamp-2 leading-relaxed break-words">
+                                  {safeDescription}
                                 </p>
                               </div>
                             </div>
@@ -473,8 +514,14 @@ export default function ProductsCatalog({
                 </p>
 
                 <div className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-[11px] font-mono text-slate-500 break-words max-w-md mx-auto">
-                  Diagnóstico: {errorMessage}
+                  Diagnóstico: {sanitizePlainText(errorMessage, 180)}
                 </div>
+
+                {rateLimited && (
+                  <p className="text-[11px] font-sans text-amber-700 font-semibold">
+                    Aguarde alguns segundos antes de tentar atualizar novamente.
+                  </p>
+                )}
 
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   <button
@@ -487,9 +534,10 @@ export default function ProductsCatalog({
                   </button>
 
                   <a
-                    href={`https://wa.me/${(data.whatsappNumber || "5561998889577").replace(/\D/g, "")}?text=${encodeURIComponent(
+                    href={buildSafeWhatsAppUrl(
+                      data.whatsappNumber,
                       "Olá! Vim pelo site da DL Magic Paper e gostaria de solicitar um orçamento personalizado."
-                    )}`}
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold font-sans shadow-xs transition-colors"
@@ -525,6 +573,12 @@ export default function ProductsCatalog({
                     : "Ainda estamos cadastrando novidades nesta categoria. Se quiser um item sob medida, fale direto com a nossa equipe no WhatsApp!"}
                 </p>
 
+                {rateLimited && (
+                  <p className="text-[11px] font-sans text-amber-700 font-semibold">
+                    Atualização em intervalo de segurança. Aguarde alguns segundos antes de consultar novamente.
+                  </p>
+                )}
+
                 <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   {searchTerm ? (
                     <button
@@ -557,9 +611,10 @@ export default function ProductsCatalog({
                   )}
 
                   <a
-                    href={`https://wa.me/${(data.whatsappNumber || "5561998889577").replace(/\D/g, "")}?text=${encodeURIComponent(
+                    href={buildSafeWhatsAppUrl(
+                      data.whatsappNumber,
                       "Olá! Vim pelo site da DL Magic Paper e gostaria de solicitar um orçamento personalizado."
-                    )}`}
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold font-sans shadow-xs transition-colors"

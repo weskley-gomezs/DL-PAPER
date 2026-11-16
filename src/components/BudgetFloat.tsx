@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { MessageCircle, ShoppingBag, X, Trash2, Plus, Minus, Send, Heart, Sparkles, AlertCircle } from "lucide-react";
+import { MessageCircle, ShoppingBag, X, Trash2, Plus, Minus, Send, Heart, AlertCircle, Gift } from "lucide-react";
 import { BudgetItem } from "../types";
 import { useAppContext } from "../context/DataContext";
+import {
+  buildSafeWhatsAppUrl,
+  getSafeImageUrl,
+  sanitizePlainText,
+} from "../lib/security";
 
 interface BudgetFloatProps {
   isOpen: boolean;
@@ -26,6 +31,8 @@ export default function BudgetFloat({
   const [clientName, setClientName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [overallTheme, setOverallTheme] = useState("");
+  const [formError, setFormError] = useState("");
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   // Calculate totals
   const totalMin = budgetItems.reduce((acc, item) => acc + item.product.minPrice * item.quantity, 0);
@@ -34,34 +41,39 @@ export default function BudgetFloat({
   const handleSendWhatsAppBudget = (e: React.FormEvent) => {
     e.preventDefault();
     if (budgetItems.length === 0) return;
-    if (!clientName) {
-      alert("Por favor, preencha seu nome para personalizar o orçamento!");
+
+    const cleanName = sanitizePlainText(clientName, 80);
+    if (!cleanName) {
+      setFormError("Por favor, preencha seu nome para personalizar o orçamento.");
       return;
     }
+    setFormError("");
+    const cleanTheme = sanitizePlainText(overallTheme, 80);
 
     // Format WhatsApp Budget message beautifully
     let listText = "";
-    budgetItems.forEach((item, index) => {
+    budgetItems.forEach((item) => {
       const p = item.product;
+      const safeProductName = sanitizePlainText(p.name, 90, "Produto Personalizado");
       const minCost = p.minPrice * item.quantity;
       const maxCost = p.maxPrice * item.quantity;
-      listText += `• *${item.quantity}x* ${p.name}\n`;
+      listText += `• *${item.quantity}x* ${safeProductName}\n`;
       if (p.minPrice === p.maxPrice) {
         listText += `  _Preço:_ R$ ${minCost.toFixed(2).replace(".", ",")}\n`;
       } else {
         listText += `  _Preço est.:_ R$ ${minCost.toFixed(2).replace(".", ",")} a R$ ${maxCost.toFixed(2).replace(".", ",")}\n`;
       }
-      if (item.theme) listText += `  _Tema:_ ${item.theme}\n`;
-      if (item.notes) listText += `  _Obs:_ ${item.notes}\n\n`;
+      if (item.theme) listText += `  _Tema:_ ${sanitizePlainText(item.theme, 80)}\n`;
+      if (item.notes) listText += `  _Obs:_ ${sanitizePlainText(item.notes, 180)}\n\n`;
     });
 
     const finalMessage = `🌟 *NOVA SIMULAÇÃO DE ORÇAMENTO - DL MAGIC PAPER* 🌟
     
 Olá DL Magic Paper! Acabei de simular meu orçamento de papelaria personalizada no site:
 
-👤 *Cliente:* ${clientName}
+👤 *Cliente:* ${cleanName}
 📅 *Data da Celebração:* ${eventDate || "Não informada"}
-🎨 *Tema Principal:* ${overallTheme || "A decidir"}
+🎨 *Tema Principal:* ${cleanTheme || "A decidir"}
 
 ---
 *Itens no Carrinho:*
@@ -72,9 +84,8 @@ _(O valor oficial será enviado após combinarmos a arte de cada item)_
 
 Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
 
-    const encodedMsg = encodeURIComponent(finalMessage);
-    const whatsappLink = `https://wa.me/${data.whatsappNumber}?text=${encodedMsg}`;
-    
+    const whatsappLink = buildSafeWhatsAppUrl(data.whatsappNumber, finalMessage);
+
     // Redirect cleanly
     window.location.href = whatsappLink;
   };
@@ -107,9 +118,12 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
 
         {/* Pulse Support WhatsApp Anchor */}
         <a
-          href={`https://wa.me/${data.whatsappNumber}?text=Ol%C3%A1%20DL%20Magic%20Paper!%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20as%20lembrancinhas%20personalizadas.`}
+          href={buildSafeWhatsAppUrl(
+            data.whatsappNumber,
+            "Olá DL Magic Paper! Gostaria de tirar uma dúvida sobre as lembrancinhas personalizadas."
+          )}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="pointer-events-auto relative flex items-center justify-center w-14 h-14 bg-emerald-500 text-white rounded-full shadow-2xl hover:bg-emerald-600 hover:scale-[1.08] transition-all group"
           title={`Falar com DL Magic Paper no WhatsApp`}
           id="floating_whatsapp_support"
@@ -196,20 +210,38 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                   
                   // Active Items State inside Sidebar
                   <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                    {budgetItems.map((item, idx) => (
+                    {budgetItems.map((item, idx) => {
+                      const itemKey = `${item.product.id}-${idx}`;
+                      const safeItemImg = getSafeImageUrl(item.product.image);
+                      const hasImg = Boolean(safeItemImg) && !brokenImages[itemKey];
+                      const safeItemName = sanitizePlainText(item.product.name, 90, "Produto Personalizado");
+
+                      return (
                       <div
-                        key={`${item.product.id}-${idx}`}
+                        key={itemKey}
                         className="flex gap-4 p-3 bg-slate-50/80 rounded-2xl border border-slate-100 text-left relative group hover:bg-slate-50 transition-colors"
                       >
-                        <img
-                          src={item.product.image}
-                          alt={item.product.name}
-                          className="w-16 h-16 rounded-xl object-cover"
-                          referrerPolicy="no-referrer"
-                        />
+                        {hasImg ? (
+                          <img
+                            src={safeItemImg}
+                            alt={safeItemName}
+                            onError={() =>
+                              setBrokenImages((prev) => ({
+                                ...prev,
+                                [itemKey]: true,
+                              }))
+                            }
+                            className="w-16 h-16 rounded-xl object-cover shrink-0"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center shrink-0 text-brand-pink">
+                            <Gift className="w-6 h-6" />
+                          </div>
+                        )}
                         <div className="flex-1 space-y-1">
-                          <h4 className="font-serif text-sm font-extrabold text-slate-800 leading-tight">
-                            {item.product.name}
+                          <h4 className="font-serif text-sm font-extrabold text-slate-800 leading-tight line-clamp-2 break-words">
+                            {safeItemName}
                           </h4>
                           
                           {/* Mini Details info */}
@@ -271,7 +303,8 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -310,9 +343,13 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                         type="text"
                         id="clientName"
                         required
+                        maxLength={80}
                         placeholder="Amanda Santos"
                         value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
+                        onChange={(e) => {
+                          setClientName(e.target.value);
+                          if (formError) setFormError("");
+                        }}
                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-sans text-xs text-slate-700 placeholder-slate-400 focus:outline-hidden focus:border-brand-pink focus:bg-white transition"
                       />
                     </div>
@@ -338,6 +375,7 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                         <input
                           type="text"
                           id="overallTheme"
+                          maxLength={80}
                           placeholder="Ex: Stitch Rosa"
                           value={overallTheme}
                           onChange={(e) => setOverallTheme(e.target.value)}
@@ -345,6 +383,12 @@ Gostaria de confirmar a disponibilidade para esta data e fechar meu pedido!`;
                         />
                       </div>
                     </div>
+
+                    {formError && (
+                      <p role="alert" className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2 text-left">
+                        {formError}
+                      </p>
+                    )}
 
                     {/* Submit Button Trigger WhatsApp */}
                     <button

@@ -1,6 +1,7 @@
 import React from "react";
-import { Instagram, MessageCircle, Heart, Lock, Sparkles } from "lucide-react";
+import { Instagram, MessageCircle, Heart, Lock } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { buildSafeWhatsAppUrl, isStrictHttpsUrl } from "../lib/security";
 
 export default function Footer() {
   const { data, setIsAdminOpen } = useAppContext();
@@ -52,7 +53,7 @@ export default function Footer() {
           <div className="md:col-span-5 space-y-4 text-left">
             <div className="flex items-center">
               <img 
-                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
+                src={isStrictHttpsUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-24 h-24 sm:w-28 sm:h-28 object-contain bg-white/10 p-2 rounded-2xl border border-white/15"
                 referrerPolicy="no-referrer"
@@ -111,9 +112,9 @@ export default function Footer() {
 
                 {/* Whatsapp button */}
                 <a
-                  href={`https://wa.me/${data.whatsappNumber}`}
+                  href={buildSafeWhatsAppUrl(data.whatsappNumber)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-emerald-600 transition-all shadow-xs"
                   title={`Contate-nos pelo WhatsApp ${data.whatsappFormatted}`}
                   id="footer_whatsapp_btn"

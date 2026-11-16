@@ -160,8 +160,8 @@ const defaultState: AppDataState = {
     paragraph3: "Nosso ateliê em Brasília une tecnologia de corte precisa a processos manuais rigorosos. Da colagem impecável ao acabamento dos laços, cada detalhe carrega a nossa energia dedicada e o propósito de eternizar as suas celebrações.",
     floatingText: "Tudo feito à mão com papel e amor."
   },
-  adminPassword: "admin123",
-  adminUsername: "admin",
+  adminPassword: "Danyelle@2026",
+  adminUsername: "Danyelle",
   isComingSoon: true,
   comingSoonTitle: "Nosso Novo Catálogo Está Chegando!",
   comingSoonSubtitle: "Estamos preparando uma experiência ainda mais linda e organizada com nossa linha de Papelaria Personalizada para Festas e Brindes Corporativos."
@@ -293,6 +293,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (merged.heroTexts?.description && merged.heroTexts.description.includes("em camadas")) {
           merged.heroTexts.description = defaultState.heroTexts.description;
+        }
+
+        const storedUserLower = (merged.adminUsername || "").trim().toLowerCase();
+        const storedPassTrimmed = (merged.adminPassword || "").trim();
+        if (
+          !storedUserLower ||
+          storedUserLower === "admin" ||
+          storedUserLower === "danilau" ||
+          !storedPassTrimmed ||
+          storedPassTrimmed === "admin123" ||
+          storedPassTrimmed === "Dani@784512"
+        ) {
+          merged.adminUsername = "Danyelle";
+          merged.adminPassword = "Danyelle@2026";
         }
 
         setData(merged);

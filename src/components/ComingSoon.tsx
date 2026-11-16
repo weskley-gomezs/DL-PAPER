@@ -11,13 +11,15 @@ import {
   Clock
 } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { buildSafeWhatsAppUrl, isStrictHttpsUrl } from "../lib/security";
 
 export default function ComingSoon() {
   const { data, setIsAdminOpen } = useAppContext();
 
-  const whatsappDirectUrl = `https://wa.me/${data.whatsappNumber}?text=${encodeURIComponent(
+  const whatsappDirectUrl = buildSafeWhatsAppUrl(
+    data.whatsappNumber,
     "Olá DL Magic Paper! Vi o aviso de 'Em Breve' no site e gostaria de solicitar um orçamento."
-  )}`;
+  );
 
   return (
     <div className="min-h-screen bg-[#FFF6F0] text-[#3A2439] relative overflow-hidden flex flex-col justify-between selection:bg-[#E8527A]/20 selection:text-[#E8527A]">
@@ -61,7 +63,7 @@ export default function ComingSoon() {
           <div className="inline-flex mb-5">
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#FFF6F0] p-3 shadow-md shadow-[#E8527A]/15 border-2 border-white flex items-center justify-center">
               <img
-                src={data.logo || "https://i.imgur.com/LiPwTKg.png"}
+                src={isStrictHttpsUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"}
                 alt="DL Magic Paper"
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"

@@ -11,13 +11,25 @@ import {
   firebaseConfig,
   handleFirestoreError,
   OperationType,
-  testConnection,
 } from "../lib/firebase";
+import {
+  isStrictHttpsUrl,
+  isValidPositivePrice,
+  sanitizePlainText,
+} from "../lib/security";
 import { Product, ProductSegment } from "../types";
 
 const SESSION_CACHE_KEY = "dl_magic_paper_produtos_cache_v2";
+const LAST_FETCH_KEY = "dl_magic_paper_produtos_last_fetch_v2";
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos
+const FETCH_COOLDOWN_MS = 15 * 1000; // Rate limit cliente mínimo entre consultas (15s)
 const FIRESTORE_TIMEOUT_MS = 12000; // Evita loading infinito
+
+export const MAX_PRODUCT_NAME_LENGTH = 90;
+export const MAX_PRODUCT_DESCRIPTION_LENGTH = 280;
+
+const DEFAULT_DESCRIPTION =
+  "Papelaria personalizada artesanal com acabamento premium feita em Brasília - DF.";
 
 export interface FirestoreProdutoRaw {
   nome?: unknown;
@@ -32,6 +44,9 @@ interface CachedProductsPayload {
   timestamp: number;
   products: Product[];
 }
+
+// Compartilha requisição em andamento para impedir loops / chamadas simultâneas duplicadas
+let inFlightProdutosPromise: Promise<Product[]> | null = null;
 
 function normalizeSegment(value: unknown): ProductSegment {
   const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
@@ -48,72 +63,99 @@ function normalizeSegment(value: unknown): ProductSegment {
   return "pessoal";
 }
 
-function parsePrice(value: unknown): number {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return Math.max(0, value);
-  }
-  if (typeof value === "string") {
-    const cleaned = value.replace(/[^\d.,-]/g, "").replace(",", ".");
-    const parsed = Number(cleaned);
-    if (Number.isFinite(parsed)) {
-      return Math.max(0, parsed);
-    }
-  }
-  return 0;
+function getCategoryLabel(segment: ProductSegment): string {
+  if (segment === "corporativo") return "Linha Corporativa";
+  if (segment === "ambos") return "Festa & Corporativo";
+  return "Linha Festa";
 }
 
-function mapDocToProduct(
-  docSnap: QueryDocumentSnapshot<DocumentData>
-): Product | null {
-  const raw = docSnap.data() as FirestoreProdutoRaw;
-
-  // Se exibirNoSite === false, não exibe na vitrine pública
-  if (raw.exibirNoSite === false) {
+function buildSanitizedProduct(params: {
+  id: string;
+  nome: unknown;
+  precoVenda: unknown;
+  segment: unknown;
+  descricao: unknown;
+  imagemUrl: unknown;
+  exibirNoSite: unknown;
+}): Product | null {
+  // Bloqueia produtos ocultos ou com preço inválido / não positivo
+  if (params.exibirNoSite === false) {
+    return null;
+  }
+  if (!isValidPositivePrice(params.precoVenda)) {
     return null;
   }
 
-  const nome =
-    typeof raw.nome === "string" && raw.nome.trim().length > 0
-      ? raw.nome.trim()
-      : "Produto Personalizado";
+  const safeId = sanitizePlainText(params.id, 120);
+  if (!safeId) {
+    return null;
+  }
 
-  const precoVenda = parsePrice(raw.precoVenda);
-  const segment = normalizeSegment(raw.categoriaLinha);
-
-  const descricao =
-    typeof raw.descricao === "string" && raw.descricao.trim().length > 0
-      ? raw.descricao.trim()
-      : "Papelaria personalizada artesanal com acabamento premium feita em Brasília - DF.";
-
-  const imagemUrl =
-    typeof raw.imagemUrl === "string" && raw.imagemUrl.trim().length > 0
-      ? raw.imagemUrl.trim()
-      : "";
-
-  const categoryLabel =
-    segment === "corporativo"
-      ? "Linha Corporativa"
-      : segment === "ambos"
-      ? "Festa & Corporativo"
-      : "Linha Festa";
+  const segment = normalizeSegment(params.segment);
+  const nome = sanitizePlainText(
+    params.nome,
+    MAX_PRODUCT_NAME_LENGTH,
+    "Produto Personalizado"
+  );
+  const descricao = sanitizePlainText(
+    params.descricao,
+    MAX_PRODUCT_DESCRIPTION_LENGTH,
+    DEFAULT_DESCRIPTION
+  );
+  // Exige estritamente https:// (bloqueia javascript:, data:, http:, etc.)
+  const imagemUrl = isStrictHttpsUrl(params.imagemUrl);
 
   return {
-    id: docSnap.id,
+    id: safeId,
     name: nome,
-    category: categoryLabel,
+    category: getCategoryLabel(segment),
     segment,
-    minPrice: precoVenda,
-    maxPrice: precoVenda,
-    precoVenda,
+    minPrice: params.precoVenda,
+    maxPrice: params.precoVenda,
+    precoVenda: params.precoVenda,
     description: descricao,
     image: imagemUrl,
-    exibirNoSite: raw.exibirNoSite !== false,
+    exibirNoSite: true,
     features: [
       "Produção artesanal DL Magic Paper",
       "Personalizado com sua identidade ou tema",
       "Atendimento direto em Brasília - DF",
     ],
   };
+}
+
+function mapDocToProduct(
+  docSnap: QueryDocumentSnapshot<DocumentData>
+): Product | null {
+  const raw = docSnap.data() as FirestoreProdutoRaw;
+  return buildSanitizedProduct({
+    id: docSnap.id,
+    nome: raw.nome,
+    precoVenda: raw.precoVenda,
+    segment: raw.categoriaLinha,
+    descricao: raw.descricao,
+    imagemUrl: raw.imagemUrl,
+    exibirNoSite: raw.exibirNoSite,
+  });
+}
+
+function readLastFetchTimestamp(): number {
+  try {
+    const raw = window.sessionStorage.getItem(LAST_FETCH_KEY);
+    if (!raw) return 0;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeLastFetchTimestamp(ts: number): void {
+  try {
+    window.sessionStorage.setItem(LAST_FETCH_KEY, String(ts));
+  } catch {
+    // Ignora falha de quota do sessionStorage
+  }
 }
 
 function readValidCache(): Product[] | null {
@@ -136,7 +178,20 @@ function readValidCache(): Product[] | null {
       return null;
     }
 
-    return parsed.products;
+    // Revalida e sanitiza todos os itens do cache antes de renderizar
+    return parsed.products
+      .map((item) =>
+        buildSanitizedProduct({
+          id: item.id,
+          nome: item.name,
+          precoVenda: item.precoVenda ?? item.minPrice,
+          segment: item.segment,
+          descricao: item.description,
+          imagemUrl: item.image,
+          exibirNoSite: item.exibirNoSite,
+        })
+      )
+      .filter((item): item is Product => item !== null);
   } catch {
     return null;
   }
@@ -172,12 +227,47 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
+async function fetchProdutosFromFirestore(): Promise<Product[]> {
+  if (inFlightProdutosPromise) {
+    return inFlightProdutosPromise;
+  }
+
+  inFlightProdutosPromise = (async () => {
+    if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
+      throw new Error(
+        "Configuração do Firebase incompleta: verifique apiKey e appId para o projeto dl-sistema-6eee9."
+      );
+    }
+
+    writeLastFetchTimestamp(Date.now());
+
+    const snapshot = await withTimeout(
+      getDocs(collection(db, "produtos")),
+      FIRESTORE_TIMEOUT_MS,
+      `produtos (${DL_SISTEMA_DATABASE_ID})`
+    );
+
+    const loadedProducts = snapshot.docs
+      .map(mapDocToProduct)
+      .filter((item): item is Product => item !== null)
+      .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+
+    writeCache(loadedProducts);
+    return loadedProducts;
+  })().finally(() => {
+    inFlightProdutosPromise = null;
+  });
+
+  return inFlightProdutosPromise;
+}
+
 export interface UseFirebaseProductsResult {
   products: Product[];
   loading: boolean;
   fromCache: boolean;
   permissionError: boolean;
   errorMessage: string | null;
+  rateLimited: boolean;
   refreshProducts: () => void;
 }
 
@@ -187,9 +277,18 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
   const [fromCache, setFromCache] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [permissionError, setPermissionError] = useState<boolean>(false);
+  const [rateLimited, setRateLimited] = useState<boolean>(false);
   const [reloadToken, setReloadToken] = useState<number>(0);
 
   const refreshProducts = useCallback(() => {
+    // Rate limit de cliente: bloqueia rajadas de atualização ao Firestore
+    const lastFetch = readLastFetchTimestamp();
+    if (inFlightProdutosPromise || Date.now() - lastFetch < FETCH_COOLDOWN_MS) {
+      setRateLimited(true);
+      return;
+    }
+
+    setRateLimited(false);
     try {
       window.sessionStorage.removeItem(SESSION_CACHE_KEY);
     } catch {
@@ -202,7 +301,7 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
     let isMounted = true;
 
     async function loadProducts() {
-      // 1. Verifica cache no sessionStorage (15 min) antes de qualquer consulta
+      // 1. Verifica cache obrigatório no sessionStorage (15 min) antes de qualquer consulta
       const cached = readValidCache();
       if (cached !== null) {
         if (isMounted) {
@@ -210,6 +309,16 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
           setFromCache(true);
           setErrorMessage(null);
           setPermissionError(false);
+          setLoading(false);
+        }
+        return;
+      }
+
+      // 2. Proteção contra loops automáticos de requisição ao Firestore
+      const lastFetch = readLastFetchTimestamp();
+      if (reloadToken === 0 && lastFetch > 0 && Date.now() - lastFetch < FETCH_COOLDOWN_MS) {
+        if (isMounted) {
+          setRateLimited(true);
           setLoading(false);
         }
         return;
@@ -223,34 +332,14 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
       }
 
       try {
-        if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
-          throw new Error(
-            "Configuração do Firebase incompleta: verifique apiKey e appId para o projeto dl-sistema-6eee9."
-          );
-        }
-
-        // Teste leve de conexão com o servidor quando não há cache
-        void testConnection();
-
-        const snapshot = await withTimeout(
-          getDocs(collection(db, "produtos")),
-          FIRESTORE_TIMEOUT_MS,
-          `produtos (${DL_SISTEMA_DATABASE_ID})`
-        );
-
-        const loadedProducts = snapshot.docs
-          .map(mapDocToProduct)
-          .filter((item): item is Product => item !== null)
-          .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+        const loadedProducts = await fetchProdutosFromFirestore();
 
         if (isMounted) {
           setProducts(loadedProducts);
           setErrorMessage(null);
           setPermissionError(false);
+          setRateLimited(false);
         }
-
-        // Salva no sessionStorage por 15 minutos
-        writeCache(loadedProducts);
       } catch (error) {
         handleFirestoreError(error, OperationType.GET, "produtos", false);
         const msg = error instanceof Error ? error.message : String(error);
@@ -282,6 +371,7 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
     fromCache,
     permissionError,
     errorMessage,
+    rateLimited,
     refreshProducts,
   };
 }

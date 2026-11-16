@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Instagram, MapPin, Send, MessageCircle, AlertCircle, Sparkles, Heart, ShieldCheck, Briefcase, PartyPopper } from "lucide-react";
+import { Instagram, MapPin, MessageCircle, AlertCircle, Sparkles, Heart, ShieldCheck } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { buildSafeWhatsAppUrl, sanitizePlainText } from "../lib/security";
 
 export default function Contact() {
   const { data } = useAppContext();
@@ -28,17 +29,16 @@ export default function Contact() {
     // Format WhatsApp Message beautifully
     const textMessage = `Olá DL Magic Paper! Gostaria de solicitar um orçamento personalizado ✨
     
-👤 *Nome:* ${formData.nome}
-📱 *WhatsApp:* ${formData.whatsapp}
+👤 *Nome:* ${sanitizePlainText(formData.nome, 80)}
+📱 *WhatsApp:* ${sanitizePlainText(formData.whatsapp, 30)}
 📅 *Data Desejada:* ${formData.dataCelebracao || "A combinar"}
-🛍️ *Item de Interesse:* ${formData.categoriaInteresse}
-🎨 *Tema / Cores:* ${formData.temaInteresse || "A definir"}
-✍️ *Detalhes / Quantidade:* ${formData.observações || "Sob consulta"}
+🛍️ *Item de Interesse:* ${sanitizePlainText(formData.categoriaInteresse, 60)}
+🎨 *Tema / Cores:* ${sanitizePlainText(formData.temaInteresse, 80, "A definir")}
+✍️ *Detalhes / Quantidade:* ${sanitizePlainText(formData.observações, 240, "Sob consulta")}
     
 _Enviado através do site catálogo DL Magic Paper._`;
 
-    const encodedText = encodeURIComponent(textMessage);
-    const whatsappLink = `https://wa.me/${data.whatsappNumber}?text=${encodedText}`;
+    const whatsappLink = buildSafeWhatsAppUrl(data.whatsappNumber, textMessage);
 
     setIsSent(true);
     
@@ -260,9 +260,9 @@ _Enviado através do site catálogo DL Magic Paper._`;
                 
                 {/* Whatsapp direct link */}
                 <a
-                  href={`https://wa.me/${data.whatsappNumber}`}
+                  href={buildSafeWhatsAppUrl(data.whatsappNumber)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-emerald-50/70 border border-[#3A2439]/10 hover:border-emerald-200 transition-all group"
                   id="direct_whatsapp_link_card"
                 >

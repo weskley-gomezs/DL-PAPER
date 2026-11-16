@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, Check, Sparkles, AlertCircle, ShoppingBag, Plus, Minus, Heart, ArrowRight, ZoomIn, X, Gift, MessageCircle } from "lucide-react";
-import { Product, ThemeItem } from "../types";
+import { Product } from "../types";
 import { useAppContext } from "../context/DataContext";
+import {
+  buildSafeWhatsAppUrl,
+  getSafeImageUrl,
+  sanitizePlainText,
+} from "../lib/security";
 
 interface ProductPageProps {
   product: Product;
@@ -48,58 +53,64 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
 
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [brokenImageUrls, setBrokenImageUrls] = useState<Record<string, boolean>>({});
+
+  const safeProductName = sanitizePlainText(product.name, 90, "Produto Personalizado");
+  const safeProductDescription = sanitizePlainText(
+    product.description,
+    280,
+    "Papelaria personalizada artesanal com acabamento premium feita em Brasília - DF."
+  );
 
   // Sync state if forminhas or toppers size gets clicked
   const isForminhas = product.id === "forminhas-custom";
   const isToppers = product.id === "toppers-custom";
   const isKit = product.id === "kit-caixas-custom";
 
-  const currentGallery = activeGenderTab === "feminina" ? femininaImages : masculinaImages;
-
   const getProductGallery = () => {
+    let rawGallery: string[] = [];
     if (isKit) {
-      return activeGenderTab === "feminina" ? femininaImages : masculinaImages;
-    }
-    if (product.gallery && product.gallery.length > 0) {
-      return [product.image, ...product.gallery.filter((g) => g && g !== product.image)];
-    }
-    // Individual products can have custom mini galleries
-    if (product.id === "caixa-milk") {
-      return [
+      rawGallery = activeGenderTab === "feminina" ? femininaImages : masculinaImages;
+    } else if (product.gallery && product.gallery.length > 0) {
+      rawGallery = [product.image, ...product.gallery.filter((g) => g && g !== product.image)];
+    } else if (product.id === "caixa-milk") {
+      rawGallery = [
         product.image,
         "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
-        "/src/assets/images/hero_stationery_1779734437655.png"
+        "/src/assets/images/hero_stationery_1779734437655.png",
       ];
-    }
-    if (product.id === "caixa-bala" || product.id === "caixa-piramide") {
-      return [
+    } else if (product.id === "caixa-bala" || product.id === "caixa-piramide") {
+      rawGallery = [
         product.image,
-        "/src/assets/images/kit_caixas_classicas_1794613744144.jpg"
+        "/src/assets/images/kit_caixas_classicas_1794613744144.jpg",
       ];
-    }
-    if (product.id === "caixa-sushi" || product.id === "caixa-mala") {
-      return [
+    } else if (product.id === "caixa-sushi" || product.id === "caixa-mala") {
+      rawGallery = [
         product.image,
-        "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg"
+        "/src/assets/images/caixa_piramide_sushi_1794613744791.jpg",
       ];
-    }
-    if (product.id === "lembrancinha-tubolata-5x6") {
-      return [
+    } else if (product.id === "lembrancinha-tubolata-5x6") {
+      rawGallery = [
         product.image,
-        data.heroImage || "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg"
+        data.heroImage || "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg",
       ];
+    } else if (product.image) {
+      rawGallery = [product.image];
     }
-    return product.image ? [product.image] : [];
+
+    return rawGallery
+      .map((url) => getSafeImageUrl(url))
+      .filter((url) => Boolean(url) && !brokenImageUrls[url]);
   };
 
   const activeGallery = getProductGallery();
-  
+
   // We check if the product has a bow option (either category is Caixas Avulsas, or it is the Tubolata Lembrancinha)
   const hasLacoOption = product.category === "Caixas Avulsas" || product.id === "lembrancinha-tubolata-5x6";
 
   const getProductImage = () => {
-    const gallery = getProductGallery();
-    return gallery[activeImageIndex] || gallery[0] || product.image || "";
+    const candidate = activeGallery[activeImageIndex] || activeGallery[0] || "";
+    return candidate && !brokenImageUrls[candidate] ? candidate : "";
   };
 
   const getForminhasPrice = (qty: number, style: string) => {
@@ -383,7 +394,13 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                   <>
                     <img
                       src={getProductImage()}
-                      alt={product.name}
+                      alt={safeProductName}
+                      onError={() => {
+                        const badUrl = getProductImage();
+                        if (badUrl) {
+                          setBrokenImageUrls((prev) => ({ ...prev, [badUrl]: true }));
+                        }
+                      }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover/mainimg:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -450,7 +467,10 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                       >
                         <img
                           src={imgUrl}
-                          alt={`${product.name} Thumbnail ${index + 1}`}
+                          alt={`${safeProductName} Thumbnail ${index + 1}`}
+                          onError={() =>
+                            setBrokenImageUrls((prev) => ({ ...prev, [imgUrl]: true }))
+                          }
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
                         />
@@ -505,8 +525,8 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                 <span className="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">Sob Encomenda</span>
               </div>
               
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-855 tracking-tight leading-tight">
-                {product.name}
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-855 tracking-tight leading-tight break-words">
+                {safeProductName}
               </h1>
 
               {/* High Contrast Dynamic Price Display */}
@@ -534,8 +554,8 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
               </div>
 
               {/* Concise and lovely description */}
-              <p className="font-sans text-xs sm:text-sm text-slate-500 leading-relaxed font-light">
-                {product.description}
+              <p className="font-sans text-xs sm:text-sm text-slate-500 leading-relaxed font-light break-words">
+                {safeProductDescription}
               </p>
             </div>
 
@@ -809,6 +829,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block">Nome do Aniversariante:</span>
                     <input
                       type="text"
+                      maxLength={60}
                       placeholder="Ex: Theo, Cecília (Opcional)"
                       value={personName}
                       onChange={(e) => setPersonName(e.target.value)}
@@ -820,6 +841,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                     <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block">Idade que irá fazer:</span>
                     <input
                       type="text"
+                      maxLength={30}
                       placeholder="Ex: 5 anos (Opcional)"
                       value={personAge}
                       onChange={(e) => setPersonAge(e.target.value)}
@@ -831,6 +853,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                 <div className="space-y-1">
                   <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block">Observações, Tema ou Cores Desejadas:</span>
                   <textarea
+                    maxLength={240}
                     placeholder="Ex: Gostaria no tema Safari, tons pastéis, favor colocar fita rosa..."
                     value={specialNotes}
                     onChange={(e) => setSpecialNotes(e.target.value)}
@@ -856,7 +879,7 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
                 <div className="space-y-0.5">
                   <p className="text-[10px] font-extrabold text-brand-pink uppercase tracking-widest">Resumo da Configuração</p>
                   <p className="font-serif text-lg font-bold tracking-tight">
-                    {quantity}x {isForminhas || isToppers || isKit ? "Pacote" : "Unidades de"} • {product.name}
+                    {quantity}x {isForminhas || isToppers || isKit ? "Pacote" : "Unidades de"} • {safeProductName}
                   </p>
                   <p className="font-sans text-[11px] text-slate-300">
                     Acabamento: {hasLacoOption ? (selectedLaco === "com-laco" ? "Com Laço Extra Luxo" : "Versão Clean Sem Laço") : isForminhas ? (forminhasStyle === "simples" ? "Forminha Simples" : "Premium com Aplique") : isToppers ? (toppersStyle === "simples" ? "Topper Simples" : "Dupla Camada") : "Geral"}
@@ -877,9 +900,13 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
               {/* Action operations grid */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
-                  href={`https://wa.me/${(data.whatsappNumber || "5561998889577").replace(/\D/g, "")}?text=${encodeURIComponent(
-                    `Olá! Vi o produto ${product.name} (R$ ${getCurrentUnitPrice().toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}) no site da DL Magic Paper e gostaria de fazer um orçamento.`
-                  )}`}
+                  href={buildSafeWhatsAppUrl(
+                    data.whatsappNumber,
+                    `Olá! Vi o produto ${safeProductName} (R$ ${getCurrentUnitPrice().toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}) no site da DL Magic Paper e gostaria de fazer um orçamento.`
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-3.5 px-5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-full font-sans font-bold text-xs sm:text-sm text-center shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
@@ -922,19 +949,28 @@ export default function ProductPage({ product, onBack, onAddProduct }: ProductPa
               </button>
               
               <div className="relative max-w-5xl max-h-[85vh] overflow-hidden rounded-2xl" onClick={(e) => e.stopPropagation()}>
-                <motion.img
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0.95 }}
-                  src={getProductImage()}
-                  alt={product.name}
-                  className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl"
-                  referrerPolicy="no-referrer"
-                />
+                {getProductImage() && (
+                  <motion.img
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0.95 }}
+                    src={getProductImage()}
+                    alt={safeProductName}
+                    onError={() => {
+                      const badUrl = getProductImage();
+                      if (badUrl) {
+                        setBrokenImageUrls((prev) => ({ ...prev, [badUrl]: true }));
+                      }
+                      setIsLightboxOpen(false);
+                    }}
+                    className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
                 
                 {/* Lightbox details */}
                 <div className="mt-3 text-white text-center font-sans text-xs">
-                  <p className="font-bold">{product.name}</p>
+                  <p className="font-bold">{safeProductName}</p>
                   <p className="text-[10px] text-white/60 mt-0.5">Toque fora da imagem para fechar</p>
                 </div>
               </div>

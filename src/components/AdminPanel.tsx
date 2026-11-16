@@ -34,20 +34,35 @@ export default function AdminPanel() {
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [loginError, setLoginError] = useState("");
-  const [newAdminUsername, setNewAdminUsername] = useState(data.adminUsername || "admin");
-  const [newAdminPassword, setNewAdminPassword] = useState(data.adminPassword || "admin123");
+  const [newAdminUsername, setNewAdminUsername] = useState(data.adminUsername || "Danyelle");
+  const [newAdminPassword, setNewAdminPassword] = useState(data.adminPassword || "Danyelle@2026");
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanUser = usernameInput.trim().toLowerCase();
     const cleanPass = passwordInput.trim();
 
-    const storedUser = (data.adminUsername || "admin").trim().toLowerCase();
-    const storedPass = (data.adminPassword || "admin123").trim();
+    if (cleanUser === "admin" || cleanPass === "admin123") {
+      setLoginError("Credenciais inválidas. O acesso padrão antigo foi desativado.");
+      return;
+    }
 
-    // Accepts either admin / admin123 or the stored credentials (including Danilau / Dani@784512)
-    const isValidUser = cleanUser === "admin" || cleanUser === "danilau" || cleanUser === storedUser;
-    const isValidPass = cleanPass === "admin123" || cleanPass === "Dani@784512" || cleanPass === storedPass;
+    const rawStoredUser = (data.adminUsername || "").trim();
+    const rawStoredPass = (data.adminPassword || "").trim();
+
+    const storedUser = (
+      rawStoredUser && rawStoredUser.toLowerCase() !== "admin" && rawStoredUser.toLowerCase() !== "danilau"
+        ? rawStoredUser
+        : "Danyelle"
+    ).toLowerCase();
+
+    const storedPass =
+      rawStoredPass && rawStoredPass !== "admin123" && rawStoredPass !== "Dani@784512"
+        ? rawStoredPass
+        : "Danyelle@2026";
+
+    const isValidUser = cleanUser === storedUser;
+    const isValidPass = cleanPass === storedPass;
 
     if (isValidUser && isValidPass) {
       setIsAdminLoggedIn(true);
@@ -149,8 +164,8 @@ export default function AdminPanel() {
       setWhatsappFormatted(data.whatsappFormatted);
       setInstagramHandle(data.instagramHandle);
       setInstagramUrl(data.instagramUrl);
-      setNewAdminUsername(data.adminUsername || "admin");
-      setNewAdminPassword(data.adminPassword || "admin123");
+      setNewAdminUsername(data.adminUsername || "Danyelle");
+      setNewAdminPassword(data.adminPassword || "Danyelle@2026");
       setComingSoonTitle(data.comingSoonTitle || "Nosso Novo Catálogo Está Chegando!");
       setComingSoonSubtitle(data.comingSoonSubtitle || "");
       setHeroTag(data.heroTexts.tag);
@@ -227,6 +242,13 @@ export default function AdminPanel() {
   // Handle generalized save settings
   const handleSaveGeneral = (e: React.FormEvent) => {
     e.preventDefault();
+    const sanitizedUser = newAdminUsername.trim();
+    const sanitizedPass = newAdminPassword.trim();
+    if (sanitizedUser.toLowerCase() === "admin" || sanitizedPass === "admin123") {
+      triggerToast("Não é permitido usar 'admin' ou 'admin123' como acesso administrativo.");
+      return;
+    }
+
     updateData({
       logo,
       heroImage,
@@ -237,8 +259,8 @@ export default function AdminPanel() {
       whatsappFormatted,
       instagramHandle,
       instagramUrl,
-      adminUsername: newAdminUsername,
-      adminPassword: newAdminPassword,
+      adminUsername: sanitizedUser || "Danyelle",
+      adminPassword: sanitizedPass || "Danyelle@2026",
       comingSoonTitle,
       comingSoonSubtitle
     });

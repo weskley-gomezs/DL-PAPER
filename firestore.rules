@@ -43,7 +43,7 @@ service cloud.firestore {
         && data.categoriaLinha is string
         && data.categoriaLinha in ['pessoal', 'corporativo', 'ambos']
         && (!('descricao' in data) || (data.descricao is string && data.descricao.size() <= 2000))
-        && (!('imagemUrl' in data) || (data.imagemUrl is string && data.imagemUrl.size() <= 2048))
+        && (!('imagemUrl' in data) || (data.imagemUrl is string && data.imagemUrl.size() <= 900000))
         && (!('exibirNoSite' in data) || data.exibirNoSite is bool);
     }
 
@@ -64,6 +64,95 @@ service cloud.firestore {
           'exibirNoSite'
         ]);
       allow delete: if isAdmin() && isValidId(produtoId);
+    }
+
+    function isValidSiteConfigSection(sectionId) {
+      return isValidId(sectionId) && sectionId in ['geral', 'banners', 'testimonials', 'galleries', 'themes'];
+    }
+
+    function isValidGeralPayload(data) {
+      return data.keys().hasOnly([
+          'logo',
+          'heroImage',
+          'heroVideo',
+          'aboutImage',
+          'partyFavorsImage',
+          'whatsappNumber',
+          'whatsappFormatted',
+          'instagramHandle',
+          'instagramUrl',
+          'isComingSoon',
+          'comingSoonTitle',
+          'comingSoonSubtitle',
+          'heroTexts',
+          'aboutTexts',
+          'updatedAt'
+        ])
+        && data.updatedAt is number
+        && data.updatedAt > 0
+        && (!('logo' in data) || (data.logo is string && data.logo.size() <= 900000))
+        && (!('heroImage' in data) || (data.heroImage is string && data.heroImage.size() <= 900000))
+        && (!('heroVideo' in data) || (data.heroVideo is string && data.heroVideo.size() <= 2048))
+        && (!('aboutImage' in data) || (data.aboutImage is string && data.aboutImage.size() <= 900000))
+        && (!('partyFavorsImage' in data) || (data.partyFavorsImage is string && data.partyFavorsImage.size() <= 900000))
+        && (!('whatsappNumber' in data) || (data.whatsappNumber is string && data.whatsappNumber.size() <= 30))
+        && (!('whatsappFormatted' in data) || (data.whatsappFormatted is string && data.whatsappFormatted.size() <= 40))
+        && (!('instagramHandle' in data) || (data.instagramHandle is string && data.instagramHandle.size() <= 80))
+        && (!('instagramUrl' in data) || (data.instagramUrl is string && data.instagramUrl.size() <= 512))
+        && (!('isComingSoon' in data) || data.isComingSoon is bool)
+        && (!('comingSoonTitle' in data) || (data.comingSoonTitle is string && data.comingSoonTitle.size() <= 200))
+        && (!('comingSoonSubtitle' in data) || (data.comingSoonSubtitle is string && data.comingSoonSubtitle.size() <= 1000))
+        && (!('heroTexts' in data) || data.heroTexts is map)
+        && (!('aboutTexts' in data) || data.aboutTexts is map);
+    }
+
+    function isValidItemsSectionPayload(data) {
+      return data.keys().hasAll(['items', 'updatedAt'])
+        && data.keys().hasOnly(['items', 'updatedAt'])
+        && data.updatedAt is number
+        && data.updatedAt > 0
+        && data.items is list
+        && data.items.size() <= 50;
+    }
+
+    function isValidGalleriesPayload(data) {
+      return data.keys().hasOnly(['feminina', 'masculina', 'updatedAt'])
+        && data.updatedAt is number
+        && data.updatedAt > 0
+        && (!('feminina' in data) || (data.feminina is list && data.feminina.size() <= 40))
+        && (!('masculina' in data) || (data.masculina is list && data.masculina.size() <= 40));
+    }
+
+    function isValidSiteConfigPayload(data, sectionId) {
+      return (sectionId == 'geral' && isValidGeralPayload(data))
+        || (sectionId in ['banners', 'testimonials', 'themes'] && isValidItemsSectionPayload(data))
+        || (sectionId == 'galleries' && isValidGalleriesPayload(data));
+    }
+
+    // Storefront visual configuration sections (geral, banners, testimonials, galleries, themes)
+    match /site_config/{sectionId} {
+      allow get: if isValidSiteConfigSection(sectionId);
+      allow list: if false;
+      allow create: if isAdmin()
+        && isValidSiteConfigSection(sectionId)
+        && isValidSiteConfigPayload(incoming(), sectionId);
+      allow update: if isAdmin()
+        && isValidSiteConfigSection(sectionId)
+        && isValidSiteConfigPayload(incoming(), sectionId)
+        && (
+          (sectionId == 'geral' && incoming().diff(existing()).affectedKeys().hasOnly([
+            'logo', 'heroImage', 'heroVideo', 'aboutImage', 'partyFavorsImage',
+            'whatsappNumber', 'whatsappFormatted', 'instagramHandle', 'instagramUrl',
+            'isComingSoon', 'comingSoonTitle', 'comingSoonSubtitle', 'heroTexts', 'aboutTexts', 'updatedAt'
+          ])) ||
+          (sectionId == 'galleries' && incoming().diff(existing()).affectedKeys().hasOnly([
+            'feminina', 'masculina', 'updatedAt'
+          ])) ||
+          (sectionId in ['banners', 'testimonials', 'themes'] && incoming().diff(existing()).affectedKeys().hasOnly([
+            'items', 'updatedAt'
+          ]))
+        );
+      allow delete: if false;
     }
 
     // Admin lookup collection (read-only by owner UID)

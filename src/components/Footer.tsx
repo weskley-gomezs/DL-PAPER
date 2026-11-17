@@ -1,7 +1,7 @@
 import React from "react";
 import { Instagram, MessageCircle, Heart, Lock } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
-import { buildSafeWhatsAppUrl, isStrictHttpsUrl } from "../lib/security";
+import { buildSafeWhatsAppUrl, getSafeImageUrl } from "../lib/security";
 
 export default function Footer() {
   const { data, setIsAdminOpen } = useAppContext();
@@ -53,7 +53,7 @@ export default function Footer() {
           <div className="md:col-span-5 space-y-4 text-left">
             <div className="flex items-center">
               <img 
-                src={isStrictHttpsUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"} 
+                src={getSafeImageUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-24 h-24 sm:w-28 sm:h-28 object-contain bg-white/10 p-2 rounded-2xl border border-white/15"
                 referrerPolicy="no-referrer"

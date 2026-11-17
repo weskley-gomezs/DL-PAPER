@@ -2,10 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Calendar, Heart, Palette } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 export default function ThemesGallery() {
   const { data } = useAppContext();
   const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
+  const [brokenThemes, setBrokenThemes] = useState<Record<string, boolean>>({});
 
   return (
     <section id="temas" className="py-20 lg:py-28 bg-brand-pastel-bg/50 relative overflow-hidden">
@@ -45,12 +47,21 @@ export default function ThemesGallery() {
                 id={`theme_card_${theme.id}`}
               >
                 {/* Background image */}
-                <img
-                  src={theme.image}
-                  alt={theme.name}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
-                  referrerPolicy="no-referrer"
-                />
+                {getSafeImageUrl(theme.image) && !brokenThemes[theme.id] ? (
+                  <img
+                    src={getSafeImageUrl(theme.image)}
+                    alt={theme.name}
+                    onError={() =>
+                      setBrokenThemes((prev) => ({ ...prev, [theme.id]: true }))
+                    }
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-pink-100 via-white to-amber-50 flex items-center justify-center">
+                    <Palette className="w-10 h-10 text-brand-pink/40" />
+                  </div>
+                )}
 
                 {/* Dark/color subtle overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent transition-opacity" />

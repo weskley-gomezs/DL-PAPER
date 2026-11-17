@@ -2,13 +2,17 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Heart, ZoomIn, X, ChevronLeft, ChevronRight, Star, Sparkles } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 export default function Testimonials() {
   const { data } = useAppContext();
   const [likes, setLikes] = useState<Record<string, boolean>>({});
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [brokenPrints, setBrokenPrints] = useState<Record<string, boolean>>({});
 
-  const testimonialImages = data.testimonialPrints || [];
+  const testimonialImages = (data.testimonialPrints || []).filter((item) =>
+    Boolean(getSafeImageUrl(item.url))
+  );
 
   const toggleLike = (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Avoid triggering lightbox
@@ -63,12 +67,21 @@ export default function Testimonials() {
             >
               {/* Image Container with high quality presentation in dark mode styling to blend with WhatsApp dark screenshot background */}
               <div className="relative rounded-[1.5rem] bg-[#0b141a] border border-slate-100 overflow-hidden flex-1 flex items-center justify-center aspect-[9/16]">
-                <img 
-                  src={item.url} 
-                  alt={item.alt}
-                  className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                  referrerPolicy="no-referrer"
-                />
+                {!brokenPrints[item.id] ? (
+                  <img 
+                    src={getSafeImageUrl(item.url)} 
+                    alt={item.alt}
+                    onError={() =>
+                      setBrokenPrints((prev) => ({ ...prev, [item.id]: true }))
+                    }
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="text-xs text-white/60 font-sans px-4 text-center">
+                    Imagem indisponível
+                  </span>
+                )}
                 
                 {/* Overlay Glass effect with Action Indicator */}
                 <div className="absolute inset-0 bg-[#3A2439]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -158,7 +171,7 @@ export default function Testimonials() {
               {testimonialImages[selectedImageIndex] && (
                 <div className="bg-white/5 p-2 rounded-3xl border border-white/10 shadow-2xl overflow-hidden max-h-[75vh] flex items-center justify-center">
                   <img 
-                    src={testimonialImages[selectedImageIndex].url} 
+                    src={getSafeImageUrl(testimonialImages[selectedImageIndex].url)} 
                     alt={testimonialImages[selectedImageIndex].alt}
                     className="max-h-[70vh] w-auto object-contain rounded-2xl"
                     referrerPolicy="no-referrer"

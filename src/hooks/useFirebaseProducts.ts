@@ -13,7 +13,7 @@ import {
   OperationType,
 } from "../lib/firebase";
 import {
-  isStrictHttpsUrl,
+  isSafeImageSource,
   isValidPositivePrice,
   sanitizePlainText,
 } from "../lib/security";
@@ -21,9 +21,28 @@ import { Product, ProductSegment } from "../types";
 
 const SESSION_CACHE_KEY = "dl_magic_paper_produtos_cache_v2";
 const LAST_FETCH_KEY = "dl_magic_paper_produtos_last_fetch_v2";
+const PRODUTOS_UPDATED_EVENT = "dl_magic_paper_produtos_updated";
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos
 const FETCH_COOLDOWN_MS = 15 * 1000; // Rate limit cliente mínimo entre consultas (15s)
 const FIRESTORE_TIMEOUT_MS = 12000; // Evita loading infinito
+
+export function clearProdutosSessionCache(): void {
+  try {
+    window.sessionStorage.removeItem(SESSION_CACHE_KEY);
+    window.sessionStorage.removeItem(LAST_FETCH_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+export function notifyProdutosUpdated(): void {
+  clearProdutosSessionCache();
+  try {
+    window.dispatchEvent(new CustomEvent(PRODUTOS_UPDATED_EVENT));
+  } catch {
+    // ignore
+  }
+}
 
 export const MAX_PRODUCT_NAME_LENGTH = 90;
 export const MAX_PRODUCT_DESCRIPTION_LENGTH = 280;
@@ -102,8 +121,8 @@ function buildSanitizedProduct(params: {
     MAX_PRODUCT_DESCRIPTION_LENGTH,
     DEFAULT_DESCRIPTION
   );
-  // Exige estritamente https:// (bloqueia javascript:, data:, http:, etc.)
-  const imagemUrl = isStrictHttpsUrl(params.imagemUrl);
+  // Aceita URL https:// ou fallback seguro Base64 raster comprimido (bloqueando javascript:/svg/html)
+  const imagemUrl = isSafeImageSource(params.imagemUrl, false);
 
   return {
     id: safeId,
@@ -280,21 +299,33 @@ export function useFirebaseProducts(): UseFirebaseProductsResult {
   const [rateLimited, setRateLimited] = useState<boolean>(false);
   const [reloadToken, setReloadToken] = useState<number>(0);
 
-  const refreshProducts = useCallback(() => {
-    // Rate limit de cliente: bloqueia rajadas de atualização ao Firestore
+  const refreshProducts = useCallback((bypassCooldown?: unknown) => {
+    // Rate limit de cliente: bloqueia rajadas manuais, mas permite reload imediato após edição no ADM
+    const forceBypass = bypassCooldown === true;
     const lastFetch = readLastFetchTimestamp();
-    if (inFlightProdutosPromise || Date.now() - lastFetch < FETCH_COOLDOWN_MS) {
+    if (
+      !forceBypass &&
+      (inFlightProdutosPromise || Date.now() - lastFetch < FETCH_COOLDOWN_MS)
+    ) {
       setRateLimited(true);
       return;
     }
 
     setRateLimited(false);
-    try {
-      window.sessionStorage.removeItem(SESSION_CACHE_KEY);
-    } catch {
-      // ignore
-    }
+    clearProdutosSessionCache();
     setReloadToken((prev) => prev + 1);
+  }, []);
+
+  useEffect(() => {
+    const handleExternalUpdate = () => {
+      clearProdutosSessionCache();
+      setRateLimited(false);
+      setReloadToken((prev) => prev + 1);
+    };
+    window.addEventListener(PRODUTOS_UPDATED_EVENT, handleExternalUpdate);
+    return () => {
+      window.removeEventListener(PRODUTOS_UPDATED_EVENT, handleExternalUpdate);
+    };
   }, []);
 
   useEffect(() => {

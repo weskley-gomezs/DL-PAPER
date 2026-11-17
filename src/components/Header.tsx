@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Instagram, Menu, X, Heart, ShoppingBag, Settings, ArrowLeft, PartyPopper, Briefcase } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 interface HeaderProps {
   onOpenBudgetSidebar: () => void;
@@ -103,7 +104,7 @@ export default function Header({
               id="header_logo"
             >
               <img 
-                src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
+                src={getSafeImageUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"} 
                 alt="DL Magic Paper Logo" 
                 className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain group-hover:scale-105 active:scale-95 transition-all duration-300 shrink-0"
                 referrerPolicy="no-referrer"

@@ -21,7 +21,7 @@ import {
 } from "../hooks/useFirebaseProducts";
 import {
   buildSafeWhatsAppUrl,
-  isStrictHttpsUrl,
+  isSafeImageSource,
   isValidPositivePrice,
   sanitizePlainText,
 } from "../lib/security";
@@ -379,7 +379,7 @@ export default function ProductsCatalog({
                     {filteredProducts.map((product) => {
                       const badgeInfo = getLineBadgeInfo(product.segment);
                       const finalPrice = product.precoVenda ?? product.minPrice ?? 0;
-                      const safeImageUrl = isStrictHttpsUrl(product.image);
+                      const safeImageUrl = isSafeImageSource(product.image, false);
                       const hasValidImage =
                         Boolean(safeImageUrl) && !brokenImages[product.id];
                       const safeName = sanitizePlainText(

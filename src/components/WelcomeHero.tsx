@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles, ArrowRight, Heart, ShoppingBag, PackageOpen, Gift, Cake, MessageCircle } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 interface WelcomeHeroProps {
   onSelectCategory?: (category: string) => void;
@@ -54,7 +55,7 @@ export default function WelcomeHero({
           {/* Logo Badge */}
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-2 shadow-md shadow-[#E8527A]/10 border-2 border-white flex items-center justify-center transition-transform hover:scale-105">
             <img 
-              src={data.logo || "https://i.imgur.com/LiPwTKg.png"} 
+              src={getSafeImageUrl(data.logo) || "https://i.imgur.com/LiPwTKg.png"} 
               alt="DL Magic Paper" 
               className="w-full h-full object-contain"
               referrerPolicy="no-referrer"

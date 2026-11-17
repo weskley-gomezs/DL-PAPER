@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
-  Sparkles, 
   ArrowRight, 
   Heart, 
   ChevronLeft, 
@@ -11,11 +10,10 @@ import {
   PartyPopper,
   Briefcase,
   CheckCircle2,
-  Gift,
-  Building2,
   Star
 } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 interface HeroProps {
   onOpenBudgetSidebar: () => void;
@@ -30,8 +28,6 @@ export default function Hero({
 }: HeroProps) {
   const { data } = useAppContext();
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  const masterHeroBanner = data.heroImage || "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
 
   const promotionalBanners =
     data.heroBanners && data.heroBanners.length > 0
@@ -114,7 +110,7 @@ export default function Hero({
             className="relative w-full rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-white group"
             id="hero_main_dual_banner"
           >
-            {/* Vídeo do Banner Hero Principal em Alta Resolução */}
+            {/* Vídeo do Banner Hero Principal em Alta Resolução — Limpo sem textos sobrepostos */}
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#FFF6F0]">
               <video
                 autoPlay
@@ -128,34 +124,6 @@ export default function Hero({
                 <source src="/hero_video.mp4" type="video/mp4" />
                 Seu navegador não suporta a reprodução deste vídeo.
               </video>
-
-              {/* Indicadores Visuais Sutis sobre as duas metades da foto */}
-              <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 sm:p-6 bg-gradient-to-t from-black/40 via-transparent to-black/20 sm:to-transparent">
-                {/* Top Labels */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="inline-flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full border border-[#E8527A]/30 shadow-md">
-                    <PartyPopper className="w-3.5 h-3.5 text-[#E8527A]" />
-                    <span className="font-sans text-[11px] sm:text-xs font-bold text-[#E8527A] tracking-wide">
-                      Linha Festas
-                    </span>
-                  </div>
-
-                  <div className="inline-flex items-center gap-1.5 bg-[#3A2439]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full border border-white/20 shadow-md">
-                    <Briefcase className="w-3.5 h-3.5 text-[#FFC947]" />
-                    <span className="font-sans text-[11px] sm:text-xs font-bold text-white tracking-wide">
-                      Linha Corporativa
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom Caption Pill */}
-                <div className="text-center">
-                  <span className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/40 shadow-sm text-[11px] sm:text-xs font-medium text-[#3A2439]">
-                    <Sparkles className="w-3 h-3 text-[#E8527A]" />
-                    <span>Selecione abaixo qual segmento você deseja explorar</span>
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -338,7 +306,10 @@ export default function Hero({
             <AnimatePresence initial={false} mode="wait">
               <motion.img
                 key={promotionalBanners[safeSlide].id || safeSlide}
-                src={promotionalBanners[safeSlide].src}
+                src={
+                  getSafeImageUrl(promotionalBanners[safeSlide].src) ||
+                  "/src/assets/images/kit_caixas_classicas_1794613744144.jpg"
+                }
                 alt={promotionalBanners[safeSlide].title}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

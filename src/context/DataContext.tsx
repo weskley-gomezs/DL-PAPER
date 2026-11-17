@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Product, ThemeItem, HeroBannerItem, TestimonialPrintItem } from "../types";
 import {
   PRODUCTS as DEFAULT_PRODUCTS,
@@ -9,6 +9,11 @@ import {
   INSTAGRAM_URL as DEFAULT_INSTAGRAM_URL,
   CATEGORIES as DEFAULT_CATEGORIES
 } from "../data";
+import {
+  loadSiteConfigFromFirestore,
+  saveSiteConfigToFirestore,
+} from "../lib/siteFirestore";
+import { clearProdutosSessionCache } from "../hooks/useFirebaseProducts";
 
 export interface HeroTexts {
   tag: string;
@@ -54,17 +59,23 @@ export interface AppDataState {
   comingSoonSubtitle?: string;
 }
 
+export interface PersistResult {
+  ok: boolean;
+  firestoreSaved: boolean;
+  error?: string;
+}
+
 interface DataContextType {
   data: AppDataState;
-  updateData: (newData: Partial<AppDataState>) => void;
-  updateHeroTexts: (texts: Partial<HeroTexts>) => void;
-  updateAboutTexts: (texts: Partial<AboutTexts>) => void;
+  updateData: (newData: Partial<AppDataState>) => Promise<PersistResult>;
+  updateHeroTexts: (texts: Partial<HeroTexts>) => Promise<PersistResult>;
+  updateAboutTexts: (texts: Partial<AboutTexts>) => Promise<PersistResult>;
   addProduct: (product: Omit<Product, "id">) => void;
   updateProduct: (id: string, updatedProduct: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  addTheme: (theme: Omit<ThemeItem, "id">) => void;
-  updateTheme: (id: string, updatedTheme: Partial<ThemeItem>) => void;
-  deleteTheme: (id: string) => void;
+  addTheme: (theme: Omit<ThemeItem, "id">) => Promise<PersistResult>;
+  updateTheme: (id: string, updatedTheme: Partial<ThemeItem>) => Promise<PersistResult>;
+  deleteTheme: (id: string) => Promise<PersistResult>;
   resetAll: () => void;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
@@ -169,8 +180,47 @@ const defaultState: AppDataState = {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+function persistToLocalStorageSafe(state: AppDataState): void {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Se exceder a cota de localStorage por imagens Base64 grandes, salva textos e URLs HTTPS localmente
+    // enquanto o Cloud Firestore mantém as imagens completas em Base64.
+    try {
+      const stripDataUrl = (val: string) =>
+        typeof val === "string" && val.startsWith("data:") ? "" : val;
+      const lightweight: AppDataState = {
+        ...state,
+        logo: stripDataUrl(state.logo) || defaultState.logo,
+        heroImage: stripDataUrl(state.heroImage) || defaultState.heroImage,
+        aboutImage: stripDataUrl(state.aboutImage) || defaultState.aboutImage,
+        partyFavorsImage:
+          stripDataUrl(state.partyFavorsImage) || defaultState.partyFavorsImage,
+        heroBanners: state.heroBanners.filter((b) => !b.src?.startsWith("data:")),
+        testimonialPrints: state.testimonialPrints.filter(
+          (t) => !t.url?.startsWith("data:")
+        ),
+        kitGalleryFeminina: state.kitGalleryFeminina.filter(
+          (u) => !u.startsWith("data:")
+        ),
+        kitGalleryMasculina: state.kitGalleryMasculina.filter(
+          (u) => !u.startsWith("data:")
+        ),
+        themes: state.themes.map((t) => ({
+          ...t,
+          image: stripDataUrl(t.image),
+        })),
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lightweight));
+    } catch (innerErr) {
+      console.error("Failed to save changes to localStorage", innerErr);
+    }
+  }
+}
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [data, setData] = useState<AppDataState>(defaultState);
+  const dataRef = useRef<AppDataState>(defaultState);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedInState] = useState<boolean>(() => {
     try {
@@ -194,6 +244,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let localMerged: AppDataState = { ...defaultState };
+
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
@@ -223,8 +275,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               : [...defaultState.kitGalleryMasculina]
         };
 
-        // One-time migration from v1 to v2 to clear old copyrighted product/theme URLs,
-        // while preserving any future edits (v2+) the admin makes to all products & themes!
         if ((parsed.dataVersion || 1) < CURRENT_DATA_VERSION) {
           const customProducts = (parsed.products || []).filter(
             (p: Product) => p.id && p.id.startsWith("custom-prod-")
@@ -309,100 +359,189 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           merged.adminPassword = "Danyelle@2026";
         }
 
+        localMerged = merged;
+        dataRef.current = merged;
         setData(merged);
       }
     } catch (e) {
       console.error("Failed to load local storage dynamic settings", e);
     }
+
+    // Sincroniza com o Cloud Firestore ao iniciar para restaurar imagens salvas na nuvem
+    let mounted = true;
+    void loadSiteConfigFromFirestore().then((cloudConfig) => {
+      if (!mounted || !cloudConfig) return;
+      setData((prev) => {
+        const next: AppDataState = {
+          ...localMerged,
+          ...prev,
+          ...cloudConfig,
+          heroTexts: {
+            ...prev.heroTexts,
+            ...(cloudConfig.heroTexts || {}),
+          },
+          aboutTexts: {
+            ...prev.aboutTexts,
+            ...(cloudConfig.aboutTexts || {}),
+          },
+        };
+        dataRef.current = next;
+        persistToLocalStorageSafe(next);
+        return next;
+      });
+    });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const saveState = (newState: AppDataState) => {
-    const withVersion = { ...newState, dataVersion: CURRENT_DATA_VERSION };
-    setData(withVersion);
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(withVersion));
-    } catch (e) {
-      console.error("Failed to save changes to localStorage", e);
-    }
+  const applyAndPersistState = async (
+    updater: (prev: AppDataState) => AppDataState,
+    firestorePatch?: (next: AppDataState) => Partial<AppDataState>
+  ): Promise<PersistResult> => {
+    const nextState: AppDataState = {
+      ...updater(dataRef.current),
+      dataVersion: CURRENT_DATA_VERSION,
+    };
+    dataRef.current = nextState;
+    setData(nextState);
+    persistToLocalStorageSafe(nextState);
+    clearProdutosSessionCache();
+
+    const patchToSave = firestorePatch ? firestorePatch(nextState) : nextState;
+    const cloudResult = await saveSiteConfigToFirestore(patchToSave);
+
+    return {
+      ok: true,
+      firestoreSaved: cloudResult.ok,
+      error: cloudResult.error,
+    };
   };
 
   const updateData = (newData: Partial<AppDataState>) => {
-    saveState({ ...data, ...newData });
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        ...newData,
+        heroTexts: newData.heroTexts
+          ? { ...prev.heroTexts, ...newData.heroTexts }
+          : prev.heroTexts,
+        aboutTexts: newData.aboutTexts
+          ? { ...prev.aboutTexts, ...newData.aboutTexts }
+          : prev.aboutTexts,
+      }),
+      () => newData
+    );
   };
 
   const updateHeroTexts = (texts: Partial<HeroTexts>) => {
-    saveState({
-      ...data,
-      heroTexts: { ...data.heroTexts, ...texts }
-    });
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        heroTexts: { ...prev.heroTexts, ...texts },
+      }),
+      (next) => ({ heroTexts: next.heroTexts })
+    );
   };
 
   const updateAboutTexts = (texts: Partial<AboutTexts>) => {
-    saveState({
-      ...data,
-      aboutTexts: { ...data.aboutTexts, ...texts }
-    });
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        aboutTexts: { ...prev.aboutTexts, ...texts },
+      }),
+      (next) => ({ aboutTexts: next.aboutTexts })
+    );
   };
 
   const addProduct = (newProd: Omit<Product, "id">) => {
     const id = "custom-prod-" + Date.now();
     const productWithId: Product = { ...newProd, id };
-    saveState({
-      ...data,
-      products: [...data.products, productWithId]
+    setData((prev) => {
+      const next = {
+        ...prev,
+        dataVersion: CURRENT_DATA_VERSION,
+        products: [...prev.products, productWithId],
+      };
+      dataRef.current = next;
+      persistToLocalStorageSafe(next);
+      return next;
     });
   };
 
   const updateProduct = (id: string, updatedFields: Partial<Product>) => {
-    const updatedProducts = data.products.map(p =>
-      p.id === id ? { ...p, ...updatedFields } : p
-    );
-    saveState({
-      ...data,
-      products: updatedProducts
+    setData((prev) => {
+      const next = {
+        ...prev,
+        dataVersion: CURRENT_DATA_VERSION,
+        products: prev.products.map((p) =>
+          p.id === id ? { ...p, ...updatedFields } : p
+        ),
+      };
+      dataRef.current = next;
+      persistToLocalStorageSafe(next);
+      return next;
     });
   };
 
   const deleteProduct = (id: string) => {
-    saveState({
-      ...data,
-      products: data.products.filter(p => p.id !== id)
+    setData((prev) => {
+      const next = {
+        ...prev,
+        dataVersion: CURRENT_DATA_VERSION,
+        products: prev.products.filter((p) => p.id !== id),
+      };
+      dataRef.current = next;
+      persistToLocalStorageSafe(next);
+      return next;
     });
   };
 
   const addTheme = (newTheme: Omit<ThemeItem, "id">) => {
     const id = "custom-theme-" + Date.now();
     const themeWithId: ThemeItem = { ...newTheme, id };
-    saveState({
-      ...data,
-      themes: [...data.themes, themeWithId]
-    });
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        themes: [...prev.themes, themeWithId],
+      }),
+      (next) => ({ themes: next.themes })
+    );
   };
 
   const updateTheme = (id: string, updatedFields: Partial<ThemeItem>) => {
-    const updatedThemes = data.themes.map(t =>
-      t.id === id ? { ...t, ...updatedFields } : t
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        themes: prev.themes.map((t) =>
+          t.id === id ? { ...t, ...updatedFields } : t
+        ),
+      }),
+      (next) => ({ themes: next.themes })
     );
-    saveState({
-      ...data,
-      themes: updatedThemes
-    });
   };
 
   const deleteTheme = (id: string) => {
-    saveState({
-      ...data,
-      themes: data.themes.filter(t => t.id !== id)
-    });
+    return applyAndPersistState(
+      (prev) => ({
+        ...prev,
+        themes: prev.themes.filter((t) => t.id !== id),
+      }),
+      (next) => ({ themes: next.themes })
+    );
   };
 
   const resetAll = () => {
+    dataRef.current = defaultState;
     setData(defaultState);
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
+      clearProdutosSessionCache();
     } catch (e) {
       console.error(e);
     }
+    void saveSiteConfigToFirestore(defaultState);
   };
 
   return (

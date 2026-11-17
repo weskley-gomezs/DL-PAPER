@@ -27,8 +27,8 @@
         },
         "imagemUrl": {
           "type": "string",
-          "description": "URL opcional da imagem do produto",
-          "maxLength": 2048
+          "description": "URL do Firebase Storage ou Base64 comprimido de fallback da imagem do produto",
+          "maxLength": 900000
         },
         "exibirNoSite": {
           "type": "boolean",
@@ -36,6 +36,17 @@
         }
       },
       "required": ["nome", "precoVenda", "categoriaLinha"]
+    },
+    "SiteConfigSection": {
+      "title": "SiteConfigSection",
+      "description": "Seções de configuração visual e institucional do site DL Magic Paper (geral, banners, testimonials, galleries, themes).",
+      "type": "object",
+      "properties": {
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp da última atualização"
+        }
+      }
     }
   },
   "firestore": {
@@ -44,6 +55,12 @@
         "$ref": "#/entities/Produto"
       },
       "description": "Coleção pública de produtos sincronizados com o DL Sistema para exibição em tempo real no catálogo."
+    },
+    "/site_config/{sectionId}": {
+      "schema": {
+        "$ref": "#/entities/SiteConfigSection"
+      },
+      "description": "Documentos de configuração do site (geral, banners, testimonials, galleries, themes) com suporte a URLs do Storage e fallback Base64."
     }
   }
 }

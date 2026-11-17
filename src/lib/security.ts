@@ -5,6 +5,10 @@ const MAX_URL_LENGTH = 2048;
 const UNSAFE_TEXT_CHARS_RE = /[\u0000-\u001F\u007F\u202A-\u202E\u2066-\u2069]/g;
 const UNSAFE_TEXT_CHARS_CHECK_RE = /[\u0000-\u001F\u007F\u202A-\u202E\u2066-\u2069]/;
 const SAFE_LOCAL_ASSET_RE = /^\/src\/assets\/images\/[a-zA-Z0-9._-]+$/;
+const SAFE_PUBLIC_ASSET_RE = /^\/[a-zA-Z0-9._/-]+\.(png|jpg|jpeg|webp|gif)$/i;
+const SAFE_RASTER_DATA_URL_RE =
+  /^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/i;
+const MAX_DATA_URL_LENGTH = 900_000;
 
 /**
  * Validates that an external URL uses strictly the https:// protocol.
@@ -32,17 +36,41 @@ export function isStrictHttpsUrl(value: unknown): string {
 }
 
 /**
- * Allows either a strict https:// URL or a known local static asset inside /src/assets/images/.
- * Used by UI components that render both Firebase products and static catalog gallery assets.
+ * Validates safe image sources:
+ * - Strict https:// URLs (e.g. Firebase Storage downloadURLs)
+ * - Safe compressed raster Base64 data URLs (jpeg/png/webp only; blocks svg+xml, html, javascript:)
+ * - Optionally safe local static assets inside /src/assets/images/ or /public/
  */
-export function getSafeImageUrl(value: unknown): string {
+export function isSafeImageSource(
+  value: unknown,
+  allowLocalAssets = false
+): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim();
   if (!trimmed) return "";
-  if (SAFE_LOCAL_ASSET_RE.test(trimmed)) {
+
+  if (
+    trimmed.length <= MAX_DATA_URL_LENGTH &&
+    SAFE_RASTER_DATA_URL_RE.test(trimmed)
+  ) {
     return trimmed;
   }
+
+  if (
+    allowLocalAssets &&
+    (SAFE_LOCAL_ASSET_RE.test(trimmed) || SAFE_PUBLIC_ASSET_RE.test(trimmed))
+  ) {
+    return trimmed;
+  }
+
   return isStrictHttpsUrl(trimmed);
+}
+
+/**
+ * Allows strict https:// URLs, safe raster Base64 fallbacks, or local static assets.
+ */
+export function getSafeImageUrl(value: unknown): string {
+  return isSafeImageSource(value, true);
 }
 
 /**

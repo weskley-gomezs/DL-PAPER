@@ -1,6 +1,7 @@
 import React from "react";
 import { Sparkles, Heart } from "lucide-react";
 import { useAppContext } from "../context/DataContext";
+import { getSafeImageUrl } from "../lib/security";
 
 export default function About() {
   const { data } = useAppContext();
@@ -22,7 +23,7 @@ export default function About() {
               
               <div className="relative rounded-[2.5rem] overflow-hidden border-4 border-white bg-white shadow-2xl aspect-square lg:aspect-[4/5]">
                 <img
-                  src={data.aboutImage || "https://i.imgur.com/nsjJjnO.jpeg"}
+                  src={getSafeImageUrl(data.aboutImage) || "https://i.imgur.com/nsjJjnO.jpeg"}
                   alt="Danyelle Lau - Quem Faz com Amor e Propósito"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"

@@ -7,6 +7,7 @@ import {
   initializeFirestore,
   Firestore,
 } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import appletFirebaseConfig from "../../firebase-applet-config.json";
 
 // =============================================================================
@@ -24,6 +25,7 @@ const FIREBASE_API_KEY = (
 
 const FIREBASE_APP_ID = (
   import.meta.env.VITE_FIREBASE_APP_ID ||
+  appletFirebaseConfig.appId ||
   "1:1062844818476:web:b1a04a13bfafc2ae781d89"
 ).trim();
 
@@ -52,10 +54,23 @@ function initNamedFirestore(databaseId: string): Firestore {
   }
 }
 
-// Aponta explicitamente para o banco de dados nomeado do DL Sistema (não usa "(default)")
+// Aponta explicitamente para o banco de dados nomeado do DL Sistema (produtos)
 export const db = initNamedFirestore(DL_SISTEMA_DATABASE_ID);
 
+// Banco de dados provisionado para este app (site_config, test/connection e regras gerenciadas pelo app)
+export const APPLET_DATABASE_ID =
+  appletFirebaseConfig.firestoreDatabaseId || "(default)";
+export const appletDb =
+  APPLET_DATABASE_ID === DL_SISTEMA_DATABASE_ID
+    ? db
+    : initNamedFirestore(APPLET_DATABASE_ID);
+
 export const auth = getAuth(firebaseApp);
+
+export const storage = getStorage(
+  firebaseApp,
+  `gs://${firebaseConfig.storageBucket}`
+);
 
 export enum OperationType {
   CREATE = "create",
@@ -124,14 +139,14 @@ export function handleFirestoreError(
 // Teste de conectividade com o servidor Firestore
 export async function testConnection(): Promise<void> {
   try {
-    await getDocFromServer(doc(db, "test", "connection"));
+    await getDocFromServer(doc(appletDb, "test", "connection"));
   } catch (error) {
     if (
       error instanceof Error &&
       error.message.includes("the client is offline")
     ) {
       console.error(
-        `Não foi possível conectar ao Firestore (${DL_SISTEMA_DATABASE_ID}). Verifique sua configuração do Firebase.`
+        `Não foi possível conectar ao Firestore (${APPLET_DATABASE_ID}). Verifique sua configuração do Firebase.`
       );
     }
   }

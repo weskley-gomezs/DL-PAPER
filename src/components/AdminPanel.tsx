@@ -36,6 +36,7 @@ import { getSafeImageUrl } from "../lib/security";
 import {
   saveProductToFirestore,
   deleteProductFromFirestore,
+  getDlSistemaReadStatus,
 } from "../lib/siteFirestore";
 import {
   clearProdutosSessionCache,
@@ -48,7 +49,7 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, DL_SISTEMA_DATABASE_ID } from "../lib/firebase";
 
 interface AdminThumbProps {
   src?: string;
@@ -148,10 +149,14 @@ export default function AdminPanel() {
   const [isSaving, setIsSaving] = useState(false);
   const [firebaseUser, setFirebaseUser] = useState<User | null>(auth.currentUser);
   const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
+  const [cloudErrorAlert, setCloudErrorAlert] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
+      if (user) {
+        setCloudErrorAlert(null);
+      }
     });
     return () => unsub();
   }, []);
@@ -285,6 +290,15 @@ export default function AdminPanel() {
       setAboutParagraph2(data.aboutTexts.paragraph2);
       setAboutParagraph3(data.aboutTexts.paragraph3 || "");
       setAboutFloatingText(data.aboutTexts.floatingText);
+
+      const readStatus = getDlSistemaReadStatus();
+      if (readStatus.permissionDeniedOnDlSistema) {
+        setCloudErrorAlert(
+          `O banco "${DL_SISTEMA_DATABASE_ID}" ainda está bloqueando leitura pública em: ${readStatus.deniedPaths.join(
+            ", "
+          )}. No Firebase Console -> Firestore Database -> selecione exatamente "${DL_SISTEMA_DATABASE_ID}" -> Regras (Rules) -> publique as regras com allow read: if true; e seu e-mail em isAdmin().`
+        );
+      }
     }
     wasOpenRef.current = isAdminOpen;
   }, [isAdminOpen, data]);
@@ -304,12 +318,14 @@ export default function AdminPanel() {
     try {
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(auth, provider);
+      setCloudErrorAlert(null);
       triggerToast(
         `Nuvem Firebase conectada como ${cred.user.email || "Administrador"}!`
       );
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      triggerToast(`Não foi possível conectar o Google: ${msg}`);
+      setCloudErrorAlert(`Não foi possível conectar sua conta Google: ${msg}`);
+      triggerToast("Falha ao conectar conta Google.");
     } finally {
       setIsConnectingGoogle(false);
     }
@@ -416,16 +432,17 @@ export default function AdminPanel() {
       });
       clearProdutosSessionCache();
 
-      if (res.firestoreSaved) {
+      if (res.ok && res.firestoreSaved) {
+        setCloudErrorAlert(null);
         triggerToast(
           "Todas as imagens foram salvas no Firestore e publicadas no site!"
         );
       } else {
-        triggerToast(
-          `Salvo no estado atual, mas houve aviso no Firestore: ${
-            res.error || "verifique as regras do banco"
-          }`
+        setCloudErrorAlert(
+          res.error ||
+            "Não foi possível gravar as imagens no Cloud Firestore. Verifique se sua conta Google autorizada está conectada e nas regras isAdmin()."
         );
+        triggerToast("Erro ao salvar imagens no Firestore.");
       }
     } finally {
       setIsSaving(false);
@@ -480,14 +497,15 @@ export default function AdminPanel() {
       });
       clearProdutosSessionCache();
 
-      if (res.firestoreSaved) {
+      if (res.ok && res.firestoreSaved) {
+        setCloudErrorAlert(null);
         triggerToast("Configurações salvas no Firestore com sucesso!");
       } else {
-        triggerToast(
-          `Salvo localmente; aviso do Firestore: ${
-            res.error || "verifique a conexão"
-          }`
+        setCloudErrorAlert(
+          res.error ||
+            "Não foi possível salvar as configurações no Cloud Firestore. Verifique sua conexão e permissões."
         );
+        triggerToast("Erro ao salvar configurações no Firestore.");
       }
     } finally {
       setIsSaving(false);
@@ -521,14 +539,15 @@ export default function AdminPanel() {
       });
 
       if (!res.ok) {
-        triggerToast(
-          `Não foi possível salvar no Firestore: ${
-            res.error || "verifique as permissões"
-          }`
+        setCloudErrorAlert(
+          res.error ||
+            "Permissão negada ou erro ao gravar produto no Cloud Firestore."
         );
+        triggerToast("Erro ao salvar produto no Firestore.");
         return;
       }
 
+      setCloudErrorAlert(null);
       clearProdutosSessionCache();
       triggerToast(
         editingProduct
@@ -562,13 +581,14 @@ export default function AdminPanel() {
           exibirNoSite: prod.exibirNoSite !== false,
         });
         if (!res.ok) {
-          triggerToast(
-            `Erro ao gravar foto no Firestore: ${
-              res.error || "verifique as permissões"
-            }`
+          setCloudErrorAlert(
+            res.error ||
+              "Permissão negada ou falha ao atualizar foto do produto no Firestore."
           );
+          triggerToast("Erro ao gravar foto no Firestore.");
           return;
         }
+        setCloudErrorAlert(null);
         clearProdutosSessionCache();
         triggerToast(`Foto de "${prod.name}" atualizada no catálogo!`);
       },
@@ -623,22 +643,24 @@ export default function AdminPanel() {
         ? await updateTheme(editingTheme.id, themeForm)
         : await addTheme(themeForm);
 
-      if (res.firestoreSaved) {
+      if (res.ok && res.firestoreSaved) {
+        setCloudErrorAlert(null);
         triggerToast(
           editingTheme
             ? `Tema "${themeForm.name}" atualizado no Firestore!`
             : `Tema "${themeForm.name}" adicionado ao site!`
         );
+        setEditingTheme(null);
+        setIsAddingTheme(false);
+        setThemeForm({ name: "", image: "", vibe: "", colors: [] });
+        setColorInput("");
       } else {
-        triggerToast(
-          `Tema atualizado localmente; aviso Firestore: ${res.error || ""}`
+        setCloudErrorAlert(
+          res.error ||
+            "Permissão negada ou falha ao salvar o tema no Cloud Firestore."
         );
+        triggerToast("Erro ao salvar tema no Firestore.");
       }
-
-      setEditingTheme(null);
-      setIsAddingTheme(false);
-      setThemeForm({ name: "", image: "", vibe: "", colors: [] });
-      setColorInput("");
     } finally {
       setIsSaving(false);
     }
@@ -654,10 +676,15 @@ export default function AdminPanel() {
       "temas",
       async (url) => {
         const res = await updateTheme(them.id, { image: url });
-        if (res.firestoreSaved) {
+        if (res.ok && res.firestoreSaved) {
+          setCloudErrorAlert(null);
           triggerToast(`Foto do tema "${them.name}" salva no Firestore!`);
         } else {
-          triggerToast(`Foto atualizada localmente (${res.error || "aviso"}).`);
+          setCloudErrorAlert(
+            res.error ||
+              "Permissão negada ou falha ao atualizar foto do tema no Firestore."
+          );
+          triggerToast("Erro ao salvar foto do tema no Firestore.");
         }
       },
       true
@@ -877,6 +904,45 @@ export default function AdminPanel() {
             )}
           </div>
 
+          {cloudErrorAlert && (
+            <div
+              role="alert"
+              className="px-6 py-3.5 bg-red-50 border-b border-red-200 text-red-900 flex flex-wrap items-start justify-between gap-3 text-xs font-sans"
+            >
+              <div className="flex items-start gap-2.5 flex-1 min-w-[240px]">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-red-800">
+                    Falha de Permissão ou Salvamento no Cloud Firestore
+                  </p>
+                  <p className="text-red-700 leading-relaxed">
+                    {cloudErrorAlert}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {!firebaseUser && (
+                  <button
+                    type="button"
+                    disabled={isConnectingGoogle}
+                    onClick={() => void handleGoogleCloudConnect()}
+                    className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer transition-colors disabled:opacity-60"
+                  >
+                    Conectar Google
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setCloudErrorAlert(null)}
+                  className="p-1 rounded-lg hover:bg-red-100 text-red-600 cursor-pointer"
+                  aria-label="Fechar alerta de erro"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Tab Navigation */}
           <div className="border-b border-slate-200 bg-slate-50 px-6 flex items-center justify-between flex-wrap gap-2">
             <div className="flex gap-2 -mb-px pt-2 overflow-x-auto">
@@ -993,14 +1059,23 @@ export default function AdminPanel() {
 
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         const next = !data.isComingSoon;
-                        void updateData({ isComingSoon: next });
-                        triggerToast(
-                          next
-                            ? "Modo 'Em Breve' ativado para o público!"
-                            : "Site publicado e visível para todos os clientes!"
-                        );
+                        const res = await updateData({ isComingSoon: next });
+                        if (res.ok && res.firestoreSaved) {
+                          setCloudErrorAlert(null);
+                          triggerToast(
+                            next
+                              ? "Modo 'Em Breve' ativado para o público!"
+                              : "Site publicado e visível para todos os clientes!"
+                          );
+                        } else {
+                          setCloudErrorAlert(
+                            res.error ||
+                              "Erro de permissão ao atualizar o modo de exibição no Cloud Firestore."
+                          );
+                          triggerToast("Erro ao salvar visibilidade no Firestore.");
+                        }
                       }}
                       className={`px-4 py-2.5 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-2 border ${
                         data.isComingSoon
@@ -2917,11 +2992,14 @@ export default function AdminPanel() {
                   setProductToDelete(null);
                   const res = await deleteProductFromFirestore(target.id);
                   if (!res.ok) {
-                    triggerToast(
-                      `Erro ao excluir no Firestore: ${res.error || ""}`
+                    setCloudErrorAlert(
+                      res.error ||
+                        "Permissão negada ou falha ao excluir o produto no Firestore."
                     );
+                    triggerToast("Erro ao excluir produto no Firestore.");
                     return;
                   }
+                  setCloudErrorAlert(null);
                   clearProdutosSessionCache();
                   triggerToast(`Produto "${target.name}" excluído!`);
                 }}
@@ -2966,8 +3044,17 @@ export default function AdminPanel() {
                 onClick={async () => {
                   const target = themeToDelete;
                   setThemeToDelete(null);
-                  await deleteTheme(target.id);
-                  triggerToast(`Tema "${target.name}" excluído!`);
+                  const res = await deleteTheme(target.id);
+                  if (!res.ok || !res.firestoreSaved) {
+                    setCloudErrorAlert(
+                      res.error ||
+                        "Permissão negada ou falha ao excluir o tema no Firestore."
+                    );
+                    triggerToast("Erro ao excluir tema no Firestore.");
+                    return;
+                  }
+                  setCloudErrorAlert(null);
+                  triggerToast(`Tema "${target.name}" excluído do Firestore!`);
                 }}
                 className="flex-1 py-2.5 text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-xl shadow-xs transition cursor-pointer font-sans"
               >
@@ -3004,10 +3091,21 @@ export default function AdminPanel() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  resetAll();
-                  triggerToast("Configurações redefinidas com sucesso!");
+                onClick={async () => {
+                  const res = await resetAll();
                   setShowResetConfirm(false);
+                  if (!res.ok || !res.firestoreSaved) {
+                    setCloudErrorAlert(
+                      res.error ||
+                        "Permissão negada ou falha ao redefinir configurações no Firestore."
+                    );
+                    triggerToast("Erro ao redefinir configurações no Firestore.");
+                    return;
+                  }
+                  setCloudErrorAlert(null);
+                  triggerToast(
+                    "Configurações redefinidas no Firestore com sucesso!"
+                  );
                   setIsAdminOpen(false);
                 }}
                 className="flex-1 py-2.5 text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-xs transition cursor-pointer font-sans"

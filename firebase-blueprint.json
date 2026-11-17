@@ -37,9 +37,66 @@
       },
       "required": ["nome", "precoVenda", "categoriaLinha"]
     },
+    "Banner": {
+      "title": "Banner",
+      "description": "Banner do carrossel principal da DL Magic Paper.",
+      "type": "object",
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "URL ou Base64 da imagem do banner",
+          "maxLength": 900000
+        },
+        "title": {
+          "type": "string",
+          "description": "Título exibido no destaque do banner",
+          "maxLength": 200
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Subtítulo descritivo do banner",
+          "maxLength": 400
+        },
+        "order": {
+          "type": "number",
+          "description": "Ordem de exibição no carrossel"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp da última atualização"
+        }
+      },
+      "required": ["src", "title"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Print ou avaliação de cliente exibido na seção de depoimentos.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL ou Base64 da imagem de feedback",
+          "maxLength": 900000
+        },
+        "alt": {
+          "type": "string",
+          "description": "Texto alternativo do depoimento",
+          "maxLength": 300
+        },
+        "order": {
+          "type": "number",
+          "description": "Ordem de exibição"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp da última atualização"
+        }
+      },
+      "required": ["url"]
+    },
     "SiteConfigSection": {
       "title": "SiteConfigSection",
-      "description": "Seções de configuração visual e institucional do site DL Magic Paper (geral, banners, testimonials, galleries, themes).",
+      "description": "Configuração visual e institucional do site DL Magic Paper (documento principal em site_config).",
       "type": "object",
       "properties": {
         "updatedAt": {
@@ -56,11 +113,23 @@
       },
       "description": "Coleção pública de produtos sincronizados com o DL Sistema para exibição em tempo real no catálogo."
     },
+    "/banners/{bannerId}": {
+      "schema": {
+        "$ref": "#/entities/Banner"
+      },
+      "description": "Coleção pública de banners do carrossel principal."
+    },
+    "/feedbacks/{feedbackId}": {
+      "schema": {
+        "$ref": "#/entities/Feedback"
+      },
+      "description": "Coleção pública de feedbacks e prints de clientes."
+    },
     "/site_config/{sectionId}": {
       "schema": {
         "$ref": "#/entities/SiteConfigSection"
       },
-      "description": "Documentos de configuração do site (geral, banners, testimonials, galleries, themes) com suporte a URLs do Storage e fallback Base64."
+      "description": "Documento principal de configurações gerais, logo, galerias e temas do site em site_config/principal."
     }
   }
 }

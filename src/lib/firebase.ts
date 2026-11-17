@@ -136,17 +136,17 @@ export function handleFirestoreError(
   return errInfo;
 }
 
-// Teste de conectividade com o servidor Firestore
+// Teste de conectividade com o servidor Firestore (ai-studio-f11e477e-6093-47d6-8fee-39ec150930ee)
 export async function testConnection(): Promise<void> {
   try {
-    await getDocFromServer(doc(appletDb, "test", "connection"));
+    await getDocFromServer(doc(db, "produtos", "_connection_check"));
   } catch (error) {
     if (
       error instanceof Error &&
       error.message.includes("the client is offline")
     ) {
       console.error(
-        `Não foi possível conectar ao Firestore (${APPLET_DATABASE_ID}). Verifique sua configuração do Firebase.`
+        `Não foi possível conectar ao Firestore (${DL_SISTEMA_DATABASE_ID}). Verifique sua configuração do Firebase.`
       );
     }
   }

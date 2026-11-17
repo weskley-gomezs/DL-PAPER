@@ -62,6 +62,7 @@ export interface AppDataState {
 export interface PersistResult {
   ok: boolean;
   firestoreSaved: boolean;
+  isPermissionError?: boolean;
   error?: string;
 }
 
@@ -76,14 +77,15 @@ interface DataContextType {
   addTheme: (theme: Omit<ThemeItem, "id">) => Promise<PersistResult>;
   updateTheme: (id: string, updatedTheme: Partial<ThemeItem>) => Promise<PersistResult>;
   deleteTheme: (id: string) => Promise<PersistResult>;
-  resetAll: () => void;
+  resetAll: () => Promise<PersistResult>;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
   isAdminLoggedIn: boolean;
   setIsAdminLoggedIn: (loggedIn: boolean) => void;
 }
 
-const LOCAL_STORAGE_KEY = "dl_magic_paper_admin_data";
+const LOCAL_PREFS_KEY = "dl_magic_paper_admin_prefs_v1";
+const LEGACY_LOCAL_STORAGE_KEY = "dl_magic_paper_admin_data";
 const CURRENT_DATA_VERSION = 2;
 
 export const DEFAULT_HERO_BANNERS: HeroBannerItem[] = [
@@ -180,41 +182,23 @@ const defaultState: AppDataState = {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-function persistToLocalStorageSafe(state: AppDataState): void {
+/**
+ * Salva apenas preferências locais de acesso do painel ADM em localStorage.
+ * Nenhuma imagem, banner, produto ou feedback é armazenado em localStorage:
+ * todas as imagens residem exclusivamente no Cloud Firestore.
+ */
+function saveAdminLocalPrefs(state: AppDataState): void {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(
+      LOCAL_PREFS_KEY,
+      JSON.stringify({
+        adminUsername: state.adminUsername || "Danyelle",
+        adminPassword: state.adminPassword || "Danyelle@2026",
+      })
+    );
+    localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
   } catch {
-    // Se exceder a cota de localStorage por imagens Base64 grandes, salva textos e URLs HTTPS localmente
-    // enquanto o Cloud Firestore mantém as imagens completas em Base64.
-    try {
-      const stripDataUrl = (val: string) =>
-        typeof val === "string" && val.startsWith("data:") ? "" : val;
-      const lightweight: AppDataState = {
-        ...state,
-        logo: stripDataUrl(state.logo) || defaultState.logo,
-        heroImage: stripDataUrl(state.heroImage) || defaultState.heroImage,
-        aboutImage: stripDataUrl(state.aboutImage) || defaultState.aboutImage,
-        partyFavorsImage:
-          stripDataUrl(state.partyFavorsImage) || defaultState.partyFavorsImage,
-        heroBanners: state.heroBanners.filter((b) => !b.src?.startsWith("data:")),
-        testimonialPrints: state.testimonialPrints.filter(
-          (t) => !t.url?.startsWith("data:")
-        ),
-        kitGalleryFeminina: state.kitGalleryFeminina.filter(
-          (u) => !u.startsWith("data:")
-        ),
-        kitGalleryMasculina: state.kitGalleryMasculina.filter(
-          (u) => !u.startsWith("data:")
-        ),
-        themes: state.themes.map((t) => ({
-          ...t,
-          image: stripDataUrl(t.image),
-        })),
-      };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lightweight));
-    } catch (innerErr) {
-      console.error("Failed to save changes to localStorage", innerErr);
-    }
+    // ignore storage errors
   }
 }
 
@@ -244,136 +228,57 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    let localMerged: AppDataState = { ...defaultState };
-
+    // Remove qualquer legado antigo de imagens salvas em localStorage
     try {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-
-        const merged: AppDataState = {
-          ...defaultState,
-          ...parsed,
-          heroVideo: parsed.heroVideo || "https://i.imgur.com/WMweeTZ.mp4",
-          heroTexts: { ...defaultState.heroTexts, ...(parsed.heroTexts || {}) },
-          aboutTexts: { ...defaultState.aboutTexts, ...(parsed.aboutTexts || {}) },
-          heroBanners:
-            Array.isArray(parsed.heroBanners) && parsed.heroBanners.length > 0
-              ? parsed.heroBanners
-              : [...defaultState.heroBanners],
-          testimonialPrints:
-            Array.isArray(parsed.testimonialPrints) && parsed.testimonialPrints.length > 0
-              ? parsed.testimonialPrints
-              : [...defaultState.testimonialPrints],
-          kitGalleryFeminina:
-            Array.isArray(parsed.kitGalleryFeminina) && parsed.kitGalleryFeminina.length > 0
-              ? parsed.kitGalleryFeminina
-              : [...defaultState.kitGalleryFeminina],
-          kitGalleryMasculina:
-            Array.isArray(parsed.kitGalleryMasculina) && parsed.kitGalleryMasculina.length > 0
-              ? parsed.kitGalleryMasculina
-              : [...defaultState.kitGalleryMasculina]
-        };
-
-        if ((parsed.dataVersion || 1) < CURRENT_DATA_VERSION) {
-          const customProducts = (parsed.products || []).filter(
-            (p: Product) => p.id && p.id.startsWith("custom-prod-")
-          );
-          merged.products = [...defaultState.products, ...customProducts];
-
-          const customThemes = (parsed.themes || []).filter(
-            (t: ThemeItem) => t.id && t.id.startsWith("custom-theme-")
-          );
-          merged.themes = [...defaultState.themes, ...customThemes];
-          merged.categories = [...defaultState.categories];
-          merged.dataVersion = CURRENT_DATA_VERSION;
-
-          if (
-            merged.aboutImage === "/src/assets/images/creative_studio_1779734454290.png" ||
-            merged.aboutImage === "https://i.imgur.com/OzgQoTA.png"
-          ) {
-            merged.aboutImage = "https://i.imgur.com/nsjJjnO.jpeg";
-          }
-
-          if (
-            merged.heroImage === "/src/assets/images/hero_stationery_1779734437655.png" ||
-            merged.heroImage === "https://i.imgur.com/MK4ydyR.jpeg" ||
-            merged.heroImage === "https://i.imgur.com/Es3OQW6.jpeg" ||
-            merged.heroImage === "https://i.imgur.com/QXmyxhn.jpeg" ||
-            !merged.heroImage
-          ) {
-            merged.heroImage = "/src/assets/images/dl_magic_paper_hero_1791899151681.jpg";
-          }
+      const legacy = localStorage.getItem(LEGACY_LOCAL_STORAGE_KEY);
+      if (legacy) {
+        const parsedLegacy = JSON.parse(legacy) as Partial<AppDataState>;
+        if (parsedLegacy.adminUsername || parsedLegacy.adminPassword) {
+          saveAdminLocalPrefs({
+            ...defaultState,
+            adminUsername: parsedLegacy.adminUsername,
+            adminPassword: parsedLegacy.adminPassword,
+          });
         } else {
-          merged.products =
-            Array.isArray(parsed.products) && parsed.products.length > 0
-              ? parsed.products
-              : [...defaultState.products];
-          merged.themes =
-            Array.isArray(parsed.themes) && parsed.themes.length > 0
-              ? parsed.themes
-              : [...defaultState.themes];
+          localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
         }
-
-        if (
-          merged.aboutTexts.paragraph1 &&
-          (merged.aboutTexts.paragraph1.includes("DL MAGIC PAPER nasceu") ||
-            merged.aboutTexts.paragraph1.includes("A DL MAGIC PAPER") ||
-            !merged.aboutTexts.paragraph3)
-        ) {
-          merged.aboutTexts = { ...defaultState.aboutTexts };
-        }
-
-        if (
-          !merged.logo ||
-          merged.logo === "https://i.imgur.com/fVtEcdv.png" ||
-          merged.logo === "/logo-dlmagic.png" ||
-          merged.logo === "https://i.imgur.com/8zQS15l.png"
-        ) {
-          merged.logo = "https://i.imgur.com/LiPwTKg.png";
-        }
-
-        if (merged.comingSoonSubtitle && merged.comingSoonSubtitle.includes("em camadas 3D")) {
-          merged.comingSoonSubtitle = defaultState.comingSoonSubtitle;
-        }
-
-        if (merged.aboutTexts?.paragraph3 && merged.aboutTexts.paragraph3.includes("camadas 3D")) {
-          merged.aboutTexts.paragraph3 = defaultState.aboutTexts.paragraph3;
-        }
-
-        if (merged.heroTexts?.description && merged.heroTexts.description.includes("em camadas")) {
-          merged.heroTexts.description = defaultState.heroTexts.description;
-        }
-
-        const storedUserLower = (merged.adminUsername || "").trim().toLowerCase();
-        const storedPassTrimmed = (merged.adminPassword || "").trim();
-        if (
-          !storedUserLower ||
-          storedUserLower === "admin" ||
-          storedUserLower === "danilau" ||
-          !storedPassTrimmed ||
-          storedPassTrimmed === "admin123" ||
-          storedPassTrimmed === "Dani@784512"
-        ) {
-          merged.adminUsername = "Danyelle";
-          merged.adminPassword = "Danyelle@2026";
-        }
-
-        localMerged = merged;
-        dataRef.current = merged;
-        setData(merged);
       }
-    } catch (e) {
-      console.error("Failed to load local storage dynamic settings", e);
+
+      const prefsRaw = localStorage.getItem(LOCAL_PREFS_KEY);
+      if (prefsRaw) {
+        const prefs = JSON.parse(prefsRaw) as {
+          adminUsername?: string;
+          adminPassword?: string;
+        };
+        const userLower = (prefs.adminUsername || "").trim().toLowerCase();
+        const passTrimmed = (prefs.adminPassword || "").trim();
+        if (
+          userLower &&
+          userLower !== "admin" &&
+          userLower !== "danilau" &&
+          passTrimmed &&
+          passTrimmed !== "admin123" &&
+          passTrimmed !== "Dani@784512"
+        ) {
+          const withCreds: AppDataState = {
+            ...dataRef.current,
+            adminUsername: prefs.adminUsername,
+            adminPassword: prefs.adminPassword,
+          };
+          dataRef.current = withCreds;
+          setData(withCreds);
+        }
+      }
+    } catch {
+      // ignore
     }
 
-    // Sincroniza com o Cloud Firestore ao iniciar para restaurar imagens salvas na nuvem
+    // Carrega todas as imagens e configurações publicamente do Cloud Firestore (sem exigir login)
     let mounted = true;
     void loadSiteConfigFromFirestore().then((cloudConfig) => {
       if (!mounted || !cloudConfig) return;
       setData((prev) => {
         const next: AppDataState = {
-          ...localMerged,
           ...prev,
           ...cloudConfig,
           heroTexts: {
@@ -386,7 +291,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           },
         };
         dataRef.current = next;
-        persistToLocalStorageSafe(next);
         return next;
       });
     });
@@ -400,22 +304,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updater: (prev: AppDataState) => AppDataState,
     firestorePatch?: (next: AppDataState) => Partial<AppDataState>
   ): Promise<PersistResult> => {
-    const nextState: AppDataState = {
+    const candidateState: AppDataState = {
       ...updater(dataRef.current),
       dataVersion: CURRENT_DATA_VERSION,
     };
-    dataRef.current = nextState;
-    setData(nextState);
-    persistToLocalStorageSafe(nextState);
-    clearProdutosSessionCache();
 
-    const patchToSave = firestorePatch ? firestorePatch(nextState) : nextState;
+    const patchToSave = firestorePatch ? firestorePatch(candidateState) : candidateState;
     const cloudResult = await saveSiteConfigToFirestore(patchToSave);
+
+    if (!cloudResult.ok) {
+      return {
+        ok: false,
+        firestoreSaved: false,
+        isPermissionError: cloudResult.isPermissionError,
+        error: cloudResult.error,
+      };
+    }
+
+    dataRef.current = candidateState;
+    setData(candidateState);
+    saveAdminLocalPrefs(candidateState);
+    clearProdutosSessionCache();
 
     return {
       ok: true,
-      firestoreSaved: cloudResult.ok,
-      error: cloudResult.error,
+      firestoreSaved: true,
     };
   };
 
@@ -465,7 +378,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         products: [...prev.products, productWithId],
       };
       dataRef.current = next;
-      persistToLocalStorageSafe(next);
       return next;
     });
   };
@@ -480,7 +392,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ),
       };
       dataRef.current = next;
-      persistToLocalStorageSafe(next);
       return next;
     });
   };
@@ -493,7 +404,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         products: prev.products.filter((p) => p.id !== id),
       };
       dataRef.current = next;
-      persistToLocalStorageSafe(next);
       return next;
     });
   };
@@ -532,16 +442,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
-  const resetAll = () => {
+  const resetAll = async (): Promise<PersistResult> => {
+    const res = await saveSiteConfigToFirestore(defaultState);
+    if (!res.ok) {
+      return {
+        ok: false,
+        firestoreSaved: false,
+        isPermissionError: res.isPermissionError,
+        error: res.error,
+      };
+    }
+
     dataRef.current = defaultState;
     setData(defaultState);
     try {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(LOCAL_PREFS_KEY);
+      localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
       clearProdutosSessionCache();
     } catch (e) {
       console.error(e);
     }
-    void saveSiteConfigToFirestore(defaultState);
+
+    return { ok: true, firestoreSaved: true };
   };
 
   return (

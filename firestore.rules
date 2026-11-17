@@ -67,7 +67,7 @@ service cloud.firestore {
     }
 
     function isValidSiteConfigSection(sectionId) {
-      return isValidId(sectionId) && sectionId in ['geral', 'banners', 'testimonials', 'galleries', 'themes'];
+      return isValidId(sectionId) && sectionId in ['principal', 'geral', 'banners', 'testimonials', 'galleries', 'galleries_feminina', 'galleries_masculina', 'themes'];
     }
 
     function isValidGeralPayload(data) {
@@ -86,6 +86,9 @@ service cloud.firestore {
           'comingSoonSubtitle',
           'heroTexts',
           'aboutTexts',
+          'kitGalleryFeminina',
+          'kitGalleryMasculina',
+          'themes',
           'updatedAt'
         ])
         && data.updatedAt is number
@@ -103,7 +106,10 @@ service cloud.firestore {
         && (!('comingSoonTitle' in data) || (data.comingSoonTitle is string && data.comingSoonTitle.size() <= 200))
         && (!('comingSoonSubtitle' in data) || (data.comingSoonSubtitle is string && data.comingSoonSubtitle.size() <= 1000))
         && (!('heroTexts' in data) || data.heroTexts is map)
-        && (!('aboutTexts' in data) || data.aboutTexts is map);
+        && (!('aboutTexts' in data) || data.aboutTexts is map)
+        && (!('kitGalleryFeminina' in data) || (data.kitGalleryFeminina is list && data.kitGalleryFeminina.size() <= 40))
+        && (!('kitGalleryMasculina' in data) || (data.kitGalleryMasculina is list && data.kitGalleryMasculina.size() <= 40))
+        && (!('themes' in data) || (data.themes is list && data.themes.size() <= 50));
     }
 
     function isValidItemsSectionPayload(data) {
@@ -124,15 +130,15 @@ service cloud.firestore {
     }
 
     function isValidSiteConfigPayload(data, sectionId) {
-      return (sectionId == 'geral' && isValidGeralPayload(data))
-        || (sectionId in ['banners', 'testimonials', 'themes'] && isValidItemsSectionPayload(data))
+      return (sectionId in ['principal', 'geral'] && isValidGeralPayload(data))
+        || (sectionId in ['banners', 'testimonials', 'themes', 'galleries_feminina', 'galleries_masculina'] && isValidItemsSectionPayload(data))
         || (sectionId == 'galleries' && isValidGalleriesPayload(data));
     }
 
-    // Storefront visual configuration sections (geral, banners, testimonials, galleries, themes)
+    // Storefront visual configuration sections (principal, geral, banners, testimonials, galleries, themes)
     match /site_config/{sectionId} {
       allow get: if isValidSiteConfigSection(sectionId);
-      allow list: if false;
+      allow list: if true;
       allow create: if isAdmin()
         && isValidSiteConfigSection(sectionId)
         && isValidSiteConfigPayload(incoming(), sectionId);
@@ -140,19 +146,51 @@ service cloud.firestore {
         && isValidSiteConfigSection(sectionId)
         && isValidSiteConfigPayload(incoming(), sectionId)
         && (
-          (sectionId == 'geral' && incoming().diff(existing()).affectedKeys().hasOnly([
+          (sectionId in ['principal', 'geral'] && incoming().diff(existing()).affectedKeys().hasOnly([
             'logo', 'heroImage', 'heroVideo', 'aboutImage', 'partyFavorsImage',
             'whatsappNumber', 'whatsappFormatted', 'instagramHandle', 'instagramUrl',
-            'isComingSoon', 'comingSoonTitle', 'comingSoonSubtitle', 'heroTexts', 'aboutTexts', 'updatedAt'
+            'isComingSoon', 'comingSoonTitle', 'comingSoonSubtitle', 'heroTexts', 'aboutTexts',
+            'kitGalleryFeminina', 'kitGalleryMasculina', 'themes', 'updatedAt'
           ])) ||
           (sectionId == 'galleries' && incoming().diff(existing()).affectedKeys().hasOnly([
             'feminina', 'masculina', 'updatedAt'
           ])) ||
-          (sectionId in ['banners', 'testimonials', 'themes'] && incoming().diff(existing()).affectedKeys().hasOnly([
+          (sectionId in ['banners', 'testimonials', 'themes', 'galleries_feminina', 'galleries_masculina'] && incoming().diff(existing()).affectedKeys().hasOnly([
             'items', 'updatedAt'
           ]))
         );
       allow delete: if false;
+    }
+
+    // Banners collection (public read, admin write)
+    match /banners/{bannerId} {
+      allow get: if isValidId(bannerId);
+      allow list: if true;
+      allow create, update: if isAdmin()
+        && isValidId(bannerId)
+        && incoming().keys().hasAll(['src', 'title', 'updatedAt'])
+        && incoming().keys().hasOnly(['src', 'title', 'subtitle', 'order', 'updatedAt'])
+        && incoming().src is string && incoming().src.size() <= 900000
+        && incoming().title is string && incoming().title.size() <= 200
+        && (!('subtitle' in incoming()) || (incoming().subtitle is string && incoming().subtitle.size() <= 400))
+        && (!('order' in incoming()) || incoming().order is number)
+        && incoming().updatedAt is number;
+      allow delete: if isAdmin() && isValidId(bannerId);
+    }
+
+    // Feedbacks collection (public read, admin write)
+    match /feedbacks/{feedbackId} {
+      allow get: if isValidId(feedbackId);
+      allow list: if true;
+      allow create, update: if isAdmin()
+        && isValidId(feedbackId)
+        && incoming().keys().hasAll(['url', 'updatedAt'])
+        && incoming().keys().hasOnly(['url', 'alt', 'order', 'updatedAt'])
+        && incoming().url is string && incoming().url.size() <= 900000
+        && (!('alt' in incoming()) || (incoming().alt is string && incoming().alt.size() <= 300))
+        && (!('order' in incoming()) || incoming().order is number)
+        && incoming().updatedAt is number;
+      allow delete: if isAdmin() && isValidId(feedbackId);
     }
 
     // Admin lookup collection (read-only by owner UID)
